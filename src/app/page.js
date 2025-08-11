@@ -81,20 +81,27 @@ const router = useRouter();
 
       {/* Optional: show cart modal here in page */}
       {showCart && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-6 rounded-lg w-full max-w-lg relative">
+        <div className="fixed top-0 right-0 inset-0 bg-black/70 flex items-center  justify-end z-50">
+          <div className="bg-red-900/90 p-6 h-[100vh] w-full md:max-w-md relative">
+           <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-400">Order List</h2>
+              <p className="text-gray-400 text-sm mb-4">(You have {cart.length} items to buy)</p>
+            </div>
             <button
               onClick={() => setShowCart(false)}
-              className="absolute top-2 right-2 text-white text-xl"
+              className="absolute top-6 right-4 text-white text-xl"
             >
               ✖
             </button>
+            </div>
             {/* pass cart props to Cart component */}
             <Cart
               cart={cart}
               goToCheckout={() => goToCheckout()}
               updateQty={updateQty}
               removeItem={removeItem}
+              setShowCart={setShowCart}
             />
           </div>
         </div>

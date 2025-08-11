@@ -25,15 +25,17 @@ const Menu = ({ cart, addToCart, updateQty, removeItem }) => {
       </div>
 
       {/* Menu Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
        {menuItems.map((item, index) => {
         const inCart = cart.some((c) => c.name === item.name);
         return (
-          <div key={index} className="bg-white/10 rounded-lg shadow-md overflow-hidden hover:scale-105 transition-transform">
+          <div key={index} className="bg-white/10 relative rounded-lg shadow-md overflow-hidden hover:scale-105 transition-transform">
+            <div className="h-[300px] w-full">
             <Image src={item.image} alt={item.name} width={400} height={300} />
-            <div className="p-4 text-center">
+            </div>
+            <div className="p-4 text-center absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur-sm">
               <h4 className="text-lg font-bold">{item.name}</h4>
-              <p className="text-gray-400">₹{item.price}</p>
+              <p className="text-red-600">₹{item.price}</p>
               <button
                 onClick={() => addToCart(item)}
                 disabled={inCart}

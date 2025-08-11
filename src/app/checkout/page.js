@@ -1,18 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const [cart, setCart] = useState([]);
-  const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    phone: "",
-  });
+  const [formData, setFormData] = useState({ name: "", address: "", phone: "" });
   const [orderConfirmed, setOrderConfirmed] = useState(false);
 
   useEffect(() => {
@@ -20,7 +15,7 @@ export default function CheckoutPage() {
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     } else {
-      router.push("/"); // Redirect if cart empty
+      router.push("/");
     }
   }, [router]);
 
@@ -31,11 +26,7 @@ export default function CheckoutPage() {
   function formatOrderDate(date) {
     const optionsDate = { day: "2-digit", month: "short", year: "numeric" };
     const optionsTime = { hour: "numeric", minute: "2-digit", hour12: true };
-    
-    const formattedDate = date.toLocaleDateString("en-US", optionsDate);
-    const formattedTime = date.toLocaleTimeString("en-US", optionsTime);
-    
-    return `${formattedDate}, ${formattedTime}`;
+    return `${date.toLocaleDateString("en-US", optionsDate)}, ${date.toLocaleTimeString("en-US", optionsTime)}`;
   }
 
   const handleOrder = () => {
@@ -43,16 +34,12 @@ export default function CheckoutPage() {
       alert("Please fill all fields");
       return;
     }
-
     const newOrder = {
       items: cart,
       deliveryDetails: formData,
       orderDate: formatOrderDate(new Date()),
     };
-
     console.log("New Order:", newOrder);
-
-    // Show confirmation modal instead of alert
     setOrderConfirmed(true);
   };
 
@@ -65,99 +52,110 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      <div className="max-w-4xl mx-auto py-12 px-6 sm:px-10">
-        <h1 className="text-4xl font-extrabold mb-8 text-center text-yellow-600">
-          Checkout
-        </h1>
+      <div className="min-h-screen bg-black text-white px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-4xl font-extrabold mb-10 text-center text-yellow-400 tracking-wide">
+            Checkout
+          </h1>
 
-        {/* Order Summary */}
-        <section className="bg-white/10 p-6 rounded-lg mb-8 shadow-lg">
-          <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
-            Your Order
-          </h2>
-          {cart.map((item, index) => (
-            <div
-              key={index}
-              className="flex justify-between border-b border-gray-600 py-3 text-lg"
-            >
-              <span>
-                {item.name} <span className="text-yellow-400">× {item.qty}</span>
-              </span>
-              <span className="font-semibold">₹{item.price * item.qty}</span>
-            </div>
-          ))}
-          <div className="mt-6 text-right text-2xl font-bold text-yellow-500">
-            Total: ₹{cart.reduce((sum, i) => sum + i.price * i.qty, 0)}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Order Summary */}
+            <section className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+              <h2 className="text-2xl font-semibold mb-6 text-yellow-400 flex items-center justify-between">
+                Your Order
+                <span className="text-sm text-gray-400 font-normal">
+                  {cart.length} items
+                </span>
+              </h2>
+              <div className="space-y-4">
+                {cart.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center border-b border-gray-700 pb-3"
+                  >
+                    <span className="text-lg">
+                      {item.name}{" "}
+                      <span className="text-yellow-400 font-medium">× {item.qty}</span>
+                    </span>
+                    <span className="font-semibold">₹{item.price * item.qty}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 text-right text-2xl font-bold text-yellow-400">
+                Total: ₹{cart.reduce((sum, i) => sum + i.price * i.qty, 0)}
+              </div>
+            </section>
+
+            {/* Delivery Form */}
+            <section className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+              <h2 className="text-2xl font-semibold mb-6 text-yellow-400">
+                Delivery Details
+              </h2>
+
+              <label htmlFor="name" className="block mb-2 font-medium">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full p-3 mb-5 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+
+              <label htmlFor="address" className="block mb-2 font-medium">
+                Delivery Address
+              </label>
+              <textarea
+                id="address"
+                name="address"
+                placeholder="123 Main Street, City, State, ZIP"
+                value={formData.address}
+                onChange={handleChange}
+                rows={4}
+                className="w-full p-3 mb-5 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+              />
+
+              <label htmlFor="phone" className="block mb-2 font-medium">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="+91 98765 43210"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full p-3 mb-7 rounded-lg border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+
+              <button
+                onClick={handleOrder}
+                className="w-full bg-yellow-400 text-black font-bold py-3 rounded-full shadow-lg hover:bg-yellow-500 transition-transform transform hover:scale-105"
+              >
+                Confirm Order
+              </button>
+            </section>
           </div>
-        </section>
-
-        {/* Delivery Form */}
-        <section className="bg-white/10 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-6 border-b pb-2">
-            Delivery Details
-          </h2>
-
-          <label htmlFor="name" className="block mb-1 font-medium text-yellow-500">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-3 mb-5 rounded-md border border-yellow-500 bg-transparent text-white placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          />
-
-          <label htmlFor="address" className="block mb-1 font-medium text-yellow-500">
-            Delivery Address
-          </label>
-          <textarea
-            id="address"
-            name="address"
-            placeholder="123 Main Street, City, State, ZIP"
-            value={formData.address}
-            onChange={handleChange}
-            rows={4}
-            className="w-full p-3 mb-5 rounded-md border border-yellow-500 bg-transparent text-white placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
-          />
-
-          <label htmlFor="phone" className="block mb-1 font-medium text-yellow-500">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+91 98765 43210"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full p-3 mb-7 rounded-md border border-yellow-500 bg-transparent text-white placeholder-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          />
-
-          <button
-            onClick={handleOrder}
-            className="w-full bg-yellow-500 text-black font-bold py-3 rounded-full shadow-lg hover:bg-yellow-600 transition-colors"
-          >
-            Confirm Order
-          </button>
-        </section>
+        </div>
       </div>
 
       {/* Confirmation Modal */}
       {orderConfirmed && (
-        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-lg max-w-sm text-center shadow-lg">
-            <h2 className="text-3xl font-bold mb-4 text-yellow-400">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 p-8 rounded-2xl max-w-sm w-full text-center shadow-lg border border-yellow-500 animate-fadeIn">
+            <div className="text-yellow-400 text-5xl mb-4">✔</div>
+            <h2 className="text-3xl font-bold mb-3 text-yellow-400">
               Order Confirmed!
             </h2>
-            <p className="mb-6 text-white">
-              Thank you for placing order with us, {formData.name}.
+            <p className="mb-6 text-gray-300">
+              Thank you for ordering with us, <span className="uppercase">{formData.name}</span>.
             </p>
             <button
               onClick={closeModal}
-              className="bg-yellow-500 text-black px-6 py-2 rounded-full font-semibold hover:bg-yellow-600 transition"
+              className="bg-yellow-400 text-black px-6 py-2 rounded-full font-semibold hover:bg-yellow-500 transition"
             >
               Close
             </button>
