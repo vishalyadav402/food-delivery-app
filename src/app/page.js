@@ -55,13 +55,13 @@ const router = useRouter();
   };
 
   return (
-    <div className="font-sans min-h-screen flex flex-col">
+    <div className="font-sans min-h-screen bg-white flex flex-col">
        <Header
         cartCount={cart.length}
         onCartClick={() => setShowCart(true)}
       />
       {/* Hero Section */}
-      <div className="w-full rounded-md max-w-6xl mx-auto md:px-4 py-4">
+      <div className="w-full rounded-md max-w-6xl mx-auto px-4 py-4">
         <section className="rounded-md bg-white shadow text-white">
           {/* <h2 className="text-4xl text-gray-700 font-bold mb-4">Order Daily Essentials Now</h2>
           <p className="text-lg text-gray-700 mb-6">Fresh items delivered to you within minutes!</p>
@@ -78,7 +78,7 @@ const router = useRouter();
       </div>
 
       {/* Menu Section */}
-      <main className="flex-grow w-full md:max-w-6xl mx-auto px-4 md:px-4 py-4">
+      <main className="flex-grow w-full md:max-w-6xl mx-auto px-4 py-4">
        <Menu
         cart={cart}
         addToCart={addToCart}
