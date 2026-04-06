@@ -61,7 +61,7 @@ const router = useRouter();
         onCartClick={() => setShowCart(true)}
       />
       {/* Hero Section */}
-      <div className="flex-grow w-full rounded-md max-w-6xl mx-auto md:px-4 py-4">
+      <div className="w-full rounded-md max-w-6xl mx-auto md:px-4 py-4">
         <section className="rounded-md bg-white shadow text-white">
           {/* <h2 className="text-4xl text-gray-700 font-bold mb-4">Order Daily Essentials Now</h2>
           <p className="text-lg text-gray-700 mb-6">Fresh items delivered to you within minutes!</p>
