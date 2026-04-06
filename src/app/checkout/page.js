@@ -29,19 +29,65 @@ export default function CheckoutPage() {
     return `${date.toLocaleDateString("en-US", optionsDate)}, ${date.toLocaleTimeString("en-US", optionsTime)}`;
   }
 
-  const handleOrder = () => {
-    if (!formData.name || !formData.address || !formData.phone) {
-      alert("Please fill all fields");
-      return;
-    }
-    const newOrder = {
-      items: cart,
-      deliveryDetails: formData,
-      orderDate: formatOrderDate(new Date()),
-    };
-    console.log("New Order:", newOrder);
-    setOrderConfirmed(true);
+const handleOrder = () => {
+  if (!formData.name || !formData.address || !formData.phone) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  const newOrder = {
+    items: cart,
+    deliveryDetails: formData,
+    orderDate: formatOrderDate(new Date()),
   };
+
+  // ✅ Format items properly (FIXED)
+  const itemsText = cart
+    .map((item, index) => {
+      const name = item.name || item.title || "Item";
+      const qty = item.qty || 1;
+      const price = item.price || 0;
+
+      return `🔹 ${index + 1}. ${name}\n   Qty: ${qty} × ₹${price} = ₹${qty * price}`;
+    })
+    .join("\n\n");
+
+  const totalAmount = cart.reduce(
+    (sum, item) => sum + (item.price || 0) * (item.qty || 1),
+    0
+  );
+
+  // ✅ Professional WhatsApp Message
+  const message = `🛍️ *NEW ORDER RECEIVED*
+
+━━━━━━━━━━━━━━━
+📅 *Date:* ${newOrder.orderDate}
+
+👤 *Customer Details*
+Name: ${formData.name}
+Phone: ${formData.phone}
+Address: ${formData.address}
+
+━━━━━━━━━━━━━━━
+📦 *Order Summary*
+
+${itemsText}
+
+━━━━━━━━━━━━━━━
+💰 *Total Amount: ₹${totalAmount}*
+
+🙏 Thank you for your order!
+We will get it delivered soon!`;
+
+  const encodedMessage = encodeURIComponent(message);
+
+  const whatsappNumber = "919506280968";
+
+  const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+  window.open(whatsappURL, "_blank");
+
+  setOrderConfirmed(true);
+};
 
   const closeModal = () => {
     setOrderConfirmed(false);
@@ -52,7 +98,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-black text-white px-4 sm:px-6 lg:px-8 py-10">
+      <div className="min-h-screen bg-black text-white px-4 sm:px-6 lg:px-8 pt-10">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-4xl font-extrabold mb-10 text-center text-yellow-400 tracking-wide">
             Checkout

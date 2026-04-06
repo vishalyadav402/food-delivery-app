@@ -1,0 +1,47 @@
+[
+  { "name": "Maggi Noodles", "price": 14, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "Yippee Noodles", "price": 15, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+
+  { "name": "Parle-G Biscuit", "price": 10, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "Good Day Biscuit", "price": 30, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "Marie Gold Biscuit", "price": 25, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+
+  { "name": "Lays Chips", "price": 20, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "Kurkure Namkeen", "price": 20, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "Haldiram Namkeen", "price": 50, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+
+  { "name": "Pepsi 500ml", "price": 40, "image": "/images/icon-vegacart.png", "category": "Cold Drinks" },
+  { "name": "Coca Cola 500ml", "price": 40, "image": "/images/icon-vegacart.png", "category": "Cold Drinks" },
+  { "name": "Sprite 500ml", "price": 40, "image": "/images/icon-vegacart.png", "category": "Cold Drinks" },
+  { "name": "Fanta 500ml", "price": 40, "image": "/images/icon-vegacart.png", "category": "Cold Drinks" },
+
+  { "name": "Dairy Milk Chocolate", "price": 20, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+  { "name": "KitKat", "price": 20, "image": "/images/icon-vegacart.png", "category": "Snacks" },
+
+  { "name": "Aashirvaad Atta 1kg", "price": 60, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Rice 1kg", "price": 55, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Sugar 1kg", "price": 45, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Salt 1kg", "price": 20, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Toor Dal 1kg", "price": 120, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Chana Dal 1kg", "price": 90, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+  { "name": "Cooking Oil 1L", "price": 130, "image": "/images/icon-vegacart.png", "category": "Grocery" },
+
+  { "name": "Milk 500ml", "price": 30, "image": "/images/icon-vegacart.png", "category": "Dairy" },
+  { "name": "Curd 500g", "price": 35, "image": "/images/icon-vegacart.png", "category": "Dairy" },
+  { "name": "Butter 100g", "price": 55, "image": "/images/icon-vegacart.png", "category": "Dairy" },
+
+  { "name": "Dettol Soap", "price": 40, "image": "/images/icon-vegacart.png", "category": "Personal Care" },
+  { "name": "Lux Soap", "price": 35, "image": "/images/icon-vegacart.png", "category": "Personal Care" },
+  { "name": "Clinic Plus Shampoo", "price": 50, "image": "/images/icon-vegacart.png", "category": "Personal Care" },
+  { "name": "Colgate Toothpaste", "price": 60, "image": "/images/icon-vegacart.png", "category": "Personal Care" },
+
+  { "name": "Surf Excel 1kg", "price": 120, "image": "/images/icon-vegacart.png", "category": "Household" },
+  { "name": "Ariel Detergent", "price": 110, "image": "/images/icon-vegacart.png", "category": "Household" },
+  { "name": "Vim Dishwash Bar", "price": 10, "image": "/images/icon-vegacart.png", "category": "Household" },
+  { "name": "Harpic Toilet Cleaner", "price": 95, "image": "/images/icon-vegacart.png", "category": "Household" },
+
+  { "name": "Notebook", "price": 50, "image": "/images/icon-vegacart.png", "category": "Stationery" },
+  { "name": "Pen (Blue)", "price": 10, "image": "/images/icon-vegacart.png", "category": "Stationery" },
+  { "name": "Pencil", "price": 5, "image": "/images/icon-vegacart.png", "category": "Stationery" },
+  { "name": "Eraser", "price": 5, "image": "/images/icon-vegacart.png", "category": "Stationery" }
+]

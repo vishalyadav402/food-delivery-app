@@ -15,8 +15,8 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
               className="flex items-center justify-between border-b pb-3 last:border-b-0"
             >
               <div className="flex-1">
-                <h3 className="font-semibold text-sm">{item.name}</h3>
-                <p className="text-gray-400 text-xs">₹{item.price} each</p>
+                <h3 className="font-semibold text-sm text-white">{item.name}</h3>
+                <p className="text-gray-500 text-xs">₹{item.price} each</p>
                 <div className="flex items-center mt-2">
                   <button
                     onClick={() => updateQty(item.name, item.qty - 1)}
@@ -25,7 +25,7 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
                   >
                     -
                   </button>
-                  <span className="px-3">{item.qty}</span>
+                  <span className="px-3 text-white">{item.qty}</span>
                   <button
                     onClick={() => updateQty(item.name, item.qty + 1)}
                     className="bg-gray-200 font-bold text-red-700 px-2 rounded"
@@ -36,12 +36,12 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <span className="font-semibold">₹{item.price * item.qty}</span>
+                <span className="font-semibold text-white">₹{item.price * item.qty}</span>
                 <button
                   onClick={() => removeItem(item.name)}
-                  className="text-red-500 text-sm hover:underline"
+                  className="text-gray-500 text-sm font-bold hover:underline"
                 >
-                  Remove
+                  Delete
                 </button>
               </div>
             </li>
@@ -49,22 +49,22 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
         </ul>
       )}
 
-      <div className="sticky bottom-0 bg-yellow-400/90 backdrop-blur-sm p-3 mt-4 rounded-md">
+      <div className="sticky bottom-0 mt-4 rounded-md">
         {total > 0 ? (
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center bg-green-400/90 backdrop-blur-sm p-3 rounded-full">
             <strong className="text-gray-800 font-semibold">Total: ₹{total}</strong>
             <button
               onClick={goToCheckout}
-              className="bg-red-700 text-white px-4 py-2 rounded-full hover:bg-red-900"
+              className="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-900"
             >
               Checkout
             </button>
           </div>
         ) : (
-          <div className="flex justify-center">
+          <div className="flex justify-center backdrop-blur-sm p-3">
             <button
               onClick={() => setShowCart(false)}
-              className="bg-red-700 text-white px-4 py-2 rounded-full hover:bg-red-900"
+              className="bg-green-700 text-white px-4 py-2 rounded-full"
             >
               Go to menu
             </button>
