@@ -18,27 +18,40 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
                 <h3 className="font-semibold text-sm text-white">{item.name}</h3>
                 <p className="text-gray-500 text-xs">₹{item.price} each</p>
                 <div className="flex items-center mt-2">
+                  
                   <button
-                    onClick={() => updateQty(item.name, item.qty - 1)}
-                    disabled={item.qty <= 1}
-                    className="bg-gray-200 text-red-700 font-bold px-2 rounded disabled:opacity-50"
-                  >
-                    -
-                  </button>
-                  <span className="px-3 text-white">{item.qty}</span>
+  onClick={() =>
+    updateQty(
+      item.name,
+      item.variant,
+      item.qty - 1
+    )
+  }
+  disabled={item.qty <= 1}
+  className="bg-gray-200 text-red-700 font-bold px-2 rounded disabled:opacity-50"
+>
+  -
+</button>
+                  <span className="px-3 text-white ">{item.qty}</span>
                   <button
-                    onClick={() => updateQty(item.name, item.qty + 1)}
-                    className="bg-gray-200 font-bold text-red-700 px-2 rounded"
-                  >
-                    +
-                  </button>
+                  className="bg-gray-200 text-red-700 font-bold px-2 rounded"
+                  onClick={() =>
+                    updateQty(
+                      item.name,
+                      item.variant,
+                      item.qty + 1
+                    )
+                  }
+                >
+                  +
+                </button>
                 </div>
               </div>
 
               <div className="flex flex-col items-end gap-2">
                 <span className="font-semibold text-white">₹{item.price * item.qty}</span>
                 <button
-                  onClick={() => removeItem(item.name)}
+                  onClick={() => removeItem(item.name,item.variant)}
                   className="text-gray-500 text-sm font-bold hover:underline"
                 >
                   Delete

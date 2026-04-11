@@ -11,7 +11,8 @@ import Image from "next/image";
 export default function Home() {
     const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
-const router = useRouter();
+ const router = useRouter();
+
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) setCart(JSON.parse(savedCart));
@@ -21,38 +22,80 @@ const router = useRouter();
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (item) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.name === item.name);
-      if (existing) {
-        return prev.map((i) =>
-          i.name === item.name ? { ...i, qty: i.qty + 1 } : i
-        );
-      }
-      return [...prev, { ...item, qty: 1 }];
-    });
-  };
+const addToCart = (product) => {
+  const v = product.variant || "Default";
 
-  const updateQty = (name, qty) => {
-    if (qty < 1) return removeItem(name);
-    setCart((prev) =>
-      prev.map((item) =>
-        item.name === name ? { ...item, qty } : item
-      )
+  setCart((prev) => {
+    const exists = prev.find(
+      (item) =>
+        item.name === product.name &&
+        (item.variant || "Default") === v
     );
-  };
 
-  const removeItem = (name) => {
-    setCart((prev) => prev.filter((item) => item.name !== name));
-  };
-
-  const goToCheckout = () => {
-    if (cart.length === 0) {
-      alert("Your cart is empty!");
-      return;
+    if (exists) {
+      return prev.map((item) =>
+        item.name === product.name &&
+        (item.variant || "Default") === v
+          ? { ...item, qty: item.qty + 1 }
+          : item
+      );
     }
-    router.push("/checkout");
-  };
+
+    return [...prev, { ...product, variant: v, qty: 1 }];
+  });
+};
+
+const updateQty = (name, variant, qty) => {
+  const v = variant || "Default";
+  const newQty = Number(qty); // ✅ ensure number
+
+  setCart((prev) => {
+    return prev
+      .map((item) => {
+        const itemVariant = item.variant || "Default";
+
+        if (item.name === name && itemVariant === v) {
+          if (newQty <= 0) return null; // remove later
+          return { ...item, qty: newQty };
+        }
+
+        return item;
+      })
+      .filter(Boolean); // ✅ remove null items
+  });
+};
+
+
+  const removeItem = (name, variant) => {
+    const removeItem = (name, variant) => {
+  setCart((prev) =>
+    prev.filter(
+      (item) =>
+        !(
+          item.name === name &&
+          (item.variant || "Default") === (variant || "Default")
+        )
+    )
+  );
+};
+  setCart((prev) =>
+    prev.filter(
+      (item) =>
+        !(
+          item.name === name &&
+          (item.variant || "Default") === (variant || "Default")
+        )
+    )
+  );
+};
+
+ const goToCheckout = () => {
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+  router.push("/checkout");
+};
 
   return (
     <div className="font-sans min-h-screen bg-white flex flex-col">

@@ -138,17 +138,27 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
 
       {/* Image Upload */}
-      <label for="Uploadimg">
-        <p>Upload a product image</p>
-      <input id="Uploadimg" hidden="true" type="file" className="rounded p-3 border-gray-400 border-1" accept="image/*" onChange={handleImageUpload} />
-      
-      <div className="relative">
-      <span className="absolute bottom-2 left-7 underline text-gray-600">edit</span>
-      {form.image && (
-        <img src={form.image} className="w-20 h-20 mt-2 rounded" />
-      )}
-      </div>
-      </label>
+      <label htmlFor="Uploadimg" className="cursor-pointer">
+  <p>Upload a product image</p>
+
+  <input
+    id="Uploadimg"
+    type="file"
+    hidden
+    accept="image/*"
+    onChange={handleImageUpload}
+  />
+
+  <div className="relative">
+    <span className="absolute bottom-2 left-7 underline text-gray-600">
+      edit
+    </span>
+
+    {form.image && (
+      <img src={form.image} className="w-20 h-20 mt-2 rounded" />
+    )}
+  </div>
+</label>
       {/* Product Fields */}
       <input
         placeholder="Product Name"

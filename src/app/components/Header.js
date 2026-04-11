@@ -27,7 +27,10 @@ const Header = ({ cartCount, onCartClick }) => {
               </button>
             ) : (
               <>
-              🙏Welcome Guest!
+              <span className='hidden-sm'>🙏Welcome Guest!</span>
+              <button className='border rounded px-2' onClick={() => router.push("/track-order")}>
+                Track Order
+              </button>
                 {/* <a
                   href="#"
                   className="hover:bg-white font-semibold hover:text-red-500 transition-shadow border rounded-4xl px-2 py-1 md:px-4 md:py-2"
