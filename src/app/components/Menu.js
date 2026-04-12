@@ -64,7 +64,7 @@ export default function Menu({ cart = [], addToCart, updateQty }) {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-1 rounded-full whitespace-nowrap ${
+            className={`px-4 py-1 mb-1 rounded-full whitespace-nowrap ${
               selectedCategory === cat
                 ? "bg-green-500 text-white"
                 : "bg-gray-200 text-black"
@@ -110,7 +110,7 @@ const cartItem = (cart || []).find(
               </div>
 
               {/* Content */}
-              <div className="py-3 text-center bg-black/5">
+              <div className="py-3 text-center bg-black">
                 <h4 className="text-sm font-semibold">
                   {item.name}
                 </h4>
@@ -146,7 +146,7 @@ const cartItem = (cart || []).find(
                 </p>
               ) : (
                 //  No variants
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Standard Item
                 </p>
               )}
@@ -167,7 +167,7 @@ const cartItem = (cart || []).find(
                           cartItem.qty - 1
                         )
                       }
-                      className="bg-red-500 text-white px-2 rounded"
+                      className="bg-gray-400 text-white px-2 rounded"
                     >
                       -
                     </button>

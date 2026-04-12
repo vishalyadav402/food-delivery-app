@@ -6,7 +6,7 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
   return (
     <div>
       {cart.length === 0 ? (
-        <p className="text-gray-500 text-center mt-8">🛒 Your cart is empty</p>
+        <p className="text-gray-50 text-center mt-8">🛒 Your cart is empty</p>
       ) : (
         <ul className="space-y-4 h-[75vh] overflow-y-auto scrollbar-hide">
           {cart.map((item, index) => (
@@ -62,9 +62,9 @@ const Cart = ({ cart = [], goToCheckout, updateQty, removeItem, setShowCart }) =
         </ul>
       )}
 
-      <div className="sticky bottom-0 mt-4 rounded-md">
+      <div className="sticky bottom-3 left-0 right-0 mt-4 rounded-md">
         {total > 0 ? (
-          <div className="flex justify-between items-center bg-green-400/90 backdrop-blur-sm p-3 rounded-full">
+          <div className="flex justify-between items-center bg-green-400/90 backdrop-blur-sm p-3 rounded-md">
             <strong className="text-gray-800 font-semibold">Total: ₹{total}</strong>
             <button
               onClick={goToCheckout}
