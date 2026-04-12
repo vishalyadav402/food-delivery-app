@@ -37,8 +37,8 @@ export default function TrackOrder() {
   return (
     <>
     <Header/>
-    <div className="max-w-2xl min-h-[79vh] mx-auto p-4 text-black">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="max-w-2xl min-h-[79vh] mx-auto p-4 bg-white text-black">
+      <h1 className="text-2xl font-bold mt-15 mb-4">
         Track Your Order
       </h1>
 

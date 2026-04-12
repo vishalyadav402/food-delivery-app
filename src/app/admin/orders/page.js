@@ -35,8 +35,8 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="p-6 text-black">
-      <h1 className="text-2xl font-bold mb-4">Orders</h1>
+    <div className="p-6 bg-white text-black">
+      <h1 className="text-2xl font-bold mt-15 mb-4">Orders</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
   {orders.map((order) => (
