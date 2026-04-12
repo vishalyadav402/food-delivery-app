@@ -136,7 +136,7 @@ export default function AdminPage() {
   return (
     <div className="p-6 mx-auto max-w-md bg-white text-black">
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
-
+ <p>Upload a product image</p>
       {/* Image Upload */}
   <label htmlFor="Uploadimg" className="cursor-pointer p-2">
   <input
@@ -156,7 +156,7 @@ export default function AdminPage() {
       <img src={form.image} className="w-20 h-20 mt-2 rounded" />
     )}
   </div>
-  <p>Upload a product image</p>
+ 
 </label>
       {/* Product Fields */}
       <input
@@ -185,7 +185,8 @@ export default function AdminPage() {
 <option value="Oil & Ghee">Oil & Ghee</option>
 <option value="Spices & Masala">Spices & Masala</option>
 <option value="Dry Fruits & Nuts">Dry Fruits & Nuts</option>
-
+<option value="Salt, Sugar & Jaggery">Salt, Sugar & Jaggery</option>
+<option value="Sweet & Celebration">Sweet & Celebration</option>
 {/* <!-- Snacks --> */}
 <option value="Snacks">Snacks</option>
 <option value="Biscuits & Cookies">Biscuits & Cookies</option>
@@ -193,6 +194,7 @@ export default function AdminPage() {
 <option value="Chocolates & Sweets">Chocolates & Sweets</option>
 
 {/* <!-- Beverages --> */}
+<option value="Water">Water</option>
 <option value="Cold Drinks">Cold Drinks</option>
 <option value="Beverages">Beverages</option>
 <option value="Tea & Coffee">Tea & Coffee</option>
@@ -240,7 +242,7 @@ export default function AdminPage() {
 <option value="Stationery">Stationery</option>
 <option value="Pooja Items">Pooja Items</option>
 <option value="Pet Care">Pet Care</option>
-</select>
+      </select>
 
       {/* Variants */}
       <div className="mt-4">
@@ -265,7 +267,7 @@ export default function AdminPage() {
             className="p-2 border w-full text-black"
           />
 
-          <button onClick={addVariant} className="bg-blue-500 px-2">
+          <button onClick={addVariant} className="bg-blue-500 rounded-md px-2">
             Add
           </button>
         </div>
@@ -308,8 +310,8 @@ export default function AdminPage() {
             <div className="flex gap-2">
               <Image
                 src={p.image || "/images/icon-vegacart.png"}
-                width={40}
-                height={40}
+                width={60}
+                height={60}
                 alt=""
               />
               <div>
@@ -321,8 +323,8 @@ export default function AdminPage() {
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => handleEdit(p)}>Edit</button>
-              <button onClick={() => handleDelete(p.id)}>Delete</button>
+              <button className="underline" onClick={() => handleEdit(p)}>Edit</button>
+              <button className="underline" onClick={() => handleDelete(p.id)}>Delete</button>
             </div>
           </div>
         ))}
