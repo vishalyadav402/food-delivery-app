@@ -138,9 +138,7 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
 
       {/* Image Upload */}
-      <label htmlFor="Uploadimg" className="cursor-pointer">
-  <p>Upload a product image</p>
-
+  <label htmlFor="Uploadimg" className="cursor-pointer border rounded-md p-2">
   <input
     id="Uploadimg"
     type="file"
@@ -158,6 +156,7 @@ export default function AdminPage() {
       <img src={form.image} className="w-20 h-20 mt-2 rounded" />
     )}
   </div>
+  <p>Upload a product image</p>
 </label>
       {/* Product Fields */}
       <input

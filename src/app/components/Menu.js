@@ -64,7 +64,7 @@ export default function Menu({ cart = [], addToCart, updateQty }) {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-1 mb-1 rounded-full whitespace-nowrap ${
+            className={`px-4 py-1 mb-2 rounded-full whitespace-nowrap ${
               selectedCategory === cat
                 ? "bg-green-500 text-white"
                 : "bg-gray-200 text-black"
@@ -110,7 +110,7 @@ const cartItem = (cart || []).find(
               </div>
 
               {/* Content */}
-              <div className="py-3 text-center bg-black">
+              <div className="py-3 text-center bg-gray-300">
                 <h4 className="text-sm font-semibold">
                   {item.name}
                 </h4>
