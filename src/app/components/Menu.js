@@ -96,7 +96,7 @@ const cartItem = (cart || []).find(
           return (
             <div
               key={item.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:scale-105 transition"
+              className="bg-white text-black rounded-lg shadow-md overflow-hidden hover:scale-105 transition"
             >
               {/* Image */}
               <div className="h-[200px] w-full">
@@ -110,7 +110,7 @@ const cartItem = (cart || []).find(
               </div>
 
               {/* Content */}
-              <div className="py-3 text-center bg-gray-300">
+              <div className="py-3 text-center bg-pink-200">
                 <h4 className="text-sm font-semibold">
                   {item.name}
                 </h4>
@@ -131,7 +131,7 @@ const cartItem = (cart || []).find(
                       [item.id]: v,
                     }));
                   }}
-                  className="mt-1 text-black px-2 py-1 rounded border-amber-100 w-full"
+                  className="mt-1 text-black px-2 py-1 rounded outline-0 border-0 w-full"
                 >
                   {item.variants.map((v, i) => (
                     <option key={i} value={v.label}>
@@ -141,7 +141,7 @@ const cartItem = (cart || []).find(
                 </select>
               ) : item.variants?.length === 1 ? (
                 // 🔹 Single variant → show simple label
-                <p className="text-md mt-1">
+                <p className="text-md mt-1 text-black">
                   {item.variants[0].label}
                 </p>
               ) : (
@@ -172,7 +172,7 @@ const cartItem = (cart || []).find(
                       -
                     </button>
 
-                    <span className="text-whitesmoke">
+                    <span className="text-black">
                       {cartItem.qty}
                     </span>
 
@@ -210,7 +210,7 @@ const cartItem = (cart || []).find(
                     }
                     className="mt-2 px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600"
                   >
-                    Add
+                    Add to cart
                   </button>
                 )}
               </div>

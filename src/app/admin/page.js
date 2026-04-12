@@ -138,7 +138,7 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
 
       {/* Image Upload */}
-  <label htmlFor="Uploadimg" className="cursor-pointer border rounded-md p-2">
+  <label htmlFor="Uploadimg" className="cursor-pointer p-2">
   <input
     id="Uploadimg"
     type="file"
@@ -172,13 +172,74 @@ export default function AdminPage() {
   className="p-2 w-full border mt-2 text-black"
 >
   <option value="">Select Category</option>
-  <option value="Grocery">Grocery</option>
-  <option value="Snacks">Snacks</option>
-  <option value="Cold Drinks">Cold Drinks</option>
-  <option value="Dairy">Dairy</option>
-  <option value="Personal Care">Personal Care</option>
-  <option value="Household">Household</option>
-  <option value="Stationery">Stationery</option>
+
+{/* <!-- Daily / Quick Needs --> */}
+<option value="Daily Essentials">Daily Essentials</option>
+<option value="Fruits & Vegetables">Fruits & Vegetables</option>
+
+{/* <!-- Grocery --> */}
+<option value="Grocery & Staples">Grocery & Staples</option>
+<option value="Atta & Flour">Atta & Flour</option>
+<option value="Rice & Grains">Rice & Grains</option>
+<option value="Dal & Pulses">Dal & Pulses</option>
+<option value="Oil & Ghee">Oil & Ghee</option>
+<option value="Spices & Masala">Spices & Masala</option>
+<option value="Dry Fruits & Nuts">Dry Fruits & Nuts</option>
+
+{/* <!-- Snacks --> */}
+<option value="Snacks">Snacks</option>
+<option value="Biscuits & Cookies">Biscuits & Cookies</option>
+<option value="Chips & Namkeen">Chips & Namkeen</option>
+<option value="Chocolates & Sweets">Chocolates & Sweets</option>
+
+{/* <!-- Beverages --> */}
+<option value="Cold Drinks">Cold Drinks</option>
+<option value="Beverages">Beverages</option>
+<option value="Tea & Coffee">Tea & Coffee</option>
+<option value="Juices">Juices</option>
+<option value="Energy Drinks">Energy Drinks</option>
+
+{/* <!-- Dairy --> */}
+<option value="Dairy">Dairy</option>
+<option value="Milk">Milk</option>
+<option value="Curd & Paneer">Curd & Paneer</option>
+<option value="Butter & Cheese">Butter & Cheese</option>
+<option value="Bread & Eggs">Bread & Eggs</option>
+
+{/* <!-- Ready Food --> */}
+<option value="Instant Food">Instant Food</option>
+<option value="Ready-to-Eat">Ready-to-Eat</option>
+<option value="Ready-to-Cook">Ready-to-Cook</option>
+<option value="Frozen Food">Frozen Food</option>
+
+{/* <!-- Personal Care --> */}
+<option value="Personal Care">Personal Care</option>
+<option value="Hair Care">Hair Care</option>
+<option value="Skin Care">Skin Care</option>
+<option value="Oral Care">Oral Care</option>
+<option value="Men Grooming">Men Grooming</option>
+<option value="Feminine Hygiene">Feminine Hygiene</option>
+
+{/* <!-- Household --> */}
+<option value="Household">Household</option>
+<option value="Cleaning Supplies">Cleaning Supplies</option>
+<option value="Dishwash & Laundry">Dishwash & Laundry</option>
+<option value="Kitchen Utilities">Kitchen Utilities</option>
+
+{/* <!-- Baby Care --> */}
+<option value="Baby Care">Baby Care</option>
+<option value="Diapers & Wipes">Diapers & Wipes</option>
+<option value="Baby Food">Baby Food</option>
+
+{/* <!-- Health --> */}
+<option value="Health & Wellness">Health & Wellness</option>
+<option value="Medicines">Medicines</option>
+<option value="First Aid">First Aid</option>
+
+{/* <!-- Others --> */}
+<option value="Stationery">Stationery</option>
+<option value="Pooja Items">Pooja Items</option>
+<option value="Pet Care">Pet Care</option>
 </select>
 
       {/* Variants */}
