@@ -27,79 +27,74 @@ const router = useRouter();
     0
   );
 
+
   // Place Order
   const handleOrder = async () => {
-    if (!form.name || !form.phone || !form.address) {
+  if (!form.name || !form.phone || !form.address) {
+    alert("Please fill all fields");
+    return;
+  }
 
-// after WhatsApp + save
-localStorage.removeItem("cart");
+  // ✅ DEFINE FIRST
+  const orderId = "ORD" + Date.now().toString().slice(-6);
 
-      router.push(`/order-success?id=${orderId}`);
-      return;
-    }
+  // ✅ Build items text
+  const itemsText = cart
+    .map(
+      (item, i) =>
+        `${i + 1}. ${item.name} (${item.variant}) - ₹${item.price} x ${item.qty}`
+    )
+    .join("\n");
 
-    const orderId = "ORD" + Date.now().toString().slice(-6);
+  // ✅ Now safe to use
+  const message = `🛒 *New Order - KiranaNeeds*
 
-    // Save to Supabase
-    const { error } = await supabase.from("orders").insert([
-      {
-        order_id: orderId,
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        items: cart,
-        total: total,
-      },
-    ]);
+Order ID: ${orderId}
 
-    if (error) {
-      console.error(error);
-      alert("Error saving order");
-      return;
-    }
+Name: ${form.name}
+Phone: ${form.phone}
+Address: ${form.address}
 
-    // Build WhatsApp message
-    const itemsText = cart
-      .map(
-        (item, i) =>
-          `${i + 1}. ${item.name} (${item.variant}) - ₹${item.price} x ${item.qty}`
-      )
-      .join("\n");
-
-    const message = `🛒 *New Order - KiranaNeeds*
-
-📦 Order ID: ${orderId}
-
-👤 Name: ${form.name}
-📞 Phone: ${form.phone}
-📍 Address: ${form.address}
-
-🧾 Items:
+Items:
 ${itemsText}
 
-💰 Total: ₹${total}
+Total: ₹${total}`;
 
-Thank you 🙏`;
+  // ✅ Save to Supabase
+  const { error } = await supabase.from("orders").insert([
+    {
+      order_id: orderId,
+      name: form.name,
+      phone: form.phone,
+      address: form.address,
+      items: cart,
+      total: total,
+    },
+  ]);
 
-    // Send WhatsApp
-    const whatsappNumber = "919506280968";
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-      message
-    )}`;
+  if (error) {
+    console.error(error);
+    alert("Error saving order");
+    return;
+  }
 
-    window.open(url, "_blank");
+  // ✅ WhatsApp
+  window.open(
+    `https://wa.me/919506280968?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
 
-    // Clear cart
-    localStorage.removeItem("cart");
+  localStorage.removeItem("cart");
 
-    alert("Order placed successfully!");
-  };
+  // ✅ Redirect
+  router.push(`/order-success?id=${orderId}`);
+};
 
   return (
     <>
     <Header/>
     <div className="max-w-2xl min-h-[79vh] mx-auto p-4 text-black">
-      <h1 className="text-2xl font-bold mb-4">Checkout</h1>
+      <h1 className="text-2xl font-bold mt-15 mb-4">Checkout</h1>
 
       {/* Form */}
       <div className="space-y-3">

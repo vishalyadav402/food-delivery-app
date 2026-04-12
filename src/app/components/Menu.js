@@ -96,7 +96,7 @@ const cartItem = (cart || []).find(
           return (
             <div
               key={item.id}
-              className="bg-white/10 rounded-lg shadow-md overflow-hidden hover:scale-105 transition"
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:scale-105 transition"
             >
               {/* Image */}
               <div className="h-[200px] w-full">
@@ -110,46 +110,46 @@ const cartItem = (cart || []).find(
               </div>
 
               {/* Content */}
-              <div className="p-3 text-center bg-black/40">
+              <div className="py-3 text-center bg-black/5">
                 <h4 className="text-sm font-semibold">
                   {item.name}
                 </h4>
 
                 {/* Variant */}
               {/* Variant Handling */}
-{item.variants?.length > 1 ? (
-  // 🔹 Multiple variants → show dropdown
-  <select
-    value={variant?.label}
-    onChange={(e) => {
-      const v = item.variants.find(
-        (x) => x.label === e.target.value
-      );
+              {item.variants?.length > 1 ? (
+                // 🔹 Multiple variants → show dropdown
+                <select style={{width:'130px'}}
+                  value={variant?.label}
+                  onChange={(e) => {
+                    const v = item.variants.find(
+                      (x) => x.label === e.target.value
+                    );
 
-      setSelectedVariants((prev) => ({
-        ...prev,
-        [item.id]: v,
-      }));
-    }}
-    className="mt-1 text-black px-2 py-1 rounded w-full"
-  >
-    {item.variants.map((v, i) => (
-      <option key={i} value={v.label}>
-        {v.label} - ₹{v.price}
-      </option>
-    ))}
-  </select>
-) : item.variants?.length === 1 ? (
-  // 🔹 Single variant → show simple label
-  <p className="text-md mt-1">
-    {item.variants[0].label}
-  </p>
-) : (
-  //  No variants
-  <p className="text-xs text-gray-400 mt-1">
-    Standard Item
-  </p>
-)}
+                    setSelectedVariants((prev) => ({
+                      ...prev,
+                      [item.id]: v,
+                    }));
+                  }}
+                  className="mt-1 text-black px-2 py-1 rounded border-amber-100 w-full"
+                >
+                  {item.variants.map((v, i) => (
+                    <option key={i} value={v.label}>
+                      {v.label} - ₹{v.price}
+                    </option>
+                  ))}
+                </select>
+              ) : item.variants?.length === 1 ? (
+                // 🔹 Single variant → show simple label
+                <p className="text-md mt-1">
+                  {item.variants[0].label}
+                </p>
+              ) : (
+                //  No variants
+                <p className="text-xs text-gray-400 mt-1">
+                  Standard Item
+                </p>
+              )}
 
                 {/* Price */}
                 <p className="text-green-400 font-semibold mt-1">
@@ -161,37 +161,37 @@ const cartItem = (cart || []).find(
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <button
                       onClick={() =>
-  updateQty(
-    item.name,
-    currentVariantLabel,
-    cartItem.qty - 1
-  )
-}
+                        updateQty(
+                          item.name,
+                          currentVariantLabel,
+                          cartItem.qty - 1
+                        )
+                      }
                       className="bg-red-500 text-white px-2 rounded"
                     >
                       -
                     </button>
 
-                    <span className="text-white">
+                    <span className="text-whitesmoke">
                       {cartItem.qty}
                     </span>
 
                     <button
                       onClick={() => {
-  const latestVariant =
-    selectedVariants[item.id] ||
-    item.variants?.[0] || {
-      label: "Default",
-      price: item.price || 0,
-    };
+                      const latestVariant =
+                        selectedVariants[item.id] ||
+                        item.variants?.[0] || {
+                          label: "Default",
+                          price: item.price || 0,
+                        };
 
-  addToCart({
-    name: item.name,
-    variant: latestVariant.label,
-    price: latestVariant.price,
-    image: item.image,
-  });
-}}
+                      addToCart({
+                        name: item.name,
+                        variant: latestVariant.label,
+                        price: latestVariant.price,
+                        image: item.image,
+                      });
+                    }}
                       
                       className="bg-green-500 text-white px-2 rounded"
                     >
