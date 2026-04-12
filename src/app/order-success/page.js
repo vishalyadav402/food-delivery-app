@@ -17,7 +17,7 @@ function OrderSuccessContent() {
   return (
     <>
       <Header />
-      <div className="flex min-h-[79vh] flex-col items-center justify-center text-center p-6">
+      <div className="flex min-h-[79vh] bg-white text-black flex-col items-center justify-center text-center p-6">
         <div className="text-green-500 text-6xl mb-4">✅</div>
 
         <h1 className="text-2xl font-bold mb-2">
