@@ -105,10 +105,10 @@ const updateQty = (name, variant, qty) => {
       />
       {/* Hero Section */}
       <div className="w-full rounded-md max-w-6xl mx-auto px-4 py-4">
-        <section className="rounded-md bg-white shadow text-white">
-          {/* <h2 className="text-4xl text-gray-700 font-bold mb-4">Order Daily Essentials Now</h2>
+        <section className="rounded-md">
+          <h2 className="text-4xl text-gray-700 font-bold mb-4">Order Daily Essentials Now</h2>
           <p className="text-lg text-gray-700 mb-6">Fresh items delivered to you within minutes!</p>
-           */}
+          
            <Image
               className="rounded-xl"
               src="/images/gif_banner.gif"
@@ -121,7 +121,7 @@ const updateQty = (name, variant, qty) => {
       </div>
 
       {/* Menu Section */}
-      <main className="flex-grow w-full md:max-w-6xl mx-auto px-4 py-4">
+      <main className="w-full md:max-w-6xl mx-auto px-4 py-4">
        <Menu
         cart={cart}
         addToCart={addToCart}
@@ -132,7 +132,7 @@ const updateQty = (name, variant, qty) => {
       {/* Optional: show cart modal here in page */}
       {showCart && (
         <div className="fixed top-0 right-0 inset-0 bg-black/70 flex items-center  justify-end z-50">
-          <div className="bg-green-900/90 p-6 h-[100vh] w-full md:max-w-md relative">
+          <div className="bg-green-900/90 p-6 h-['100vh'] w-full md:max-w-md relative">
            <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-400">Order List</h2>

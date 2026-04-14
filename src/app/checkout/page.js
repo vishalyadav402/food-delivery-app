@@ -94,7 +94,7 @@ Total: ₹${total}`;
     <>
     <Header/>
     <div className="max-w-2xl min-h-[79vh] mx-auto p-4 bg-white text-black">
-      <h1 className="text-2xl font-bold mt-15 mb-4">Checkout</h1>
+      <h1 className="text-2xl font-bold mt-5 md:mt-15 mb-4">Checkout</h1>
 
       {/* Form */}
       <div className="space-y-3">
@@ -111,6 +111,7 @@ Total: ₹${total}`;
           placeholder="Phone Number"
           className="w-full p-2 border"
           value={form.phone}
+          type="number"
           onChange={(e) =>
             setForm({ ...form, phone: e.target.value })
           }
