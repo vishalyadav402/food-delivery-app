@@ -135,7 +135,7 @@ const updateQty = (name, variant, qty) => {
       {showCart && (
         <div className="fixed top-0 right-0 inset-0 bg-black/70 flex items-center  justify-end z-50">
           <div className="bg-green-900/90 p-6 h-['100vh'] w-full md:max-w-md relative">
-           <div className="flex justify-between items-center">
+           <div className="flex md:mt-0 mt-5 justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-400">Order List</h2>
               <p className="text-gray-400 text-sm mb-4">(You have {cart.length} items to buy)</p>
