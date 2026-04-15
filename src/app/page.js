@@ -127,6 +127,8 @@ const updateQty = (name, variant, qty) => {
         addToCart={addToCart}
         updateQty={updateQty}
         removeItem={removeItem}
+        cartCount={cart.length}
+        onCartClick={() => setShowCart(true)}
       />
 
       {/* Optional: show cart modal here in page */}

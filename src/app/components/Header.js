@@ -18,21 +18,20 @@ const Header = ({ cartCount, onCartClick }) => {
             </p>
           </div>
           <nav className="flex gap-2 md:gap-6">
-            {cartCount > 0 ? (
+            {cartCount > 0 && 
               <button
                 onClick={onCartClick}
-                className="bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-900"
+                className="hidden md:inline-flex bg-gray-800  text-white px-4 py-2 rounded-full hover:bg-gray-900"
               >
                 🛒 View Cart ({cartCount})
               </button>
-            ) : (
+              }
               <>
               <span className='hidden'>🙏Welcome Guest!</span>
               <button className='border rounded p-2' onClick={() => router.push("/track-order")}>
                 Track Your Order
               </button>
               </>
-            )}
           </nav>
         </div>
       </div>

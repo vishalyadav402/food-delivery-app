@@ -5,7 +5,7 @@ import { supabase } from "../utils/supabase";
 
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
-  const [variant, setVariant] = useState({ label: "", price: "" });
+  const [variant, setVariant] = useState({ label: "", price: "", mrp: "" });
 
   const [form, setForm] = useState({
     name: "",
@@ -41,6 +41,7 @@ export default function AdminPage() {
 
     if (editId) {
       await supabase.from("products").update(productData).eq("id", editId);
+      console.log(form.variants);
     } else {
       await supabase.from("products").insert([productData]);
     }
@@ -112,20 +113,23 @@ export default function AdminPage() {
     reader.readAsDataURL(file);
   };
 
-  // ✅ Add Variant
   const addVariant = () => {
-    if (!variant.label || !variant.price) return;
+  if (!variant.label || !variant.price) return;
 
-    setForm((prev) => ({
-      ...prev,
-      variants: [
-        ...prev.variants,
-        { label: variant.label, price: Number(variant.price) },
-      ],
-    }));
+  setForm((prev) => ({
+    ...prev,
+    variants: [
+      ...prev.variants,
+      {
+        label: variant.label,
+        price: Number(variant.price),
+        mrp: Number(variant.mrp) || Number(variant.price), // ✅ FIX
+      },
+    ],
+  }));
 
-    setVariant({ label: "", price: "" });
-  };
+  setVariant({ label: "", price: "", mrp: "" }); // reset
+};
 
   // ✅ Remove Variant
   const removeVariant = (index) => {
@@ -257,7 +261,14 @@ export default function AdminPage() {
             }
             className="p-2 border w-full text-black"
           />
-
+          <input
+            placeholder="MRP (₹)"
+            value={variant.mrp || ""}
+            onChange={(e) =>
+              setVariant({ ...variant, mrp: e.target.value })
+            }
+            className="p-2 border w-full text-black"
+          />
           <input
             placeholder="Price"
             value={variant.price}
@@ -276,6 +287,11 @@ export default function AdminPage() {
           <div key={i} className="flex justify-between mt-2">
             <span>
               {v.label} - ₹{v.price}
+              {v.mrp && (
+    <span className="line-through text-gray-400 text-xs ml-2">
+      ₹{v.mrp}
+    </span>
+  )}
             </span>
             <button onClick={() => removeVariant(i)} className="text-red-400">
               ❌
