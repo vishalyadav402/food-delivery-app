@@ -86,7 +86,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <meta name="msapplication-TileColor" content="#da532c"/>
         <meta name="theme-color" content="#22c55e" /> {/* ✅ */}
+        <link rel="shortcut icon" href="/favicon/favicon.ico" type="image/x-icon"/>
+        <link rel="icon" href="/favicon/favicon.ico" type="image/x-icon"></link>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-white antialiased`}
