@@ -106,7 +106,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
       placeholder="Search for products..."
       value={search}
       onChange={(e) => setSearch(e.target.value)}
-      className="w-full bg-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
+      className="w-full bg-white text-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
     />
 
     <span className="absolute right-3 top-2 text-gray-400">
@@ -140,14 +140,14 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
           key={cat}
           onClick={() => setSelectedCategory(cat)}
           className={`flex flex-col items-center min-w-['70px'] cursor-pointer transition ${
-            selectedCategory === cat ? "scale-110" : "opacity-80"
+            selectedCategory === cat ? "scale-90" : "opacity-80"
           }`}
         >
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-sm ${
+            className={`w-12 h-12 text-gray-600 rounded-full flex items-center justify-center text-sm ${
               selectedCategory === cat
-                ? "bg-green-500 text-gray-500 shadow-md"
-                : "bg-gray-200"
+                ? "bg-green-500 text-white shadow-md"
+                : "bg-gray-200 text-gray-600"
             }`}
           >
             {cat[0]} {/* first letter */}
