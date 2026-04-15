@@ -152,7 +152,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
           >
             {cat[0]} {/* first letter */}
           </div>
-          <p className="text-xs mt-1 text-center">{cat}</p>
+          <p className="text-xs text-black mt-1 text-center">{cat}</p>
         </div>
       ))}
     </div>

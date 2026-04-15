@@ -15,7 +15,7 @@ export const metadata = {
   title: "KiranaNeeds | Daily Grocery & Kirana Store Near You",
   description:
     "Order groceries online from KiranaNeeds. Buy daily essentials like rice, atta, oil, sugar, snacks and household items with fast delivery at your doorstep.",
-
+  themeColor: "#22c55e",
   keywords: [
     "kirana store near me",
     "online grocery shopping",
@@ -85,6 +85,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="theme-color" content="#22c55e" /> {/* ✅ */}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-white antialiased`}
       >
