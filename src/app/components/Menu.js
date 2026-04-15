@@ -106,7 +106,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
       placeholder="Search for products..."
       value={search}
       onChange={(e) => setSearch(e.target.value)}
-      className="w-full bg-white border rounded-full px-4 py-2 pr-10 focus:outline-none"
+      className="w-full bg-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
     />
 
     <span className="absolute right-3 top-2 text-gray-400">
@@ -146,7 +146,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center text-sm ${
               selectedCategory === cat
-                ? "bg-green-500 text-white shadow-md"
+                ? "bg-green-500 text-gray-500 shadow-md"
                 : "bg-gray-200"
             }`}
           >
@@ -201,7 +201,7 @@ const cartItem = (cart || []).find(
             
             <div
   key={item.id}
-  className="bg-white rounded-xl shadow hover:shadow-lg transition flex flex-col h-full"
+  className="bg-white text-black rounded-xl shadow hover:shadow-lg transition flex flex-col h-full"
 >
   <div className="relative">
   {/* Discount Badge */}
@@ -331,10 +331,10 @@ const cartItem = (cart || []).find(
     
     {/* Left: items + total */}
     <div>
-      <p className="text-sm font-semibold">
+      <p className="text-md font-semibold">
         {cart.length} item{cart.length > 1 ? "s" : ""}
       </p>
-      <p className="text-xs">
+      <p className="text-sm">
         ₹
         {cart.reduce(
           (sum, item) => sum + item.price * item.qty,
