@@ -1,8 +1,11 @@
 import React from 'react'
+import AdminLayout from '../admin/components/AdminLayout'
 
 const Categories = () => {
   return (
-    <div>Categories</div>
+    <AdminLayout>
+      categories
+    </AdminLayout>
   )
 }
 

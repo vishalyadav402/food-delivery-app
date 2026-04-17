@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabase";
+import AdminLayout from "../components/AdminLayout";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -35,8 +36,10 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="p-6 bg-white text-black">
-      <h1 className="text-2xl font-bold mt-15 mb-4">Orders</h1>
+    <>
+    <AdminLayout>
+    <div className="md:p-6">
+      <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
   {orders.map((order) => (
@@ -122,5 +125,7 @@ export default function OrdersPage() {
   ))}
 </div>
     </div>
+    </AdminLayout>
+    </>
   );
 }

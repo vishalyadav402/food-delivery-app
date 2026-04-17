@@ -9,7 +9,7 @@ export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCar
   const [selectedVariants, setSelectedVariants] = useState({});
   const [loading, setLoading] = useState(true);
 const [search, setSearch] = useState("");
-
+const activeProducts = products.filter((p) => p.is_active);
   // ✅ Fetch products
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +48,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
   ];
 
   // ✅ Filter
-  const filtered = products.filter((p) => {
+  const filtered = activeProducts.filter((p) => {
   const matchCategory =
     selectedCategory === "All" || p.category === selectedCategory;
 
@@ -112,6 +112,19 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
     <span className="absolute right-3 top-2 text-gray-400">
       🔍
     </span>
+     {/* ❌ Clear Button */}
+    {search && (
+      <button
+        onClick={() => {
+          setSearch("")
+          inputRef.current?.focus();
+        }
+        }
+        className="absolute right-10 top-2 text-gray-400 hover:text-black"
+      >
+        ✖
+      </button>
+    )}
   </div>
 </div>
 
@@ -199,37 +212,48 @@ const cartItem = (cart || []).find(
 
           return (
             
-            <div
+       <div
   key={item.id}
-  className="bg-white text-black rounded-xl shadow hover:shadow-lg transition flex flex-col h-full"
+  className="bg-white text-black rounded-xl shadow hover:shadow-lg transition flex flex-col h-full overflow-hidden"
 >
-  <div className="relative">
-  {/* Discount Badge */}
-{variant.mrp > variant.price && (
-  <span className="relative top-2 left-2 bg-red-500 text-white text-xs px-2 rounded">
-    {Math.round(
-      ((variant.mrp - variant.price) / variant.mrp) * 100
-    )}% OFF
-  </span>
-)}
-  {/* Image */}
-  <Image
-  src={item.image || "/images/icon-vegacart.png"}
-  alt={item.name}
-  width={200}
-  height={150}
-  className="rounded-t-xl w-full h-24 object-contain"
-  loading="lazy" // ✅ lazy load
-  placeholder="blur" // ✅ blur effect
-  blurDataURL="/images/icon-vegacart.png" // ✅ fallback blur
-/>
+  {/* IMAGE + BADGES */}
+  <div className="relative p-2 flex justify-center items-center h-28">
 
-  {/* Content */}
-  <div className="p-2 flex flex-col justify-between">
+    {/* 🔥 Discount Badge */}
+    {variant.mrp > variant.price && (
+      <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-[2px] rounded shadow">
+        {Math.round(
+          ((variant.mrp - variant.price) / variant.mrp) * 100
+        )}% OFF
+      </span>
+    )}
 
-    {/* TOP CONTENT */}
-    <div className="min-h-24">
-      <h4 className="text-sm font-semibold text-center">
+    {/* ⭐ Best Deal */}
+    {variant.mrp > variant.price &&
+      ((variant.mrp - variant.price) / variant.mrp) * 100 >= 20 && (
+        <span className="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] px-2 py-[2px] rounded font-semibold">
+          Best
+        </span>
+      )}
+
+    <Image
+      src={item.image || "/images/icon-vegacart.png"}
+      alt={item.name}
+      width={200}
+      height={150}
+      className="h-20 object-contain"
+      loading="lazy"
+      placeholder="blur"
+      blurDataURL="/images/icon-vegacart.png"
+    />
+  </div>
+
+  {/* CONTENT */}
+  <div className="flex flex-col justify-between flex-1 px-2 pb-2">
+
+    {/* TOP */}
+    <div>
+      <h4 className="text-sm font-semibold text-center line-clamp-2 min-h-[32px]">
         {item.name}
       </h4>
 
@@ -245,10 +269,10 @@ const cartItem = (cart || []).find(
                   [item.id]: v,
                 }))
               }
-              className={`text-xs px-2 border rounded ${
+              className={`text-[10px] px-2 border rounded ${
                 variant.label === v.label
                   ? "bg-green-500 text-white"
-                  : ""
+                  : "bg-gray-100"
               }`}
             >
               {v.label}
@@ -257,24 +281,31 @@ const cartItem = (cart || []).find(
         </div>
       )}
 
-      {/* Price Section */}
-<div className="flex justify-center items-center gap-2 mt-1">
-  <p className="text-green-600 font-bold">
-    ₹{variant.price}
-  </p>
+      {/* PRICE */}
+      <div className="flex justify-center items-center gap-1 mt-1">
+        <span className="text-green-600 font-bold text-sm">
+          ₹{variant.price}
+        </span>
 
-  {variant.mrp && variant.mrp > variant.price && (
-    <p className="text-gray-400 line-through text-xs">
-      ₹{variant.mrp}
-    </p>
-  )}
-</div>
+        {variant.mrp > variant.price && (
+          <span className="text-gray-400 line-through text-xs">
+            ₹{variant.mrp}
+          </span>
+        )}
+      </div>
+
+      {/* SAVE */}
+      {variant.mrp > variant.price && (
+        <p className="text-[10px] text-green-600 text-center">
+          Save ₹{variant.mrp - variant.price}
+        </p>
+      )}
     </div>
 
-    {/* 🔥 BOTTOM FIXED SECTION */}
+    {/* 🔥 BOTTOM FIXED */}
     <div className="mt-2">
       {cartItem ? (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-between items-center border rounded-full px-2 py-1">
           <button
             onClick={() =>
               updateQty(
@@ -283,11 +314,15 @@ const cartItem = (cart || []).find(
                 cartItem.qty - 1
               )
             }
-            className="bg-gray-300 px-2 rounded"
+            className="px-2 text-lg"
           >
             -
           </button>
-          <span>{cartItem.qty}</span>
+
+          <span className="text-sm font-semibold">
+            {cartItem.qty}
+          </span>
+
           <button
             onClick={() =>
               addToCart({
@@ -296,7 +331,7 @@ const cartItem = (cart || []).find(
                 price: variant.price,
               })
             }
-            className="bg-green-500 text-white px-2 rounded"
+            className="px-2 text-lg text-green-600"
           >
             +
           </button>
@@ -310,13 +345,12 @@ const cartItem = (cart || []).find(
               price: variant.price,
             })
           }
-          className="bg-green-500 text-white w-full py-1 rounded"
+          className="bg-green-500 text-white w-full py-1.5 rounded-full text-sm font-semibold hover:bg-green-600"
         >
           ADD
         </button>
       )}
     </div>
-  </div>
   </div>
 </div>
           );

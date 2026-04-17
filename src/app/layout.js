@@ -16,6 +16,9 @@ export const metadata = {
   description:
     "Order groceries online from KiranaNeeds. Buy daily essentials like rice, atta, oil, sugar, snacks and household items with fast delivery at your doorstep.",
   themeColor: "#22c55e",
+  other: {
+    "apple-mobile-web-app-status-bar-style": "default",
+  },
   keywords: [
     "kirana store near me",
     "online grocery shopping",
@@ -86,8 +89,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <meta name="msapplication-TileColor" content="#da532c"/>
-        <meta name="theme-color" content="#22c55e" /> {/* ✅ */}
         <link rel="shortcut icon" href="/favicon/favicon.ico" type="image/x-icon"/>
         <link rel="icon" href="/favicon/favicon.ico" type="image/x-icon"></link>
       </head>
