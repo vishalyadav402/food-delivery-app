@@ -9,7 +9,8 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [variant, setVariant] = useState({ label: "", price: "", mrp: "" });
   const [showModal, setShowModal] = useState(false);
- 
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -32,28 +33,61 @@ export default function AdminPage() {
     fetchProducts();
   }, []);
 
-  // ✅ Add / Update Product
-  const handleAddOrUpdate = async () => {
-    if (!form.name) return alert("Enter product name");
+const handleAddOrUpdate = async () => {
+  if (!form.name) return alert("Enter product name");
 
-    const productData = {
-      name: form.name,
-      category: form.category,
-      image: form.image,
-      variants: form.variants,
-      is_active: form.is_active, // ✅ ADD THIS
-    };
+  setLoading(true);
+  setMessage("");
+
+  const productData = {
+    name: form.name,
+    category: form.category,
+    image: form.image,
+    variants: form.variants,
+    is_active: form.is_active,
+  };
+
+  try {
+    let error;
 
     if (editId) {
-      await supabase.from("products").update(productData).eq("id", editId);
-      console.log(form.variants);
+      ({ error } = await supabase
+        .from("products")
+        .update(productData)
+        .eq("id", editId));
+
+      if (!error) {
+        setMessage("✅ Product updated successfully");
+      }
     } else {
-      await supabase.from("products").insert([productData]);
+      ({ error } = await supabase
+        .from("products")
+        .insert([productData]));
+
+      if (!error) {
+        setMessage("✅ Product added successfully");
+      }
+    }
+
+    if (error) {
+      console.error(error);
+      setMessage("❌ Something went wrong");
+      return;
     }
 
     fetchProducts();
     resetForm();
-  };
+
+    // auto clear message
+    setTimeout(() => setMessage(""), 2000);
+
+  } catch (err) {
+    console.error(err);
+    setMessage("❌ Server error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ✅ Reset Form
  const resetForm = () => {
@@ -403,14 +437,14 @@ const handleEdit = (product) => {
             {/* Buttons */}
             <div className="flex gap-2 mt-4">
               <button
-                onClick={() => {
-                  handleAddOrUpdate();
-                  setShowModal(false);
-                }}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-              >
-                {editId ? "Update" : "Add"}
-              </button>
+                onClick={handleAddOrUpdate}
+                disabled={loading}
+                className={`px-4 py-2 rounded text-white ${
+                    loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                }`}
+                >
+                {loading ? "Saving..." : editId ? "Update" : "Add"}
+                </button>
 
               {editId && (
                 <button
@@ -421,6 +455,12 @@ const handleEdit = (product) => {
                 </button>
               )}
             </div>
+
+            {message && (
+            <div className="my-2 text-center text-sm font-medium text-green-600">
+                {message}
+            </div>
+            )}
           </div>
         </div>
       )}
