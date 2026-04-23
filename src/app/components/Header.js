@@ -1,41 +1,68 @@
-import { useRouter } from 'next/navigation';
-import React from 'react'
+"use client";
+import { useRouter } from "next/navigation";
 import { SlLocationPin } from "react-icons/sl";
 
-const Header = ({ cartCount, onCartClick }) => {
-
+const Header = ({
+  cartCount,
+  onCartClick,
+  location,
+  openLocationModal = () => {}, // ✅ default empty
+}) => {
   const router = useRouter();
 
+  // ✅ Delivery ETA
+  const getETA = () => {
+    const min = Math.floor(Math.random() * 10) + 10;
+    return `${min} mins`;
+  };
+
   return (
-    <>
-      {/* Header */}
-      <div className="bg-green-500 text-white shadow-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
-          <div className="flex flex-col cursor-pointer" onClick={() => router.push("/")}>
-            <h1 className="text-2xl font-bold leading-6 mb-1">KiranaNeeds</h1>
-            <p className="text-sm flex leading-4 items-center gap-2">
-              <SlLocationPin /> Prithviganj Bazaar, 230133
+    <div className="bg-green-500 text-white sticky top-0 z-50 shadow-md">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
+        {/* LEFT */}
+        <div onClick={() => router.push("/")} className="cursor-pointer">
+          {/* <h1 className="text-xl font-bold">KiranaNeeds</h1> */}
+
+          <p
+            onClick={(e) => {
+              e.stopPropagation();
+              openLocationModal();
+            }}
+            className="text-md flex items-center gap-2 cursor-pointer"
+          >
+            <SlLocationPin />
+            {location || "Select Location"}
+          </p>
+
+          {/* ETA */}
+          {location && (
+            <p className="text-xs text-white/80">
+              Delivery in {getETA()}
             </p>
-          </div>
-          <nav className="flex gap-2 md:gap-6">
-            {cartCount > 0 && 
-              <button
-                onClick={onCartClick}
-                className="hidden md:inline-flex bg-gray-800  text-white px-4 py-2 rounded-full hover:bg-gray-900"
-              >
-                🛒 View Cart ({cartCount})
-              </button>
-              }
-              <>
-              <span className='hidden'>🙏Welcome Guest!</span>
-              <button className='border rounded p-2' onClick={() => router.push("/track-order")}>
-                Track Your Order
-              </button>
-              </>
-          </nav>
+          )}
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex gap-2">
+          {cartCount > 0 && (
+            <button
+              onClick={onCartClick}
+              className="hidden md:inline-flex bg-gray-800 px-4 py-2 rounded-full"
+            >
+              🛒 ({cartCount})
+            </button>
+          )}
+
+          <button
+            onClick={() => router.push("/track-order")}
+            className="border px-3 py-2 rounded"
+          >
+            Track Order
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

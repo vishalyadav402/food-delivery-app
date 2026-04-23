@@ -6,13 +6,74 @@ import Menu from "./components/Menu";
 import Cart from "./components/Cart";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { calculateDelivery, DELIVERY_RULES } from "./utils/deliveryConfig";
 
 export default function Home() {
-    const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
- const router = useRouter();
 
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [location, setLocation] = useState("");
+
+  const router = useRouter();
+
+  // ✅ Load location
+  useEffect(() => {
+    const savedLocation = localStorage.getItem("userLocation");
+
+    if (!savedLocation) {
+      setShowLocationModal(true);
+    } else {
+      setLocation(savedLocation);
+    }
+  }, []);
+
+  // ✅ Reverse geocode
+  const getAddress = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+
+      return (
+        data.address?.suburb ||
+        data.address?.village ||
+        data.address?.town ||
+        data.address?.city ||
+        "Your Area"
+      );
+    } catch {
+      return "Your Area";
+    }
+  };
+
+  // ✅ Auto detect location
+  const detectLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        const address = await getAddress(lat, lng);
+
+        setLocation(address);
+        localStorage.setItem("userLocation", address);
+        setShowLocationModal(false);
+      },
+      () => alert("Location permission denied")
+    );
+  };
+
+  // ✅ Save manual location
+  const handleSaveLocation = () => {
+    if (!location) return alert("Enter location");
+
+    localStorage.setItem("userLocation", location);
+    setShowLocationModal(false);
+  };
+
+  // 🛒 Load cart
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) setCart(JSON.parse(savedCart));
@@ -22,145 +83,219 @@ export default function Home() {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-const addToCart = (product) => {
-  const v = product.variant || "Default";
+  // 🛒 Add
+  const addToCart = (product) => {
+    const v = product.variant || "Default";
 
-  setCart((prev) => {
-    const exists = prev.find(
-      (item) =>
-        item.name === product.name &&
-        (item.variant || "Default") === v
-    );
-
-    if (exists) {
-      return prev.map((item) =>
-        item.name === product.name &&
-        (item.variant || "Default") === v
-          ? { ...item, qty: item.qty + 1 }
-          : item
+    setCart((prev) => {
+      const exists = prev.find(
+        (item) =>
+          item.name === product.name &&
+          (item.variant || "Default") === v
       );
-    }
 
-    return [...prev, { ...product, variant: v, qty: 1 }];
-  });
-};
+      if (exists) {
+        return prev.map((item) =>
+          item.name === product.name &&
+          (item.variant || "Default") === v
+            ? { ...item, qty: item.qty + 1 }
+            : item
+        );
+      }
 
-const updateQty = (name, variant, qty) => {
-  const v = variant || "Default";
-  const newQty = Number(qty); // ✅ ensure number
+      return [...prev, { ...product, variant: v, qty: 1 }];
+    });
+  };
 
-  setCart((prev) => {
-    return prev
-      .map((item) => {
-        const itemVariant = item.variant || "Default";
+  // ➕➖ Update
+  const updateQty = (name, variant, qty) => {
+    const v = variant || "Default";
 
-        if (item.name === name && itemVariant === v) {
-          if (newQty <= 0) return null; // remove later
-          return { ...item, qty: newQty };
-        }
+    setCart((prev) =>
+      prev
+        .map((item) => {
+          if (
+            item.name === name &&
+            (item.variant || "Default") === v
+          ) {
+            if (qty <= 0) return null;
+            return { ...item, qty };
+          }
+          return item;
+        })
+        .filter(Boolean)
+    );
+  };
 
-        return item;
-      })
-      .filter(Boolean); // ✅ remove null items
-  });
-};
-
-
+  // ❌ Remove
   const removeItem = (name, variant) => {
-    const removeItem = (name, variant) => {
-  setCart((prev) =>
-    prev.filter(
-      (item) =>
-        !(
-          item.name === name &&
-          (item.variant || "Default") === (variant || "Default")
-        )
-    )
-  );
-};
-  setCart((prev) =>
-    prev.filter(
-      (item) =>
-        !(
-          item.name === name &&
-          (item.variant || "Default") === (variant || "Default")
-        )
-    )
-  );
-};
+    setCart((prev) =>
+      prev.filter(
+        (item) =>
+          !(
+            item.name === name &&
+            (item.variant || "Default") === (variant || "Default")
+          )
+      )
+    );
+  };
 
- const goToCheckout = () => {
-  if (cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-  router.push("/checkout");
-};
+  const goToCheckout = () => {
+    if (!cart.length) return alert("Cart empty");
+    router.push("/checkout");
+  };
+
+  // ✅ DELIVERY CALCULATION
+  const cartTotal = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  const delivery = calculateDelivery(cartTotal);
+  const finalTotal = cartTotal + (delivery.charge || 0);
 
   return (
-    <div className="font-sans min-h-screen bg-white flex flex-col">
-       <Header
+    <div className="min-h-screen bg-white flex flex-col">
+
+      {/* HEADER */}
+      <Header
+        location={location}
+        openLocationModal={() => setShowLocationModal(true)}
         cartCount={cart.length}
         onCartClick={() => setShowCart(true)}
       />
-      {/* Hero Section */}
-      <div className="w-full rounded-md max-w-6xl mx-auto px-4 py-4">
-        <section className="rounded-md">
-          <h2 className="text-4xl text-gray-700 font-bold mb-4">Order Daily Essentials Now</h2>
-          <p className="text-lg text-gray-700 mb-6">Fresh items delivered to you within minutes!</p>
-          
-           <Image
-              className="rounded-xl"
-              src="/images/gif_banner.gif"
-              alt="Banner Image"
-              height={100}
-              width={100}
-              layout="responsive"
-            />
-        </section>
+<div className="max-w-6xl">
+      {/* HERO */}
+      <div className="px-4 pt-4">
+        <Image
+          src="/images/gif_banner.gif"
+          alt="Banner"
+          width={2000}
+          height={1000}
+          className="rounded-xl"
+        />
       </div>
 
-      {/* Menu Section */}
-      <main className="w-full md:max-w-6xl mx-auto px-4 py-4">
-       <Menu
-        cart={cart}
-        addToCart={addToCart}
-        updateQty={updateQty}
-        removeItem={removeItem}
-        cartCount={cart.length}
-        onCartClick={() => setShowCart(true)}
-      />
+      {/* MENU */}
+      <main className="max-w-full px-4 pb-4">
+        <Menu
+          cart={cart}
+          addToCart={addToCart}
+          updateQty={updateQty}
+          removeItem={removeItem}
+          cartCount={cart.length}
+          onCartClick={() => setShowCart(true)}
+        />
+      </main>
 
-      {/* Optional: show cart modal here in page */}
+      {/* CART DRAWER */}
       {showCart && (
-        <div className="fixed top-0 right-0 inset-0 bg-black/70 flex items-center  justify-end z-50">
-          <div className="bg-green-900/90 p-6 h-['100vh'] w-full md:max-w-md relative">
-           <div className="flex md:mt-0 mt-5 justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-400">Order List</h2>
-              <p className="text-gray-400 text-sm mb-4">(You have {cart.length} items to buy)</p>
-            </div>
+        <div className="fixed inset-0 bg-black/70 flex justify-end z-50">
+          <div className="bg-green-900 w-full md:max-w-md p-4 flex flex-col">
+
             <button
               onClick={() => setShowCart(false)}
-              className="absolute top-6 right-4 text-white text-xl"
+              className="text-white text-xl self-end"
             >
               ✖
             </button>
-            </div>
-            {/* pass cart props to Cart component */}
+
             <Cart
               cart={cart}
-              goToCheckout={() => goToCheckout()}
               updateQty={updateQty}
               removeItem={removeItem}
               setShowCart={setShowCart}
             />
+
+            {/* DELIVERY SECTION */}
+            <div className="mt-4 bg-white/10 p-3 rounded text-white text-sm">
+
+              {!delivery.allowed ? (
+                <p className="text-red-300">{delivery.message}</p>
+              ) : (
+                <>
+                  <div className="flex justify-between">
+                    <span>Items</span>
+                    <span>₹{cartTotal}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Delivery</span>
+                    <span>
+                      {delivery.charge === 0
+                        ? "FREE 🎉"
+                        : `₹${delivery.charge}`}
+                    </span>
+                  </div>
+
+                  {delivery.charge > 0 && (
+                    <p className="text-yellow-300 text-xs mt-1">
+                      Add ₹
+                      {DELIVERY_RULES.freeDeliveryAbove - cartTotal} more for FREE delivery
+                    </p>
+                  )}
+
+                  <hr className="my-2 border-white/20" />
+
+                  <div className="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span>₹{finalTotal}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* CHECKOUT */}
+            <button
+              onClick={goToCheckout}
+              disabled={!delivery.allowed}
+              className={`mt-4 w-full py-2 rounded ${
+                delivery.allowed
+                  ? "bg-green-600"
+                  : "bg-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {delivery.allowed
+                ? "Proceed to Checkout"
+                : "Minimum Order Required"}
+            </button>
           </div>
         </div>
       )}
 
-      </main>
+      {/* LOCATION MODAL */}
+      {showLocationModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-[90%] max-w-sm text-center">
 
+            <h2 className="text-lg font-bold mb-3">
+              📍 Choose Your Location
+            </h2>
+
+            <button
+              onClick={detectLocation}
+              className="bg-blue-500 text-white w-full py-2 rounded mb-3"
+            >
+              Use My Current Location
+            </button>
+
+            <input
+              placeholder="Enter area / pincode"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full border p-2 rounded mb-3"
+            />
+
+            <button
+              onClick={handleSaveLocation}
+              className="bg-green-600 text-white w-full py-2 rounded"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+</div>
       <Footer />
     </div>
   );
