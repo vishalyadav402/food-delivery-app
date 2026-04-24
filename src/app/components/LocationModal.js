@@ -331,7 +331,7 @@ export default function LocationModal({
                   setLocation(s.display_name);
                   setSuggestions([]);
                 }}
-                className="p-2 text-xs hover:bg-gray-100 cursor-pointer"
+                className="p-2 text-xs hover:bg-gray-100 text-gray-500 cursor-pointer"
               >
                 {s.display_name}
               </div>
