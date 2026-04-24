@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SlLocationPin } from "react-icons/sl";
-import { getDeliveryInfo } from "../utils/deliveryConfig";
+import { checkDeliveryAvailability } from "../utils/deliveryConfig";
 
 const Header = ({
   cartCount,
@@ -14,7 +14,20 @@ const Header = ({
 const [deliveryInfo, setDeliveryInfo] = useState(null);
 
 useEffect(() => {
-  setDeliveryInfo(getDeliveryInfo());
+  if (!location) {
+    setDeliveryInfo(null);
+    return;
+  }
+
+  const coords = JSON.parse(localStorage.getItem("userCoords"));
+
+  const result = checkDeliveryAvailability({
+    locationText: location,
+    lat: coords?.lat,
+    lng: coords?.lng,
+  });
+
+  setDeliveryInfo(result);
 }, [location]);
 
   // ✅ Delivery ETA
@@ -46,11 +59,23 @@ useEffect(() => {
     </p>
 
           {/* ETA */}
-          {deliveryInfo && (
-  <div className="text-[11px] text-white/90 mt-1 flex items-center gap-2">
-    <span>🚚 {deliveryInfo.distance} km</span>
-    <span>•</span>
-    <span>⏱ {deliveryInfo.eta}</span>
+         {deliveryInfo && (
+  <div className="text-[11px] mt-1 flex items-center gap-2">
+    {deliveryInfo.ok ? (
+      <>
+        <span className="text-white">
+          🚚 {deliveryInfo.distance} km
+        </span>
+        <span className="text-white/70">•</span>
+        <span className="text-white">
+          ⏱ {deliveryInfo.eta}
+        </span>
+      </>
+    ) : (
+      <span className="text-red-200">
+        {deliveryInfo.message}
+      </span>
+    )}
   </div>
 )}
         </div>
