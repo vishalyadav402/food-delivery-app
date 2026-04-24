@@ -35,7 +35,7 @@ export const SHOP_LOCATION = {
 };
 
 // 🚚 Max delivery radius (km)
-export const MAX_DISTANCE_KM = 5;
+export const MAX_DISTANCE_KM = 12;
 
 // 📮 Serviceable pincodes
 export const SERVICEABLE_PINCODES = [

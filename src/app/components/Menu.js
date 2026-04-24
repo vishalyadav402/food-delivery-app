@@ -252,7 +252,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
             className={`text-[14px] px-2 rounded ${
               variant.label === v.label
                 ? "bg-green-500 text-white"
-                : "bg-gray-100"
+                : "bg-gray-100 text-gray-500"
             }`}
           >
             {v.label}
@@ -277,9 +277,9 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
 </div>
     {/* BUTTON / QTY */}
     <div className="mt-2 flex justify-end w-full">
-
+     <div className="self-center">
       {cartItem ? (
-        <div className="flex items-center justify-center gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">
+        <div className="flex items-center justify-center text-gray-500 gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">
           <button
             onClick={() =>
               updateQty(
@@ -321,6 +321,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
           ADD
         </button>
       )}
+      </div>
     </div>
     </div>
   </div>
