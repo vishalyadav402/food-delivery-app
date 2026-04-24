@@ -50,23 +50,44 @@ export const getPincode = (text = "") => {
   return match ? match[0] : null;
 };
 
-// 📏 Distance calculation (Haversine formula)
-export const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+// 📏 Distance formula
+const getDistanceKm = (lat1, lon1, lat2, lon2) => {
   const R = 6371;
 
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
 
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) ** 2;
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
 
-  return R * c;
+export const getDeliveryInfo = () => {
+  const coords = JSON.parse(localStorage.getItem("userCoords"));
+
+  if (!coords) return null;
+
+  const distance = getDistanceKm(
+    SHOP_LOCATION.lat,
+    SHOP_LOCATION.lng,
+    coords.lat,
+    coords.lng
+  );
+
+  // 🚚 ETA logic
+  let eta = "10-15 mins";
+
+  if (distance > 3) eta = "20-25 mins";
+  if (distance > 6) eta = "30-40 mins";
+
+  return {
+    distance: distance.toFixed(1),
+    eta,
+  };
 };
 
 // ✅ FINAL CHECK

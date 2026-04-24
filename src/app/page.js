@@ -191,12 +191,12 @@ export default function Home() {
       {showCart && (
         <div className="fixed inset-0 bg-black/70 flex justify-end z-50">
           <div className="bg-green-900 w-full md:max-w-md p-4 flex flex-col">
-        <div className="flex justify-between self-center">
+        <div className="flex justify-between">
           <p className="text-white text-xl font-bold my-2">My Cart</p>
   
             <button
               onClick={() => setShowCart(false)}
-              className="text-white text-xl self-end"
+              className="text-white text-xl self-end mb-2"
             >
               ✖
             </button>

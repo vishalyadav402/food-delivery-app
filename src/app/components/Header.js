@@ -1,6 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { SlLocationPin } from "react-icons/sl";
+import { getDeliveryInfo } from "../utils/deliveryConfig";
 
 const Header = ({
   cartCount,
@@ -9,6 +11,11 @@ const Header = ({
   openLocationModal = () => {}, // ✅ default empty
 }) => {
   const router = useRouter();
+const [deliveryInfo, setDeliveryInfo] = useState(null);
+
+useEffect(() => {
+  setDeliveryInfo(getDeliveryInfo());
+}, [location]);
 
   // ✅ Delivery ETA
   const getETA = () => {
@@ -39,11 +46,13 @@ const Header = ({
     </p>
 
           {/* ETA */}
-          {location && (
-            <p className="text-xs text-white/80">
-              Delivery in {getETA()}
-            </p>
-          )}
+          {deliveryInfo && (
+  <div className="text-[11px] text-white/90 mt-1 flex items-center gap-2">
+    <span>🚚 {deliveryInfo.distance} km</span>
+    <span>•</span>
+    <span>⏱ {deliveryInfo.eta}</span>
+  </div>
+)}
         </div>
 
         {/* RIGHT */}
