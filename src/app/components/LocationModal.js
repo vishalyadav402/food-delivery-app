@@ -286,7 +286,7 @@ export default function LocationModal({
     value={location}
     onChange={(e) => setLocation(e.target.value)}
     placeholder="Enter area or pincode"
-    className="w-full border rounded-xl px-3 py-2 pr-8 text-sm"
+    className="w-full border rounded-xl px-3 py-2 pr-8 text-gray-500 text-sm"
   />
 
   {location && (
@@ -366,7 +366,7 @@ export default function LocationModal({
       {/* Select */}
       <span
         onClick={() => setLocation(r)}
-        className="cursor-pointer hover:text-green-600 flex-1"
+        className="cursor-pointer hover:text-green-600 text-gray-500 flex-1"
       >
         📍 {r}
       </span>
