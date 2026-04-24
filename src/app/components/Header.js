@@ -33,10 +33,10 @@ const Header = ({
 >
   <SlLocationPin className="shrink-0" />
 
-  <span className="truncate text-sm">
-    {location || "Select Location"}
-  </span>
-</p>
+      <span className="truncate text-sm">
+        {location || "Select Location"}
+      </span>
+    </p>
 
           {/* ETA */}
           {location && (

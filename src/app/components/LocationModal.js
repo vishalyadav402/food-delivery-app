@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { checkDeliveryAvailability } from "../utils/deliveryConfig";
 
+const SERVICEABLE_PINCODES = ["230133", "230134", "230135"];
+
 export default function LocationModal({
   showLocationModal,
   setShowLocationModal,
@@ -15,14 +17,13 @@ export default function LocationModal({
   const [loadingSuggest, setLoadingSuggest] = useState(false);
   const [coords, setCoords] = useState(null);
 
-  // ✅ Validation state
   const [validation, setValidation] = useState({
     checking: false,
     ok: false,
     message: "",
   });
 
-  // 📦 Load saved + recent
+  // 📦 Load saved
   useEffect(() => {
     const last = localStorage.getItem("userLocation");
     const history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
@@ -34,26 +35,67 @@ export default function LocationModal({
   // 💾 Save recent
   const saveRecent = (value) => {
     let history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
-
     history = [value, ...history.filter((i) => i !== value)].slice(0, 5);
     localStorage.setItem("recentLocations", JSON.stringify(history));
     setRecent(history);
   };
 
-  // 🚚 Auto validate while typing
+  // 🚀 AUTO VALIDATION (PINCODE FIRST)
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (!location || location.length < 5) {
+      if (!location || location.length < 3) {
         setValidation({ checking: false, ok: false, message: "" });
         return;
       }
 
+      // ✅ 1. PINCODE FIRST (FAST + OFFLINE)
+      const match = location.match(/\b\d{6}\b/);
+
+      if (match) {
+        const pin = match[0];
+
+        if (SERVICEABLE_PINCODES.includes(pin)) {
+          setValidation({
+            checking: false,
+            ok: true,
+            message: "✅ Delivery available",
+          });
+
+          // dummy coords (center of your area)
+          setCoords({ lat: 25.9, lng: 81.95 });
+        } else {
+          setValidation({
+            checking: false,
+            ok: false,
+            message: "❌ Not serviceable",
+          });
+        }
+        return;
+      }
+
+      // ❌ Offline fallback
+      if (!navigator.onLine) {
+        setValidation({
+          checking: false,
+          ok: false,
+          message: "Offline: Enter pincode",
+        });
+        return;
+      }
+
+      // 🌐 2. API SEARCH
       setValidation((v) => ({ ...v, checking: true }));
 
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1`
+          `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1`,
+          {
+            headers: {
+              "User-Agent": "KiranaNeedsApp/1.0",
+            },
+          }
         );
+
         const data = await res.json();
 
         if (!data.length) {
@@ -83,10 +125,11 @@ export default function LocationModal({
         });
       } catch (err) {
         console.error(err);
+
         setValidation({
           checking: false,
           ok: false,
-          message: "Error checking location",
+          message: "Enter pincode (network issue)",
         });
       }
     }, 500);
@@ -94,7 +137,7 @@ export default function LocationModal({
     return () => clearTimeout(timer);
   }, [location]);
 
-  // 📍 GPS detect
+  // 📍 GPS DETECT
   const detectLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation not supported");
@@ -110,10 +153,15 @@ export default function LocationModal({
 
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+            {
+              headers: {
+                "User-Agent": "KiranaNeedsApp/1.0",
+              },
+            }
           );
-          const data = await res.json();
 
+          const data = await res.json();
           const addr = data.display_name || "Your Area";
 
           const result = checkDeliveryAvailability({
@@ -141,7 +189,7 @@ export default function LocationModal({
           setShowLocationModal(false);
         } catch (err) {
           console.error(err);
-          alert("Failed to fetch address");
+          alert("Failed to fetch location");
         }
 
         setLoadingGPS(false);
@@ -165,8 +213,14 @@ export default function LocationModal({
 
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=5`
+          `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=5`,
+          {
+            headers: {
+              "User-Agent": "KiranaNeedsApp/1.0",
+            },
+          }
         );
+
         const data = await res.json();
         setSuggestions(data);
       } catch {
@@ -179,7 +233,7 @@ export default function LocationModal({
     return () => clearTimeout(timer);
   }, [location]);
 
-  // ✅ Continue
+  // ✅ CONTINUE
   const handleContinue = () => {
     if (!validation.ok) return;
 
@@ -196,12 +250,12 @@ export default function LocationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white w-[90%] max-w-sm rounded-2xl shadow-xl p-5">
 
-        <h2 className="text-lg font-semibold text-gray-800 text-center">
+        <h2 className="text-lg font-semibold text-center text-gray-800">
           Choose your location
         </h2>
 
         <p className="text-xs text-gray-500 text-center mb-4">
-          Find nearby stores for faster delivery
+          Serviceable: 230133, 230134, 230135
         </p>
 
         {/* GPS */}
@@ -210,17 +264,9 @@ export default function LocationModal({
           disabled={loadingGPS}
           className="w-full bg-green-600 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2"
         >
-          {loadingGPS ? (
-            <>
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              Detecting...
-            </>
-          ) : (
-            "📍 Use current location"
-          )}
+          {loadingGPS ? "Detecting..." : "📍 Use current location"}
         </button>
 
-        {/* Divider */}
         <div className="flex items-center my-4">
           <div className="flex-1 h-px bg-gray-200"></div>
           <span className="px-2 text-xs text-gray-400">OR</span>
@@ -232,10 +278,10 @@ export default function LocationModal({
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Enter area or pincode"
-          className="w-full border rounded-xl px-3 py-2 text-gray-600 text-sm focus:ring-2 focus:ring-green-500 outline-none"
+          className="w-full border rounded-xl px-3 py-2 text-sm"
         />
 
-        {/* Validation */}
+        {/* Status */}
         {validation.checking && (
           <p className="text-xs text-gray-400 mt-2">Checking...</p>
         )}
@@ -271,15 +317,12 @@ export default function LocationModal({
         {/* Recent */}
         {recent.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs text-gray-500 mb-1">
-              Recent locations
-            </p>
-
+            <p className="text-xs text-gray-500">Recent</p>
             {recent.map((r, i) => (
               <div
                 key={i}
                 onClick={() => setLocation(r)}
-                className="text-sm py-1 cursor-pointer hover:text-green-600"
+                className="text-[10px] cursor-pointer hover:text-green-600"
               >
                 📍 {r}
               </div>
@@ -291,10 +334,10 @@ export default function LocationModal({
         <button
           onClick={handleContinue}
           disabled={!validation.ok}
-          className={`w-full py-2.5 rounded-xl font-semibold mt-4 ${
+          className={`w-full mt-4 py-2.5 rounded-xl ${
             validation.ok
               ? "bg-gray-800 text-white"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-300 text-gray-500"
           }`}
         >
           Continue
