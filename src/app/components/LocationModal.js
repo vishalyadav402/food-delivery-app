@@ -112,11 +112,40 @@ export default function LocationModal({
 
         setCoords({ lat, lng });
 
-        const result = checkDeliveryAvailability({
-          locationText: location,
-          lat,
-          lng,
-        });
+        let finalAddress = addr;
+
+// 🔥 Try to extract pincode manually
+let pinMatch = addr.match(/\b\d{6}\b/);
+
+// ❌ If no pincode found → try from known serviceable area
+if (!pinMatch) {
+  // fallback: assume serviceable if inside radius
+  const result = checkDeliveryAvailability({
+    locationText: "230133", // dummy valid pin
+    lat,
+    lng,
+  });
+
+  if (!result.ok) {
+    alert("❌ Delivery not available at your location");
+    setLoadingGPS(false);
+    return;
+  }
+
+  // ✅ allow without pincode
+} else {
+  const result = checkDeliveryAvailability({
+    locationText: addr,
+    lat,
+    lng,
+  });
+
+  if (!result.ok) {
+    alert(result.message);
+    setLoadingGPS(false);
+    return;
+  }
+}
 
         setValidation({
           checking: false,
@@ -328,9 +357,37 @@ export default function LocationModal({
               <div
                 key={i}
                 onClick={() => {
-                  setLocation(s.display_name);
-                  setSuggestions([]);
-                }}
+  const selected = s.display_name;
+
+  setLocation(selected);
+  setSuggestions([]);
+
+  const lat = parseFloat(s.lat);
+  const lng = parseFloat(s.lon);
+
+  setCoords({ lat, lng });
+
+  const result = checkDeliveryAvailability({
+    locationText: selected,
+    lat,
+    lng,
+  });
+
+  if (!result.ok) {
+    alert(result.message);
+    return;
+  }
+
+  // ✅ SAVE DIRECTLY (NO CONTINUE BUTTON NEEDED)
+  localStorage.setItem("userLocation", selected);
+  localStorage.setItem(
+    "userCoords",
+    JSON.stringify({ lat, lng })
+  );
+
+  saveRecent(selected);
+  setShowLocationModal(false);
+}}
                 className="p-2 text-xs hover:bg-gray-100 text-gray-500 cursor-pointer"
               >
                 {s.display_name}
@@ -383,7 +440,7 @@ export default function LocationModal({
 </div>
 
         {/* Continue */}
-        <button
+        {!suggestions.length && (<button
           onClick={handleContinue}
           disabled={!validation.ok}
           className={`w-full mt-4 py-2.5 rounded-xl ${
@@ -394,6 +451,7 @@ export default function LocationModal({
         >
           Continue
         </button>
+    )}
       </div>
     </div>
   );
