@@ -292,7 +292,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
             <Minus size={14}/>
           </button>
 
-          <span className="text-md">{cartItem.qty}</span>
+          <span className="text-md text-black">{cartItem.qty}</span>
 
           <button
             onClick={() =>
