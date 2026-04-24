@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
+import { Minus, Plus } from "lucide-react";
 
 export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCartClick }) {
   const [products, setProducts] = useState([]);
@@ -61,9 +62,9 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
 
   if (loading) {
   return (
-    <div className="p-4">
+    <div className="md:p-4">
       {/* Category Skeleton */}
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 mb-3 px-2">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 my-3">
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
@@ -99,21 +100,21 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
     <>
 
     {/* 🔍 Sticky Search */}
-<div className="sticky top-[60px] z-40 bg-none py-2 shadow-none">
-  <div className="relative">
-    <input
-      type="text"
-      placeholder="Search for products..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-full bg-white text-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
-    />
+    <div className="sticky top-[60px] z-40 bg-none py-2 shadow-none">
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search for products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-white text-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
+        />
 
-    <span className="absolute right-3 top-2 text-gray-400">
-      🔍
-    </span>
-  </div>
-</div>
+        <span className="absolute right-3 top-2 text-gray-400">
+          🔍
+        </span>
+      </div>
+    </div>
 
       {/* Category Filter */}
     {/* 🔥 Category Section */}
@@ -167,7 +168,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
   }`}
 >
       {/* Products */}
-     <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
   {loading
     ? [...Array(8)].map((_, i) => (
         <div
@@ -200,124 +201,130 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
     );
 
     return (
-      <div
-        key={item.id}
-        className="bg-white rounded-lg shadow-sm flex flex-col overflow-hidden"
-      >
+    <div
+  key={item.id}
+  className="bg-white rounded-lg shadow-sm flex flex-col items-center justify-between p-2"
+>
 
-        {/* IMAGE + BADGE */}
-        <div className="relative flex items-center justify-center h-20 p-1">
+  {/* IMAGE */}
+  <div className="relative w-full h-24 flex items-center justify-center">
 
-          {variant.mrp > variant.price && (
-            <span className="absolute top-1 left-1 bg-red-500 text-white text-[9px] px-1 rounded">
-              {Math.round(
-                ((variant.mrp - variant.price) / variant.mrp) * 100
-              )}%
-            </span>
-          )}
+    {variant.mrp > variant.price && (
+      <span className="absolute top-1 left-1 bg-red-500 text-white text-[9px] px-1 rounded">
+        {Math.round(
+          ((variant.mrp - variant.price) / variant.mrp) * 100
+        )}%
+      </span>
+    )}
 
-          <Image
-            src={item.image || "/images/icon-vegacart.png"}
-            alt={item.name}
-            width={120}
-            height={100}
-            className="h-16 object-contain"
-          />
-        </div>
+    <div className="w-full h-full flex items-center justify-center">
+      <Image
+        src={item.image || "/images/icon-vegacart.png"}
+        alt={item.name}
+        width={200}
+        height={150}
+        className="h-full object-contain scale-110"
+      />
+    </div>
+  </div>
 
-        {/* CONTENT */}
-        <div className="px-1 pb-1 flex flex-col justify-between flex-1">
+  {/* CONTENT */}
+  <div className="text-center w-full">
 
-          {/* NAME */}
-          <p className="text-[11px] font-medium text-center leading-tight line-clamp-2 min-h-[26px]">
-            {item.name}
-          </p>
+    {/* NAME */}
+    <p className="text-sm font-semibold leading-tight mt-2 line-clamp-2 min-h-[28px]">
+      {item.name}
+    </p>
 
-          {/* VARIANTS */}
-          {item.variants?.length > 1 && (
-            <div className="flex gap-1 justify-center flex-wrap mt-[2px]">
-              {item.variants.map((v, i) => (
-                <button
-                  key={i}
-                  onClick={() =>
-                    setSelectedVariants((prev) => ({
-                      ...prev,
-                      [item.id]: v,
-                    }))
-                  }
-                  className={`text-[9px] px-1 border rounded ${
-                    variant.label === v.label
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100"
-                  }`}
-                >
-                  {v.label}
-                </button>
-              ))}
-            </div>
-          )}
 
-          {/* PRICE */}
-          <div className="flex justify-center items-center gap-1 mt-[2px]">
-            <span className="text-green-600 text-xs font-bold">
-              ₹{variant.price}
-            </span>
-
-            {variant.mrp > variant.price && (
-              <span className="text-gray-400 line-through text-[9px]">
-                ₹{variant.mrp}
-              </span>
-            )}
-          </div>
-
-          {/* ADD BUTTON / QTY */}
-          <div className="mt-[2px]">
-            {cartItem ? (
-              <div className="flex justify-between items-center border rounded-full px-1 py-[2px] text-xs">
-                <button
-                  onClick={() =>
-                    updateQty(
-                      item.name,
-                      variant.label,
-                      cartItem.qty - 1
-                    )
-                  }
-                >
-                  -
-                </button>
-
-                <span>{cartItem.qty}</span>
-
-                <button
-                  onClick={() =>
-                    addToCart({
-                      name: item.name,
-                      variant: variant.label,
-                      price: variant.price,
-                    })
-                  }
-                  className="text-green-600"
-                >
-                  +
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() =>
-                  addToCart({
-                    name: item.name,
-                    variant: variant.label,
-                    price: variant.price,
-                  })
-                }
-                className="bg-green-500 text-white w-full text-[10px] py-[3px] rounded-full"
-              >
-                ADD
-              </button>
-            )}
-          </div>
-        </div>
+    {/* VARIANTS */}
+    {item.variants?.length > 1 && (
+      <div className="flex justify-center gap-1 flex-wrap mt-1">
+        {item.variants.map((v, i) => (
+          <button
+            key={i}
+            onClick={() =>
+              setSelectedVariants((prev) => ({
+                ...prev,
+                [item.id]: v,
+              }))
+            }
+            className={`text-[14px] px-2 rounded ${
+              variant.label === v.label
+                ? "bg-green-500 text-white"
+                : "bg-gray-100"
+            }`}
+          >
+            {v.label}
+          </button>
+        ))}
       </div>
+    )}
+<div className="flex justify-between">
+  <div className="flex self-center">
+    {/* PRICE */}
+    <div className="flex flex-col mt-1">
+      <span className="text-green-600 text-llg font-bold">
+        ₹{variant.price}
+      </span>
+
+      {variant.mrp > variant.price && (
+        <span className="text-gray-400 line-through text-[12px]">
+          ₹{variant.mrp}
+        </span>
+      )}
+    </div>
+</div>
+    {/* BUTTON / QTY */}
+    <div className="mt-2 flex justify-end w-full">
+
+      {cartItem ? (
+        <div className="flex items-center justify-center gap-2 border border-gray-300 rounded-full w-[80px] py-[2px] text-xs font-bold">
+          <button
+            onClick={() =>
+              updateQty(
+                item.name,
+                variant.label,
+                cartItem.qty - 1
+              )
+            }
+          >
+            <Minus size={16}/>
+          </button>
+
+          <span className="text-lg">{cartItem.qty}</span>
+
+          <button
+            onClick={() =>
+              addToCart({
+                name: item.name,
+                variant: variant.label,
+                price: variant.price,
+              })
+            }
+            className="text-green-600"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() =>
+            addToCart({
+              name: item.name,
+              variant: variant.label,
+              price: variant.price,
+            })
+          }
+          className="bg-green-500 text-white w-[80px] py-[3px] rounded-full text-lg font-bold text-center"
+        >
+          ADD
+        </button>
+      )}
+    </div>
+    </div>
+  </div>
+</div>
     );
   })}
       </div>

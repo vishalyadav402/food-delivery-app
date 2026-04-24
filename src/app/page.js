@@ -7,6 +7,7 @@ import Cart from "./components/Cart";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { calculateDelivery, DELIVERY_RULES } from "./utils/deliveryConfig";
+import LocationModal from "./components/LocationModal";
 
 export default function Home() {
   const [cart, setCart] = useState([]);
@@ -192,13 +193,16 @@ export default function Home() {
       {showCart && (
         <div className="fixed inset-0 bg-black/70 flex justify-end z-50">
           <div className="bg-green-900 w-full md:max-w-md p-4 flex flex-col">
-
+        <div className="flex justify-between">
+          <h1 className="text-white text-xl my-2">My Cart</h1>
+  
             <button
               onClick={() => setShowCart(false)}
               className="text-white text-xl self-end"
             >
               ✖
             </button>
+        </div>
 
             <Cart
               cart={cart}
@@ -206,9 +210,9 @@ export default function Home() {
               removeItem={removeItem}
               setShowCart={setShowCart}
             />
-
+<div className="sticky bottom-2 bg-green-400/10 backdrop-blur-sm p-3 rounded-md">
             {/* DELIVERY SECTION */}
-            <div className="mt-4 bg-white/10 p-3 rounded text-white text-sm">
+            <div className="mt-2 bg-white/10 p-3 rounded text-white text-sm">
 
               {!delivery.allowed ? (
                 <p className="text-red-300">{delivery.message}</p>
@@ -252,49 +256,25 @@ export default function Home() {
               className={`mt-4 w-full py-2 rounded ${
                 delivery.allowed
                   ? "bg-green-600"
-                  : "bg-gray-500 cursor-not-allowed"
+                  : "bg-gray-50 cursor-not-allowed"
               }`}
             >
               {delivery.allowed
                 ? "Proceed to Checkout"
                 : "Minimum Order Required"}
             </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* LOCATION MODAL */}
-      {showLocationModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-[90%] max-w-sm text-center">
-
-            <h2 className="text-lg font-bold mb-3">
-              📍 Choose Your Location
-            </h2>
-
-            <button
-              onClick={detectLocation}
-              className="bg-blue-500 text-white w-full py-2 rounded mb-3"
-            >
-              Use My Current Location
-            </button>
-
-            <input
-              placeholder="Enter area / pincode"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full border p-2 rounded mb-3"
-            />
-
-            <button
-              onClick={handleSaveLocation}
-              className="bg-green-600 text-white w-full py-2 rounded"
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
+     <LocationModal
+  showLocationModal={showLocationModal}
+  setShowLocationModal={setShowLocationModal}
+  location={location}
+  setLocation={setLocation}
+  handleSaveLocation={handleSaveLocation}
+/>
 </div>
       <Footer />
     </div>

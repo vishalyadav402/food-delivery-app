@@ -27,11 +27,11 @@ const Cart = ({
           🛒 Your cart is empty
         </p>
       ) : (
-        <ul className="space-y-4 flex-1 overflow-y-auto scrollbar-hide">
+        <ul className="space-y-4 flex-1 overflow-y-auto scrollbar-hide max-h-[65vh]">
           {cart.map((item, index) => (
             <li
               key={`${item.name}-${item.variant}-${index}`} // ✅ FIX KEY
-              className="flex items-center justify-between border-b pb-3"
+              className="flex items-center justify-between border-b border-green-800 pb-3"
             >
               {/* LEFT */}
               <div className="flex-1">
@@ -99,7 +99,7 @@ const Cart = ({
       )}
 
       {/* 🔥 BOTTOM SECTION */}
-      <div className="sticky bottom-0 mt-4">
+      <div className="sticky bottom-2 hidden mt-4">
 
         {total > 0 ? (
           <div className="bg-green-400/90 backdrop-blur-sm p-3 rounded-md">

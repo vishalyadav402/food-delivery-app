@@ -25,15 +25,18 @@ const Header = ({
           {/* <h1 className="text-xl font-bold">KiranaNeeds</h1> */}
 
           <p
-            onClick={(e) => {
-              e.stopPropagation();
-              openLocationModal();
-            }}
-            className="text-md flex items-center gap-2 cursor-pointer"
-          >
-            <SlLocationPin />
-            {location || "Select Location"}
-          </p>
+  onClick={(e) => {
+    e.stopPropagation();
+    openLocationModal?.();
+  }}
+  className="flex items-center gap-1 cursor-pointer max-w-[160px] md:max-w-[220px]"
+>
+  <SlLocationPin className="shrink-0" />
+
+  <span className="truncate text-sm">
+    {location || "Select Location"}
+  </span>
+</p>
 
           {/* ETA */}
           {location && (
