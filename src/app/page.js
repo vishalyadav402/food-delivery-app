@@ -165,7 +165,8 @@ export default function Home() {
         cartCount={cart.length}
         onCartClick={() => setShowCart(true)}
       />
-<div className="max-w-6xl">
+<div className="flex w-full justify-center">
+  <div className="flex flex-col max-w-6xl justify-center ">
       {/* HERO */}
       <div className="px-4 pt-4">
         <Image
@@ -188,7 +189,7 @@ export default function Home() {
           onCartClick={() => setShowCart(true)}
         />
       </main>
-
+</div>
       {/* CART DRAWER */}
       {showCart && (
         <div className="fixed inset-0 bg-black/70 flex justify-end z-50">

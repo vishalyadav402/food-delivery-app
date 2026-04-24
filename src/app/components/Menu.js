@@ -154,7 +154,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
       {cat[0]}
     </div>
 
-    <p className="text-[10px] mt-1 text-center truncate w-full">
+    <p className="text-[12px] mt-1 text-gray-500 text-center truncate w-full">
       {cat}
     </p>
   </div>
@@ -232,7 +232,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
   <div className="text-center w-full">
 
     {/* NAME */}
-    <p className="text-sm font-semibold leading-tight mt-2 line-clamp-2 min-h-[28px]">
+    <p className="text-sm font-semibold text-gray-500 leading-tight mt-2 line-clamp-2 min-h-[28px]">
       {item.name}
     </p>
 
@@ -269,7 +269,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
       </span>
 
       {variant.mrp > variant.price && (
-        <span className="text-gray-400 line-through text-[12px]">
+        <span className="text-gray-600 line-through text-[12px]">
           ₹{variant.mrp}
         </span>
       )}
@@ -279,7 +279,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
     <div className="mt-2 flex justify-end w-full">
 
       {cartItem ? (
-        <div className="flex items-center justify-center gap-2 border border-gray-300 rounded-full w-[80px] py-[2px] text-xs font-bold">
+        <div className="flex items-center justify-center gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">
           <button
             onClick={() =>
               updateQty(
@@ -289,10 +289,10 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
               )
             }
           >
-            <Minus size={16}/>
+            <Minus size={14}/>
           </button>
 
-          <span className="text-lg">{cartItem.qty}</span>
+          <span className="text-md">{cartItem.qty}</span>
 
           <button
             onClick={() =>
@@ -304,7 +304,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
             }
             className="text-green-600"
           >
-            <Plus size={16} />
+            <Plus size={14} />
           </button>
         </div>
       ) : (
@@ -316,7 +316,7 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
               price: variant.price,
             })
           }
-          className="bg-green-500 text-white w-[80px] py-[3px] rounded-full text-lg font-bold text-center"
+          className="bg-green-500 text-white w-[80px] rounded-full text-md font-bold text-center"
         >
           ADD
         </button>

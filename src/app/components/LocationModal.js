@@ -1,4 +1,6 @@
+"use client";
 import { useEffect, useState } from "react";
+import { checkDeliveryAvailability } from "../utils/deliveryConfig";
 
 export default function LocationModal({
   showLocationModal,
@@ -11,8 +13,16 @@ export default function LocationModal({
   const [suggestions, setSuggestions] = useState([]);
   const [loadingGPS, setLoadingGPS] = useState(false);
   const [loadingSuggest, setLoadingSuggest] = useState(false);
+  const [coords, setCoords] = useState(null);
 
-  // ✅ Load saved + recent
+  // ✅ Validation state
+  const [validation, setValidation] = useState({
+    checking: false,
+    ok: false,
+    message: "",
+  });
+
+  // 📦 Load saved + recent
   useEffect(() => {
     const last = localStorage.getItem("userLocation");
     const history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
@@ -21,7 +31,7 @@ export default function LocationModal({
     setRecent(history);
   }, []);
 
-  // ✅ Save recent
+  // 💾 Save recent
   const saveRecent = (value) => {
     let history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
 
@@ -30,37 +40,110 @@ export default function LocationModal({
     setRecent(history);
   };
 
-  // ✅ Handle continue
-  const handleContinue = () => {
-    if (!location) return alert("Enter location");
-    localStorage.setItem("userLocation", location);
-    saveRecent(location);
-    handleSaveLocation();
-  };
+  // 🚚 Auto validate while typing
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!location || location.length < 5) {
+        setValidation({ checking: false, ok: false, message: "" });
+        return;
+      }
 
-  // ✅ GPS detect
+      setValidation((v) => ({ ...v, checking: true }));
+
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1`
+        );
+        const data = await res.json();
+
+        if (!data.length) {
+          setValidation({
+            checking: false,
+            ok: false,
+            message: "Location not found",
+          });
+          return;
+        }
+
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+
+        setCoords({ lat, lng });
+
+        const result = checkDeliveryAvailability({
+          locationText: location,
+          lat,
+          lng,
+        });
+
+        setValidation({
+          checking: false,
+          ok: result.ok,
+          message: result.message,
+        });
+      } catch (err) {
+        console.error(err);
+        setValidation({
+          checking: false,
+          ok: false,
+          message: "Error checking location",
+        });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  // 📍 GPS detect
   const detectLocation = () => {
-    if (!navigator.geolocation) return alert("Not supported");
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported");
+      return;
+    }
 
     setLoadingGPS(true);
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
           );
           const data = await res.json();
 
           const addr = data.display_name || "Your Area";
 
+          const result = checkDeliveryAvailability({
+            locationText: addr,
+            lat,
+            lng,
+          });
+
+          if (!result.ok) {
+            alert(result.message);
+            setLoadingGPS(false);
+            return;
+          }
+
           setLocation(addr);
-          saveRecent(addr);
+          setCoords({ lat, lng });
+
           localStorage.setItem("userLocation", addr);
+          localStorage.setItem(
+            "userCoords",
+            JSON.stringify({ lat, lng })
+          );
+
+          saveRecent(addr);
           setShowLocationModal(false);
-        } catch {
-          alert("Failed to fetch location");
+        } catch (err) {
+          console.error(err);
+          alert("Failed to fetch address");
         }
+
         setLoadingGPS(false);
       },
       () => {
@@ -70,7 +153,7 @@ export default function LocationModal({
     );
   };
 
-  // ✅ Suggestions (debounced)
+  // 🔍 Suggestions
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (!location || location.length < 3) {
@@ -96,14 +179,23 @@ export default function LocationModal({
     return () => clearTimeout(timer);
   }, [location]);
 
+  // ✅ Continue
+  const handleContinue = () => {
+    if (!validation.ok) return;
+
+    localStorage.setItem("userLocation", location);
+    localStorage.setItem("userCoords", JSON.stringify(coords));
+
+    saveRecent(location);
+    handleSaveLocation();
+  };
+
   if (!showLocationModal) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-
       <div className="bg-white w-[90%] max-w-sm rounded-2xl shadow-xl p-5">
 
-        {/* TITLE */}
         <h2 className="text-lg font-semibold text-gray-800 text-center">
           Choose your location
         </h2>
@@ -112,7 +204,7 @@ export default function LocationModal({
           Find nearby stores for faster delivery
         </p>
 
-        {/* GPS BUTTON */}
+        {/* GPS */}
         <button
           onClick={detectLocation}
           disabled={loadingGPS}
@@ -128,26 +220,37 @@ export default function LocationModal({
           )}
         </button>
 
-        {/* DIVIDER */}
+        {/* Divider */}
         <div className="flex items-center my-4">
           <div className="flex-1 h-px bg-gray-200"></div>
           <span className="px-2 text-xs text-gray-400">OR</span>
           <div className="flex-1 h-px bg-gray-200"></div>
         </div>
 
-        {/* INPUT */}
+        {/* Input */}
         <input
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder="Enter area or pincode"
-          className="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 outline-none"
+          className="w-full border rounded-xl px-3 py-2 text-gray-600 text-sm focus:ring-2 focus:ring-green-500 outline-none"
         />
 
-        {/* 🔍 Suggestions */}
-        {loadingSuggest && (
-          <p className="text-xs text-gray-400 mt-2">Searching...</p>
+        {/* Validation */}
+        {validation.checking && (
+          <p className="text-xs text-gray-400 mt-2">Checking...</p>
         )}
 
+        {validation.message && !validation.checking && (
+          <p
+            className={`text-xs mt-2 ${
+              validation.ok ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {validation.message}
+          </p>
+        )}
+
+        {/* Suggestions */}
         {suggestions.length > 0 && (
           <div className="border rounded-xl mt-2 max-h-32 overflow-y-auto">
             {suggestions.map((s, i) => (
@@ -165,10 +268,10 @@ export default function LocationModal({
           </div>
         )}
 
-        {/* 🕘 Recent Locations */}
+        {/* Recent */}
         {recent.length > 0 && (
           <div className="mt-3">
-            <p className="text-xs text-gray-400 mb-1">
+            <p className="text-xs text-gray-500 mb-1">
               Recent locations
             </p>
 
@@ -184,10 +287,15 @@ export default function LocationModal({
           </div>
         )}
 
-        {/* CONTINUE */}
+        {/* Continue */}
         <button
           onClick={handleContinue}
-          className="w-full bg-gray-800 text-white py-2.5 rounded-xl font-semibold mt-4"
+          disabled={!validation.ok}
+          className={`w-full py-2.5 rounded-xl font-semibold mt-4 ${
+            validation.ok
+              ? "bg-gray-800 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
         >
           Continue
         </button>
