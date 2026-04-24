@@ -201,6 +201,13 @@ export default function LocationModal({
     );
   };
 
+
+  const deleteRecent = (value) => {
+  const updated = recent.filter((item) => item !== value);
+
+  setRecent(updated);
+  localStorage.setItem("recentLocations", JSON.stringify(updated));
+};
   // 🔍 Suggestions
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -273,13 +280,31 @@ export default function LocationModal({
           <div className="flex-1 h-px bg-gray-200"></div>
         </div>
 
-        {/* Input */}
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Enter area or pincode"
-          className="w-full border rounded-xl px-3 py-2 text-sm"
-        />
+
+        <div className="relative">
+  <input
+    value={location}
+    onChange={(e) => setLocation(e.target.value)}
+    placeholder="Enter area or pincode"
+    className="w-full border rounded-xl px-3 py-2 pr-8 text-sm"
+  />
+
+  {location && (
+    <button
+      onClick={() => {
+        setLocation("");
+        setValidation({
+          checking: false,
+          ok: false,
+          message: "",
+        });
+      }}
+      className="absolute right-2 top-2 text-gray-400 hover:text-black"
+    >
+      ✖
+    </button>
+  )}
+</div>
 
         {/* Status */}
         {validation.checking && (
@@ -315,20 +340,47 @@ export default function LocationModal({
         )}
 
         {/* Recent */}
-        {recent.length > 0 && (
-          <div className="mt-3">
-            <p className="text-xs text-gray-500">Recent</p>
-            {recent.map((r, i) => (
-              <div
-                key={i}
-                onClick={() => setLocation(r)}
-                className="text-[10px] cursor-pointer hover:text-green-600"
-              >
-                📍 {r}
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mt-3">
+  <div className="flex justify-between items-center mb-1">
+    <p className="text-xs text-gray-500">Recent</p>
+
+    {/* 🧹 Clear All */}
+    {recent.length > 0 && (
+      <button
+        onClick={() => {
+          setRecent([]);
+          localStorage.removeItem("recentLocations");
+        }}
+        className="text-[10px] text-red-500"
+      >
+        Clear
+      </button>
+    )}
+  </div>
+
+  {recent.map((r, i) => (
+    <div
+      key={i}
+      className="flex justify-between items-center text-sm py-1 group"
+    >
+      {/* Select */}
+      <span
+        onClick={() => setLocation(r)}
+        className="cursor-pointer hover:text-green-600 flex-1"
+      >
+        📍 {r}
+      </span>
+
+      {/* ❌ Delete */}
+      <button
+        onClick={() => deleteRecent(r)}
+        className="text-gray-400 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition"
+      >
+        ✖
+      </button>
+    </div>
+  ))}
+</div>
 
         {/* Continue */}
         <button
