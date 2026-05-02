@@ -131,14 +131,17 @@ const handleAddOrUpdate = async () => {
 const handleEdit = (product) => {
   setForm({
     name: product.name,
-    category: product.category,
+    category_id: product.category_id || "",
+    subcategory_id: product.subcategory_id || "",
     image: product.image,
     variants: product.variants || [],
-    is_active: product.is_active ?? false, // ✅ FIX
+    is_active: product.is_active ?? false,
   });
+
   setEditId(product.id);
   setShowModal(true);
 };
+
 
   // ✅ Delete
   const handleDelete = async (id) => {
@@ -309,7 +312,7 @@ const handleEdit = (product) => {
                 )}
               </div>
             </label>
-</div>
+            </div>
             {/* Product Fields */}
             <input
               placeholder="Product Name"
@@ -331,22 +334,22 @@ const handleEdit = (product) => {
       {c.name}
     </option>
   ))}
-</select>
+            </select>
 
-<select
-  value={form.subcategory_id}
-  onChange={(e) =>
-    setForm({ ...form, subcategory_id: e.target.value })
-  }
-  className="p-2 w-full border mt-2 text-black"
->
-  <option value="">Select Subcategory</option>
-  {(filteredSubs || []).map((s) => (
-    <option key={s.id} value={s.id}>
-      {s.name}
-    </option>
-  ))}
-</select>
+            <select
+              value={form.subcategory_id}
+              onChange={(e) =>
+                setForm({ ...form, subcategory_id: e.target.value })
+              }
+              className="p-2 w-full border mt-2 text-black"
+            >
+              <option value="">Select Subcategory</option>
+              {(filteredSubs || []).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
 
         <div className="flex items-center justify-between mt-3">
         <label className="font-medium">Product Status</label>

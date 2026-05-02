@@ -1,10 +1,11 @@
 import React from 'react'
+import SearchBox from '../components/SearchBox'
 
 const page = () => {
   return (
-    <div>search page
+    <div>
 
-
+<SearchBox/>
         {/* <ProductCard
               key={item.id}
               item={item}

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import ProductCard from "./Productcard";
+import SearchBox from "./SearchBox";
 
 export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
   const [products, setProducts] = useState([]);
@@ -109,27 +110,12 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
 
 
   return (
-    <div className="mx-auto p-3 max-w-6xl">
+    <div className="mx-auto md:p-3 py-3 max-w-6xl">
 
       {/* 🔍 SEARCH */}
-      <div className="sticky top-[60px] z-40 bg-white border-green-200 outline-green-200 py-2 shadow-none">
-      <div className="relative mb-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search..."
-          className="w-full border text-black rounded-full px-4 py-2"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute right-3 top-2"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-      </div>
+<div className="sticky top-[60px] z-40 bg-white py-2">
+  <SearchBox search={search} setSearch={setSearch} />
+</div>
 
 
       {/* 🔥 CATEGORY ICONS */}
@@ -155,7 +141,7 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
               )}
             </div>
 
-            <p className="text-xs text-black mt-1">{cat.name}</p>
+            <p className="text-xs text-center text-black mt-1">{cat.name}</p>
           </div>
         ))}
       </div>

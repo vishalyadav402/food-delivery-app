@@ -166,18 +166,21 @@ export default function Home() {
         onCartClick={() => setShowCart(true)}
       />
       {/* HERO */}
-      <div className="px-4 pt-4 mx-auto p-3 max-w-6xl">
+      {/* <div className="md:px-4 pt-4 mx-auto p-2 md:p-3 max-w-6xl h-[180px] sm:h-[220px] md:h-[300px]">
         <Image
           src="/images/gif_banner.gif"
           alt="Banner"
           width={2000}
           height={1000}
-          className="rounded-xl"
+      className="rounded-xl"
+      priority
         />
-      </div>
+      </div> */}
+
+      
 
       {/* MENU */}
-      <main className="max-w-full px-4 pb-4">
+      <main className="max-w-full md:px-4 p-2 pb-4">
         <Menu
           cart={cart}
           addToCart={addToCart}
