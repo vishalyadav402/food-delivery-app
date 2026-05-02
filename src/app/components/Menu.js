@@ -3,31 +3,43 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import { Minus, Plus } from "lucide-react";
+import ProductCard from "./Productcard";
 
 export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCartClick }) {
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [categories, setCategories] = useState([]); // ✅ NEW
+  const [selectedCategory, setSelectedCategory] = useState("all"); // ✅ FIXED
   const [selectedVariants, setSelectedVariants] = useState({});
   const [loading, setLoading] = useState(true);
-const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
 
-  // ✅ Fetch products
+  // ✅ Fetch products + categories
   useEffect(() => {
     const fetchData = async () => {
       const { data, error } = await supabase
         .from("products")
+        .select(`
+          *,
+          categories(id, name)
+        `);
+
+      const { data: catData } = await supabase
+        .from("categories")
         .select("*");
 
       if (error) console.error(error);
-      else 
-        setProducts(data || []); // show immediately
-setTimeout(() => setLoading(false), 300); // small delay for smoothness
+      else {
+        setProducts(data || []);
+        setCategories(catData || []);
+      }
+
+      setTimeout(() => setLoading(false), 300);
     };
 
     fetchData();
   }, []);
 
-  // ✅ Set default variants
+  // ✅ Default variants
   useEffect(() => {
     const initial = {};
     products.forEach((p) => {
@@ -42,53 +54,56 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
     setSelectedVariants(initial);
   }, [products]);
 
-  // ✅ Categories
-  const categories = [
-    "All",
-    ...new Set(products.map((p) => p.category || "General")),
+  // ✅ CATEGORY LIST (FROM DB)
+  const categoryList = [
+    { id: "all", name: "All" },
+    ...(categories || []),
   ];
 
-  // ✅ Filter
+  // ✅ FILTER FIXED
   const filtered = products.filter((p) => {
-  const matchCategory =
-    selectedCategory === "All" || p.category === selectedCategory;
+    const matchCategory =
+      selectedCategory === "all" ||
+      p.category_id === selectedCategory;
 
-  const matchSearch = p.name
-    .toLowerCase()
-    .includes(search.toLowerCase());
+    const matchSearch = p.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
 
-  return matchCategory && matchSearch;
-});
+    return matchCategory && matchSearch;
+  });
+
+  const groupedProducts = (categories || []).map((cat) => ({
+  ...cat,
+  items: (products || []).filter(
+    (p) =>
+      p.category_id === cat.id &&
+      p.name?.toLowerCase().includes(search.toLowerCase())
+  ),
+}));
 
   if (loading) {
   return (
-    <div className="md:p-4">
+    <div className="mx-auto max-w-6xl">
+
       {/* Category Skeleton */}
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 my-3">
+      <div className="flex gap-3 mb-4 overflow-x-auto px-2">
         {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="h-8 w-20 bg-gray-200 animate-pulse rounded-full"
-          ></div>
+          <div key={i} className="flex flex-col items-center min-w-[70px]">
+            <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-3 w-12 bg-gray-200 mt-2 rounded animate-pulse"></div>
+          </div>
         ))}
       </div>
 
-      {/* Product Skeleton Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Product Skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl shadow p-2 animate-pulse"
-          >
-            {/* Image */}
-            <div className="h-32 bg-gray-200 rounded"></div>
-
-            {/* Text */}
-            <div className="h-4 bg-gray-200 rounded mt-3"></div>
-            <div className="h-3 bg-gray-200 rounded mt-2 w-1/2 mx-auto"></div>
-
-            {/* Button */}
-            <div className="h-8 bg-gray-200 rounded mt-4"></div>
+          <div key={i} className="bg-white p-2 rounded-lg shadow animate-pulse">
+            <div className="h-24 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 mt-2 rounded"></div>
+            <div className="h-3 bg-gray-200 mt-1 w-1/2 rounded"></div>
+            <div className="h-8 bg-gray-200 mt-3 rounded"></div>
           </div>
         ))}
       </div>
@@ -97,269 +112,174 @@ setTimeout(() => setLoading(false), 300); // small delay for smoothness
 }
 
   return (
-    <>
-
-    {/* 🔍 Sticky Search */}
-    <div className="sticky top-[60px] z-40 bg-none py-2 shadow-none">
+    <div className="mx-auto p-3 max-w-6xl">
+     <div className="sticky top-[60px] z-40 py-2">
       <div className="relative">
         <input
           type="text"
-          placeholder="Search for products..."
+          placeholder="Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-white text-gray-600 border rounded-full px-4 py-2 pr-10 focus:outline-none"
         />
 
-        <span className="absolute right-3 top-2 text-gray-400">
-          🔍
-        </span>
+        {/* 🔍 Icon */}
+        <span className="absolute right-8 top-2 text-gray-400">🔍</span>
+
+        {/* ❌ Clear */}
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-2 top-1.5 text-gray-500"
+          >
+            ✕
+          </button>
+        )}
       </div>
     </div>
 
-      {/* Category Filter */}
-    {/* 🔥 Category Section */}
-<div
-  className={`transition-all duration-300 ${
-    loading ? "opacity-50" : "opacity-100"
-  }`}
->
-  {loading ? (
-    <div className="flex gap-3 mb-4 overflow-x-auto px-2">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="flex flex-col items-center min-w-['70px']">
-          <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
-          <div className="h-3 w-12 bg-gray-200 mt-2 rounded animate-pulse"></div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="flex gap-3 mb-4 overflow-x-auto px-2 no-scrollbar">
-      
-      {/* Dynamic categories */}
-     {categories.map((cat) => (
-  <div
-    key={cat}
-    onClick={() => setSelectedCategory(cat)}
-    className={`flex flex-col items-center cursor-pointer transition ${
-      selectedCategory === cat ? "scale-95" : "opacity-80"
-    }`}
-  >
-    <div
-      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs ${
-        selectedCategory === cat
-          ? "bg-green-500 text-white"
-          : "bg-gray-200 text-gray-600"
-      }`}
-    >
-      {cat[0]}
-    </div>
 
-    <p className="text-[12px] mt-1 text-gray-500 text-center truncate w-full">
-      {cat}
-    </p>
-  </div>
-))}
+      {/* 🔥 Categories */}
+      <div className="flex gap-3 mb-4 overflow-x-auto px-2 no-scrollbar">
+  {categoryList.map((cat) => (
+    <div
+      key={cat.id}
+      onClick={() => setSelectedCategory(cat.id)}
+      className="flex flex-col items-center cursor-pointer min-w-[70px]"
+    >
+
+      {/* ICON */}
+      <div
+        className={`w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden shadow-sm transition ${
+          selectedCategory === cat.id
+            ? "ring-2 ring-green-500 scale-95"
+            : "bg-white"
+        }`}
+      >
+        {cat.id === "all" ? (
+          <span className="text-lg">🛒</span>
+        ) : (
+          <Image
+            src={cat.image || "/images/icon-vegacart.png"}
+            alt={cat.name}
+            width={50}
+            height={50}
+            className="object-contain"
+          />
+        )}
+      </div>
+
+      {/* NAME */}
+      <p
+        className={`text-[12px] mt-1 text-center ${
+          selectedCategory === cat.id
+            ? "text-green-600 font-medium"
+            : "text-gray-500"
+        }`}
+      >
+        {cat.name}
+      </p>
     </div>
-  )}
+  ))}
 </div>
 
-<div className={`transition-opacity duration-300 ${
-    loading ? "opacity-50" : "opacity-100"
-  }`}
->
-      {/* Products */}
-     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-  {loading
-    ? [...Array(8)].map((_, i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl shadow p-2 animate-pulse"
-        >
-          <div className="h-32 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 mt-3 rounded"></div>
-          <div className="h-3 bg-gray-200 mt-2 w-1/2 mx-auto rounded"></div>
-          <div className="h-8 bg-gray-200 mt-4 rounded"></div>
-        </div>
-      ))
-        :filtered.map((item) => {
-    const variant =
-      selectedVariants[item.id] ||
-      (item.variants?.length > 0
-        ? item.variants[0]
-        : {
-            label: "Default",
-            price: item.price || 0,
-            mrp: item.mrp || item.price || 0,
-          });
 
-    const currentVariantLabel = variant?.label || "Default";
 
-    const cartItem = (cart || []).find(
-      (c) =>
-        c.name === item.name &&
-        (c.variant || "Default") === currentVariantLabel
-    );
+
+<div className="space-y-6 mt-4">
+
+  {groupedProducts.map((cat) => {
+    if (!cat.items.length) return null;
 
     return (
-    <div
-  key={item.id}
-  className="bg-white rounded-lg shadow-sm flex flex-col items-center justify-between p-2"
->
+      <div key={cat.id}>
 
-  {/* IMAGE */}
-  <div className="relative w-full h-24 flex items-center justify-center">
-
-    {variant.mrp > variant.price && (
-      <span className="absolute top-1 left-1 bg-red-500 text-white text-[9px] px-1 rounded">
-        {Math.round(
-          ((variant.mrp - variant.price) / variant.mrp) * 100
-        )}%
-      </span>
-    )}
-
-    <div className="w-full h-full flex items-center justify-center">
-      <Image
-        src={item.image || "/images/icon-vegacart.png"}
-        alt={item.name}
-        width={200}
-        height={150}
-        className="h-full object-contain scale-110"
-      />
-    </div>
-  </div>
-
-  {/* CONTENT */}
-  <div className="text-center w-full">
-
-    {/* NAME */}
-    <p className="text-sm font-semibold text-gray-500 leading-tight mt-2 line-clamp-2 min-h-[28px]">
-      {item.name}
-    </p>
-
-
-    {/* VARIANTS */}
-    {item.variants?.length > 1 && (
-      <div className="flex justify-center gap-1 flex-wrap mt-1">
-        {item.variants.map((v, i) => (
-          <button
-            key={i}
-            onClick={() =>
-              setSelectedVariants((prev) => ({
-                ...prev,
-                [item.id]: v,
-              }))
-            }
-            className={`text-[14px] px-2 rounded ${
-              variant.label === v.label
-                ? "bg-green-500 text-white"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            {v.label}
-          </button>
-        ))}
-      </div>
-    )}
-<div className="flex justify-between">
-  <div className="flex self-center">
-    {/* PRICE */}
-    <div className="flex flex-col mt-1">
-      <span className="text-green-600 text-llg font-bold">
-        ₹{variant.price}
-      </span>
-
-      {variant.mrp > variant.price && (
-        <span className="text-gray-600 line-through text-[12px]">
-          ₹{variant.mrp}
-        </span>
-      )}
-    </div>
-</div>
-    {/* BUTTON / QTY */}
-    <div className="mt-2 flex justify-end w-full">
-     <div className="self-center">
-      {cartItem ? (
-        <div className="flex items-center justify-center text-gray-500 gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">
-          <button
-            onClick={() =>
-              updateQty(
-                item.name,
-                variant.label,
-                cartItem.qty - 1
-              )
-            }
-          >
-            <Minus size={14}/>
-          </button>
-
-          <span className="text-md text-black">{cartItem.qty}</span>
+        {/* 🔥 CATEGORY HEADER */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+            <Image
+              src={cat.image || "/images/icon-vegacart.png"}
+              alt={cat.name}
+              width={50}
+              height={50}
+            />
+            {cat.name}
+          </h2>
 
           <button
-            onClick={() =>
-              addToCart({
-                name: item.name,
-                variant: variant.label,
-                price: variant.price,
-              })
-            }
-            className="text-green-600"
+            onClick={() => setSelectedCategory(cat.id)}
+            className="text-green-600 text-sm"
           >
-            <Plus size={14} />
+            see all
           </button>
         </div>
-      ) : (
-        <button
-          onClick={() =>
-            addToCart({
-              name: item.name,
-              variant: variant.label,
-              price: variant.price,
-            })
-          }
-          className="bg-green-500 text-white w-[80px] rounded-full text-md font-bold text-center"
-        >
-          ADD
-        </button>
-      )}
+
+        {/* 🔥 HORIZONTAL PRODUCTS */}
+        <div className="flex gap-3 overflow-x-auto px-2 no-scrollbar py-5">
+
+          {cat.items.slice(0, 10).map((item) => {
+            const variant =
+              selectedVariants[item.id] ||
+              item.variants?.[0] || {
+                label: "Default",
+                price: item.price || 0,
+              };
+
+            const cartItem = (cart || []).find(
+              (c) =>
+                c.name === item.name &&
+                (c.variant || "Default") === variant.label
+            );
+
+            return (
+             <div className="w-3xs h-full">
+            <ProductCard
+                  key={item.id}
+                  item={item}
+                  variant={variant}
+                  cartItem={cartItem}
+                  addToCart={addToCart}
+                  updateQty={updateQty}
+                />
+                </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
-    </div>
-  </div>
-</div>
     );
   })}
-      </div>
+
 </div>
 
+      {/* 🛍 Products */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+       {filtered.map((item) => {
+  const variant =
+    selectedVariants[item.id] ||
+    item.variants?.[0] || {
+      label: "Default",
+      price: item.price || 0,
+      mrp: item.mrp || item.price || 0,
+    };
 
-      {/* 🛒 Floating Bottom Cart */}
-{cart && cart.length > 0 && (
-  <div className="md:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-lg z-50">
-    
-    {/* Left: items + total */}
-    <div>
-      <p className="text-md font-semibold">
-        {cart.length} item{cart.length > 1 ? "s" : ""}
-      </p>
-      <p className="text-sm">
-        ₹
-        {cart.reduce(
-          (sum, item) => sum + item.price * item.qty,
-          0
-        )}
-      </p>
+  const cartItem = (cart || []).find(
+    (c) =>
+      c.name === item.name &&
+      (c.variant || "Default") === variant.label
+  );
+
+  return (
+    <ProductCard
+      key={item.id}
+      item={item}
+      variant={variant}
+      cartItem={cartItem}
+      addToCart={addToCart}
+      updateQty={updateQty}
+    />
+  );
+})}
+      </div>
     </div>
-
-    {/* Right: button */}
-    <button
-      onClick={onCartClick}
-      className="bg-white text-green-700 px-4 py-2 rounded-full font-semibold"
-    >
-      View Cart →
-    </button>
-    
-  </div>
-)}
-    </>
   );
 }

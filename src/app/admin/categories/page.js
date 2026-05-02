@@ -1,191 +1,196 @@
 "use client";
-import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabase";
 
-export default function CategoryAdmin() {
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/app/utils/supabase";
+import CategoryModal from "../components/CategoryModal";
+import SubCategoryModal from "../components/SubCategoryModal";
+import AdminLayout from "../components/AdminLayout";
+
+export default function Page() {
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ name: "" });
-  const [icon, setIcon] = useState(null);
-  const [banner, setBanner] = useState(null);
-  const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [subcategories, setSubcategories] = useState([]);
 
-  // 📥 Fetch
+  const [catModal, setCatModal] = useState(false);
+  const [subModal, setSubModal] = useState(false);
+
+  const [editCat, setEditCat] = useState(null);
+  const [editSub, setEditSub] = useState(null);
+
   const fetchData = async () => {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .order("position", { ascending: true });
+    try {
+      const { data: cat } = await supabase.from("categories").select("*");
+      const { data: sub } = await supabase.from("subcategories").select("*");
 
-    if (error) console.error(error);
-    else setCategories(data || []);
+      setCategories(cat || []);
+      setSubcategories(sub || []);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      setCategories([]);
+      setSubcategories([]);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // 📤 Upload helper (FIXED)
-  const uploadImage = async (file, bucket) => {
-    if (!file) return null;
-
-    const fileName = `${bucket}-${Date.now()}-${Math.random()}.jpg`;
-
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file);
-
-    if (error) {
-      console.error("Upload error:", error);
-      alert("Image upload failed");
-      return null;
-    }
-
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
-  };
-
-  // ➕ Add / Update
-  const handleSave = async () => {
-    if (!form.name) return alert("Enter name");
-
-    setLoading(true);
-
-    const iconUrl = icon
-      ? await uploadImage(icon, "category-images")
-      : null;
-
-    const bannerUrl = banner
-      ? await uploadImage(banner, "category-banners")
-      : null;
-
-    if (editId) {
-      const { error } = await supabase
-        .from("categories")
-        .update({
-          name: form.name,
-          ...(iconUrl && { image: iconUrl }),
-          ...(bannerUrl && { banner: bannerUrl }),
-        })
-        .eq("id", editId);
-
-      if (error) console.error(error);
-    } else {
-      const { error } = await supabase.from("categories").insert([
-        {
-          name: form.name,
-          image: iconUrl,
-          banner: bannerUrl,
-          position: categories.length,
-        },
-      ]);
-
-      if (error) console.error(error);
-    }
-
-    // reset
-    setForm({ name: "" });
-    setIcon(null);
-    setBanner(null);
-    setEditId(null);
-    setLoading(false);
-
-    fetchData();
-  };
-
-  // ✏ Edit
-  const handleEdit = (cat) => {
-    setForm({ name: cat.name });
-    setEditId(cat.id);
-  };
-
-  // 🗑 Delete
-  const handleDelete = async (id) => {
+  const deleteCategory = async (id) => {
     await supabase.from("categories").delete().eq("id", id);
     fetchData();
   };
 
-  // 🔀 Reorder
-  const move = async (i, dir) => {
-    const list = [...categories];
-    const target = i + dir;
-
-    if (target < 0 || target >= list.length) return;
-
-    [list[i], list[target]] = [list[target], list[i]];
-    setCategories(list);
-
-    for (let idx = 0; idx < list.length; idx++) {
-      await supabase
-        .from("categories")
-        .update({ position: idx })
-        .eq("id", list[idx].id);
-    }
+  const deleteSub = async (id) => {
+    await supabase.from("subcategories").delete().eq("id", id);
+    fetchData();
   };
 
+  const [openRows, setOpenRows] = useState({});
+
+const toggleRow = (id) => {
+  setOpenRows((prev) => ({
+    ...prev,
+    [id]: !prev[id],
+  }));
+};
+
+
   return (
-    <div className="p-6 max-w-md">
-      <h1 className="text-xl font-bold mb-4">Categories</h1>
+    <AdminLayout>
+    <div className="md:p-6 mx-auto max-w-lg">
 
-      {/* Form */}
-      <input
-        placeholder="Category Name"
-        value={form.name}
-        onChange={(e) => setForm({ name: e.target.value })}
-        className="border p-2 w-full mb-2"
-      />
+      {/* BUTTONS */}
+      <div className="flex gap-3 mb-4">
+        <button
+          onClick={() => {
+            setEditCat(null);
+            setCatModal(true);
+          }}
+          className="bg-green-500 text-white px-4 py-2"
+        >
+          New Category
+        </button>
 
-      <label>Icon</label>
-      <input type="file" onChange={(e) => setIcon(e.target.files[0])} />
+        <button
+          onClick={() => {
+            setEditSub(null);
+            setSubModal(true);
+          }}
+          className="bg-blue-500 text-white px-4 py-2"
+        >
+          New Subcategory
+        </button>
+      </div>
 
-      <label className="mt-2 block">Banner</label>
-      <input type="file" onChange={(e) => setBanner(e.target.files[0])} />
+    <table className="w-full border">
+  <thead>
+    <tr className="bg-gray-200 text-left">
+      <th></th>
+      <th>Name</th>
+      <th>Image</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
 
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className="bg-green-500 text-white px-4 py-2 mt-3 rounded w-full"
-      >
-        {loading ? "Saving..." : editId ? "Update" : "Add"} Category
-      </button>
+  <tbody>
+    {(categories || []).map((cat) => {
+      const subs = (subcategories || []).filter(
+        (s) => s.category_id === cat.id
+      );
 
-      {/* List */}
-      <div className="mt-6 space-y-3">
-        {categories.map((cat, i) => (
-          <div
-            key={cat.id || i}
-            className="border p-3 flex justify-between items-center"
-          >
-            <div>
-              <p>{cat.name}</p>
+      return (
+       <React.Fragment key={cat.id}>
+          {/* CATEGORY ROW */}
+          <tr key={cat.id} className="border bg-gray-50">
+            <td className="text-center">
+              <button onClick={() => toggleRow(cat.id)}>
+                {openRows[cat.id] ? "▼" : "▶"}
+              </button>
+            </td>
 
-              {/* FIXED IMAGE DISPLAY */}
+            <td className="font-semibold">{cat.name} ({subs.length})</td>
+
+            <td>
               <img
-                src={
-                  cat.image ||
-                  "https://via.placeholder.com/40"
-                }
-                className="w-10 h-10 object-cover rounded mt-1"
+                src={cat.image || "https://via.placeholder.com/40"}
+                className="w-10 h-10"
               />
-            </div>
+            </td>
 
-            <div className="flex gap-2 text-sm">
-              <button onClick={() => move(i, -1)}>⬆</button>
-              <button onClick={() => move(i, 1)}>⬇</button>
-              <button onClick={() => handleEdit(cat)}>Edit</button>
+            <td>
               <button
-                onClick={() => handleDelete(cat.id)}
-                className="text-red-500"
+                onClick={() => {
+                  setEditCat(cat);
+                  setCatModal(true);
+                }}
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => deleteCategory(cat.id)}
+                className="text-red-500 ml-2"
               >
                 Delete
               </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            </td>
+          </tr>
+
+          {/* SUBCATEGORY ROWS */}
+          {openRows[cat.id] &&
+            subs.map((s) => (
+              <tr key={s.id} className="border bg-white">
+                <td></td>
+
+                <td className="pl-6">↳ {s.name}</td>
+
+                <td>
+                  <img
+                    src={s.image || "https://via.placeholder.com/40"}
+                    className="w-8 h-8"
+                  />
+                </td>
+
+                <td>
+                  <button
+                    onClick={() => {
+                      setEditSub(s);
+                      setSubModal(true);
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteSub(s.id)}
+                    className="text-red-500 ml-2"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </React.Fragment>
+      );
+    })}
+  </tbody>
+</table>
+
+      {/* MODALS */}
+      <CategoryModal
+        open={catModal}
+        onClose={() => setCatModal(false)}
+        fetchData={fetchData}
+        editData={editCat}
+      />
+
+      <SubCategoryModal
+        open={subModal}
+        onClose={() => setSubModal(false)}
+        categories={categories || []}
+        fetchData={fetchData}
+        editData={editSub}
+      />
     </div>
+    </AdminLayout>
   );
 }

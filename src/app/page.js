@@ -166,7 +166,7 @@ export default function Home() {
         onCartClick={() => setShowCart(true)}
       />
       {/* HERO */}
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-4 mx-auto p-3 max-w-6xl">
         <Image
           src="/images/gif_banner.gif"
           alt="Banner"
