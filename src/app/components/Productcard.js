@@ -33,20 +33,15 @@ const ProductCard = ({
       </div>
 
       {/* NAME */}
-      <p className="text-sm font-medium mt-2 line-clamp-2 min-h-[32px]">
+      <p className="text-sm text-black font-medium mt-2 line-clamp-2 min-h-[32px]">
         {item?.name}
-      </p>
-
-      {/* CATEGORY */}
-      <p className="text-xs text-gray-400">
-        {item?.categories?.name}
       </p>
 
       <div className="flex justify-between">
 
         {/* PRICE */}
         <div className="flex flex-col mt-1">
-          <span className="text-green-600 text-lg font-bold">
+          <span className="text-green-600 text-[15px] font-bold">
             ₹{variant?.price}
           </span>
 
@@ -58,7 +53,7 @@ const ProductCard = ({
         </div>
 
         {/* BUTTON / QTY */}
-        <div className="flex items-center">
+        <div className="flex items-center self-center">
 
           {cartItem ? (
             <div className="flex items-center justify-center text-gray-500 gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">

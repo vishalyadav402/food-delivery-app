@@ -87,7 +87,7 @@ export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCar
     <div className="mx-auto max-w-6xl">
 
       {/* Category Skeleton */}
-      <div className="flex gap-3 mb-4 overflow-x-auto px-2">
+      <div className="flex gap-3 mb-4 overflow-x-auto px-0">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="flex flex-col items-center min-w-[70px]">
             <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
@@ -112,8 +112,8 @@ export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCar
 }
 
   return (
-    <div className="mx-auto p-3 max-w-6xl">
-     <div className="sticky top-[60px] z-40 py-2">
+    <div className="mx-auto p-3 px-0 max-w-6xl">
+     <div className="sticky top-[50px] z-40 py-2">
       <div className="relative">
         <input
           type="text"
@@ -140,7 +140,7 @@ export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCar
 
 
       {/* 🔥 Categories */}
-      <div className="flex gap-3 mb-4 overflow-x-auto px-2 no-scrollbar">
+      <div className="flex gap-3 mb-4 overflow-x-auto px-0 no-scrollbar">
   {categoryList.map((cat) => (
     <div
       key={cat.id}
@@ -215,7 +215,7 @@ export default function Menu({ cart = [], addToCart, updateQty, cartCount, onCar
         </div>
 
         {/* 🔥 HORIZONTAL PRODUCTS */}
-        <div className="flex gap-3 overflow-x-auto px-2 no-scrollbar py-5">
+        <div className="flex gap-3 overflow-x-auto px-0 no-scrollbar py-5">
 
           {cat.items.slice(0, 10).map((item) => {
             const variant =
