@@ -9,9 +9,10 @@ const ProductCard = ({
   cartItem,
   addToCart,
   updateQty,
+  onVariantChange,
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
+    <div className="bg-white min-w-[150px] min-h-[270px] rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
 
       {/* IMAGE */}
       <div className="relative h-28 flex justify-center">
@@ -37,10 +38,30 @@ const ProductCard = ({
         {item?.name}
       </p>
 
-      <div className="flex justify-between">
+      {/* ✅ VARIANTS (FIXED) */}
+      {item?.variants?.length > 1 && (
+        <div className="flex gap-1 flex-wrap mt-1">
+          {item.variants.map((v, i) => (
+            <button
+              key={i}
+              onClick={() => onVariantChange?.(v)}
+              className={`text-[11px] px-2 py-[2px] rounded ${
+                variant?.label === v.label
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* PRICE + CART */}
+      <div className="flex justify-between items-center mt-2">
 
         {/* PRICE */}
-        <div className="flex flex-col mt-1">
+        <div className="flex flex-col">
           <span className="text-green-600 text-[15px] font-bold">
             ₹{variant?.price}
           </span>
@@ -53,41 +74,23 @@ const ProductCard = ({
         </div>
 
         {/* BUTTON / QTY */}
-        <div className="flex items-center self-center">
+        {cartItem ? (
+          <div className="flex items-center gap-2 border border-gray-300 rounded-full px-2 text-sm font-bold">
+            
+            <button
+              onClick={() =>
+                updateQty(
+                  item.name,
+                  variant.label,
+                  cartItem.qty - 1
+                )
+              }
+            >
+              <Minus size={14} />
+            </button>
 
-          {cartItem ? (
-            <div className="flex items-center justify-center text-gray-500 gap-2 border border-gray-300 rounded-full w-[80px] text-md font-bold">
-              
-              <button
-                onClick={() =>
-                  updateQty(
-                    item.name,
-                    variant.label,
-                    cartItem.qty - 1
-                  )
-                }
-              >
-                <Minus size={14} />
-              </button>
+            <span className="text-black">{cartItem.qty}</span>
 
-              <span className="text-md text-black">
-                {cartItem.qty}
-              </span>
-
-              <button
-                onClick={() =>
-                  addToCart({
-                    name: item.name,
-                    variant: variant.label,
-                    price: variant.price,
-                  })
-                }
-                className="text-green-600"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-          ) : (
             <button
               onClick={() =>
                 addToCart({
@@ -96,13 +99,25 @@ const ProductCard = ({
                   price: variant.price,
                 })
               }
-              className="bg-green-500 text-white w-[80px] rounded-full text-md font-bold text-center"
+              className="text-green-600"
             >
-              ADD
+              <Plus size={14} />
             </button>
-          )}
-
-        </div>
+          </div>
+        ) : (
+          <button
+            onClick={() =>
+              addToCart({
+                name: item.name,
+                variant: variant.label,
+                price: variant.price,
+              })
+            }
+            className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+          >
+            ADD
+          </button>
+        )}
       </div>
     </div>
   );
