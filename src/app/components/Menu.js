@@ -118,7 +118,7 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search..."
-          className="w-full border rounded-full px-4 py-2"
+          className="w-full border text-black rounded-full px-4 py-2"
         />
         {search && (
           <button
@@ -155,7 +155,7 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
               )}
             </div>
 
-            <p className="text-xs mt-1">{cat.name}</p>
+            <p className="text-xs text-black mt-1">{cat.name}</p>
           </div>
         ))}
       </div>
@@ -170,13 +170,13 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
 
               {/* HEADER */}
               <div className="flex justify-between items-center py-2 mb-2">
-                <h2 className="font-semibold">{cat.name}</h2>
-                <button
+                <h2 className="font-semibold text-black">{cat.name}</h2>
+                {/* <button
                   onClick={() => setSelectedCategory(cat.id)}
                   className="text-green-600 text-sm"
                 >
                   see all
-                </button>
+                </button> */}
               </div>
 
               {/* HORIZONTAL SCROLL */}
