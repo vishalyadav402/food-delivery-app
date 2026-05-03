@@ -63,10 +63,11 @@ const SearchBox = ({ search, setSearch }) => {
   }, [search]);
 
   // 👉 select product
-  const handleSelect = (item) => {
-    router.push(`/s/?q=${item.name}`);
-    setResults([]);
-  };
+ const handleSelect = (item) => {
+  localStorage.setItem("searchQuery", item.name);
+  router.push("/s");
+  setResults([]);
+};
 
   return (
     <div className="px-4 pb-3 relative">
@@ -130,11 +131,14 @@ const SearchBox = ({ search, setSearch }) => {
 
           {/* VIEW ALL */}
           <div
-            onClick={() => router.push(`/s/?q=${search}`)}
-            className="p-2 text-center text-green-600 text-sm cursor-pointer border-t"
-          >
-            View all results →
-          </div>
+  onClick={() => {
+    localStorage.setItem("searchQuery", search);
+    router.push("/s");
+  }}
+  className="p-2 text-center text-green-600 text-sm cursor-pointer border-t"
+>
+  View all results →
+</div>
         </div>
       )}
     </div>
