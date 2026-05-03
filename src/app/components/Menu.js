@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../utils/supabase";
 import ProductCard from "./Productcard";
-import SearchBox from "./SearchBox";
+import { useRouter } from "next/navigation";
 
 export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
   const [products, setProducts] = useState([]);
@@ -26,7 +26,7 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
 
       setProducts(prod || []);
       setCategories(cat || []);
-      setTimeout(() => setLoading(false), 300);
+      setTimeout(() => setLoading(false), 200);
     };
 
     fetchData();
@@ -72,6 +72,8 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
     ),
   }));
 
+
+const router = useRouter();
    if (loading) {
   return (
     <div className="md:p-4 mx-auto max-w-6xl">
@@ -112,26 +114,23 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
   return (
     <div className="mx-auto md:p-3 py-3 max-w-6xl">
 
-      {/* 🔍 SEARCH */}
-<div className="sticky top-[60px] z-40 bg-white py-2">
-  <SearchBox search={search} setSearch={setSearch} />
-</div>
-
-
       {/* 🔥 CATEGORY ICONS */}
       <div className="flex gap-3 overflow-x-auto mb-4">
         {categoryList.map((cat) => (
           <div
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+           onClick={() => router.push(`/cn/${encodeURIComponent(cat.name)}`)}
             className="flex flex-col items-center cursor-pointer min-w-[70px]"
           >
             <div className={`w-14 h-14 rounded-xl overflow-hidden ${
               selectedCategory === cat.id ? "ring-2 ring-green-500" : ""
             }`}>
-              {cat.id === "all" ? (
-                <div className="flex items-center justify-center h-full">🛒</div>
-              ) : (
+              {
+              // cat.id === "all" ? 
+              // (
+              //   <div className="flex items-center justify-center h-full">🛒</div>
+              // ) : 
+              (
                 <Image
                   src={cat.image || "/images/icon-vegacart.png"}
                   alt={cat.name}
@@ -224,8 +223,22 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
                 }))
               }
             />
+                  </>
+                );
+                
+        })}
+      </div>
 
-                  {/* 🛒 Floating Bottom Cart */}
+
+
+
+
+
+
+
+
+
+       {/* 🛒 Floating Bottom Cart */}
                   {cart && cart.length > 0 && (
                     <div className="md:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-lg z-50">
                       
@@ -253,12 +266,6 @@ export default function Menu({ cart = [], addToCart, updateQty, onCartClick }) {
                       
                     </div>
                   )}
-
-                  </>
-                );
-                
-        })}
-      </div>
     </div>
   );
 }

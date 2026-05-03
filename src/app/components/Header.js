@@ -3,15 +3,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SlLocationPin } from "react-icons/sl";
 import { getDeliveryInfo } from "../utils/deliveryConfig";
+import SearchBox from "./SearchBox";
 
 const Header = ({
   cartCount,
   onCartClick,
+  searchField,
+  setsearchField,
   location,
   openLocationModal = () => {}, // ✅ default empty
 }) => {
   const router = useRouter();
 const [deliveryInfo, setDeliveryInfo] = useState(null);
+
 
 useEffect(() => {
   setDeliveryInfo(getDeliveryInfo());
@@ -22,6 +26,9 @@ useEffect(() => {
     const min = Math.floor(Math.random() * 10) + 10;
     return `${min} mins`;
   };
+
+
+  const [search, setSearch] = useState("");
 
   return (
     <div className="bg-green-500 text-white sticky top-0 z-50 shadow-md">
@@ -73,6 +80,9 @@ useEffect(() => {
             Track Order
           </button>
         </div>
+      </div>
+      <div className="max-w-6xl mx-auto">
+      <SearchBox search={search} setSearch={setSearch} />
       </div>
     </div>
   );

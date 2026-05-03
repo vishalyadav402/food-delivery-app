@@ -1,101 +1,67 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata = {
-  title: "KiranaNeeds | Daily Grocery & Kirana Store Near You",
-  description:
-    "Order groceries online from KiranaNeeds. Buy daily essentials like rice, atta, oil, sugar, snacks and household items with fast delivery at your doorstep.",
-  themeColor: "#22c55e",
-  other: {
-    "apple-mobile-web-app-status-bar-style": "default",
-  },
-  keywords: [
-    "kirana store near me",
-    "online grocery shopping",
-    "grocery delivery",
-    "daily essentials online",
-    "atta rice oil delivery",
-    "kirana shop online",
-    "grocery store near me",
-    "fast grocery delivery",
-    "household items delivery",
-    "KiranaNeeds",
-    "KiranaNeeds store",
-    "prithviganj kirana store",
-    "prithviganj grocery delivery",
-    "Pratapgarh kirana store",
-    "Pratapgarh grocery shop",
-    "Patti kirana store",
-    "Patti grocery delivery",
-    "local kirana shop online",
-    "cheap grocery delivery",
-    "best kirana shop near me",
-    "order grocery online",
-    "whatsapp grocery order",
-    "kirana needs online",
-    "kirana needs delivery",
-    "grocery items list online",
-    "daily use items delivery",
-    "grocery store Patti",
-    "grocery store Prithviganj",
-    "grocery store Pratapgarh"
-  ],
-
-  authors: [
-    {
-      name: "KiranaNeeds",
-      url: "https://kirananeeds.in",
-    },
-  ],
-
-  openGraph: {
-    title: "KiranaNeeds | Grocery Delivery Near You",
-    description:
-      "Shop daily groceries online from KiranaNeeds. Fast delivery of fresh and essential items at your doorstep.",
-    url: "https://kirananeeds.in",
-    siteName: "KiranaNeeds",
-    images: [
-      {
-        url: "https://kirananeeds.in",
-        width: 1200,
-        height: 630,
-        alt: "KiranaNeeds Grocery Store",
-      },
-    ],
-    locale: "en_IN",
-    type: "website",
-  },
-
-  twitter: {
-    card: "summary_large_image",
-    title: "KiranaNeeds | Grocery Delivery Near You",
-    description:
-      "Order groceries online from KiranaNeeds. Fast delivery of daily essentials at your doorstep.",
-  },
-};
-
+import InstallPWA from "./components/InstallPWA";
+import { Toaster } from "react-hot-toast";
+import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
+    <head>
+        <meta charSet="UTF-8"/>
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <title>Dailyneeds delivered in minutes | kirananeeds</title>
+
+        {/* SEO Meta Tags */}
+        <link rel="canonical" href="https://kirananeeds.com/" />
+        <meta name="title" content="Dailyneeds delivered in minutes | kirananeeds"/>
+        <meta name="description" content="Shop groceries online & get them delivered to your doorstep in minutes. Enjoy instant delivery with kirananeeds."/>
+        <meta name="keywords" content="Buy Grocery Online, Online Grocery, VegaCart, kirananeeds,Vega Cart Go, VegaCart Go, Grocery Store, Online Grocery Shopping, Online Grocery Store, Online Supermarket, Free Delivery, Great Offers, Best Prices"/>
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
+        <meta name="author" content="kirananeeds"/>
+
+        {/* Open Graph Meta Tags (For Social Media) */}
+        <meta property="og:title" content="Dailyneeds delivered in minutes | kirananeeds"/>
+        <meta property="og:site_name" content="kirananeeds"/>
+        <meta property="og:url" content="https://kirananeeds.com/"/>
+        <meta property="og:description" content="Shop groceries online & get them delivered to your doorstep in minutes. Enjoy instant delivery with kirananeeds."/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:image" content="/favicon/favicon.ico"/>
+
+        {/* Twitter Meta Tags */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Dailyneeds delivering in minutes | kirananeeds" />
+        <meta name="twitter:description" content="Shop groceries online & get them delivered to your doorstep in minutes. Enjoy instant delivery with kirananeeds." />
+        <meta name="twitter:image" content="/favicon/favicon.ico" />
+        <meta name="twitter:site" content="@kirananeeds" />
+        <meta name="twitter:creator" content="@kirananeeds" />
+
+
+        <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png"/>
+        <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="/favicon/apple-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="76x76" href="/favicon/apple-icon-76x76.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="/favicon/apple-icon-114x114.png"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-icon-120x120.png"/>
+        <link rel="apple-touch-icon" sizes="144x144" href="/favicon/apple-icon-144x144.png"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="/favicon/apple-icon-152x152.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-icon-180x180.png"/>
+        <link rel="icon" type="image/png" sizes="192x192"  href="/favicon/android-icon-192x192.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
+        <link rel="manifest" href="/manifest.json"/>
+        <meta name="msapplication-TileColor" content="#da532c"/>
+        <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png"/>
+        <meta name="theme-color" content="#69247C"></meta>
         <link rel="shortcut icon" href="/favicon/favicon.ico" type="image/x-icon"/>
         <link rel="icon" href="/favicon/favicon.ico" type="image/x-icon"></link>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-white antialiased`}
-      >
-        {children}
+    </head>
+      <body className={inter.className}>
+         <Toaster position="bottom-center" />
+          {children}
+          <InstallPWA/>
       </body>
     </html>
   );

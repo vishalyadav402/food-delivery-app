@@ -1,68 +1,144 @@
-"use client"
-import { useEffect, useState } from "react";
+"use client";
 
-const placeholders = [
-  "Search facewash",
-  "Search tea",
-  "Search dettol",
-  "Search biscuits",
-  "Search shampoo",
+import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { supabase } from "@/app/utils/supabase";
+
+const placeholderTexts = [
+  'Search "diaper"',
+  'Search "facewash"',
+  'Search "powder"',
+  'Search "oil"',
+  'Search "cream"',
 ];
 
-export default function SearchBox({ search, setSearch }) {
-  const [index, setIndex] = useState(0);
-  const [animate, setAnimate] = useState(true);
+const SearchBox = ({ search, setSearch }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const inputRef = useRef(null);
 
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
+  const [results, setResults] = useState([]);
+
+  // 🔁 Placeholder animation
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimate(false);
+    if (search) return;
 
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % placeholders.length);
-        setAnimate(true);
-      }, 200);
+    const interval = setInterval(() => {
+      setCurrentPlaceholder((prev) => (prev + 1) % placeholderTexts.length);
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [search]);
+
+  // 🔥 Auto focus
+  useEffect(() => {
+    if (pathname === "/s/" && inputRef.current) {
+      inputRef.current.focus();
+      setIsFocused(true);
+    }
+  }, [pathname]);
+
+  // 🔍 SUPABASE SEARCH
+  useEffect(() => {
+    if (!search) {
+      setResults([]);
+      return;
+    }
+
+    const delay = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id,name,image,price,variants")
+        .ilike("name", `%${search}%`)
+        .limit(6);
+
+      if (!error) {
+        setResults(data || []);
+      }
+    }, 100);
+
+    return () => clearTimeout(delay);
+  }, [search]);
+
+  // 👉 select product
+  const handleSelect = (item) => {
+    router.push(`/s/?q=${item.name}`);
+    setResults([]);
+  };
 
   return (
-    <div className="relative mb-3">
-
-      {/* 🔍 ICON */}
-      <span className="absolute left-3 top-2.5 text-gray-400">
-        🔍
-      </span>
+    <div className="px-4 pb-3 relative">
 
       {/* INPUT */}
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full border border-gray-300 bg-gray-50 text-black rounded-md pl-10 pr-8 py-2"
-      />
+      <div
+        // onClick={() => {
+        //   if (!isFocused) router.push("/s");
+        // }}
+        className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-200 cursor-text"
+      >
+        <span className="text-gray-500 mr-2">🔍</span>
 
-      {/* ANIMATED PLACEHOLDER */}
-      {!search && (
-        <span
-          className={`absolute left-10 text-gray-400 pointer-events-none transition-all duration-300 ${
-            animate
-              ? "top-2 opacity-100"
-              : "top-6 opacity-0"
-          }`}
-        >
-          {placeholders[index]}
-        </span>
-      )}
+        <input
+          ref={inputRef}
+          value={search}
+          onChange={(e) => {
+            if (isFocused) setSearch(e.target.value);
+          }}
+          onFocus={() => setIsFocused(true)}
+          placeholder={placeholderTexts[currentPlaceholder]}
+          className="w-full bg-transparent outline-none text-sm text-black"
+        />
 
-      {/* ❌ CLEAR */}
-      {search && (
-        <button
-          onClick={() => setSearch("")}
-          className="absolute right-3 top-2 text-gray-500"
-        >
-          ✕
-        </button>
+        {/* CLEAR */}
+        {search && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSearch("");
+              setResults([]);
+            }}
+            className="text-gray-500 ml-2"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* 🔥 DROPDOWN RESULTS */}
+      {results.length > 0 && isFocused && (
+        <div className="absolute left-4 right-4 mt-1 bg-white shadow-lg rounded-lg z-50 max-h-[300px] overflow-y-auto">
+
+          {results.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => handleSelect(item)}
+              className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer"
+            >
+              <img
+                src={item.image || "/images/icon-vegacart.png"}
+                className="w-10 h-10 object-cover rounded"
+              />
+
+              <div>
+                <p className="text-sm text-black">{item.name}</p>
+                <p className="text-xs text-gray-500">₹{item?.variants?.[0]?.price || item.price}</p>
+              </div>
+            </div>
+          ))}
+
+          {/* VIEW ALL */}
+          <div
+            onClick={() => router.push(`/s/?q=${search}`)}
+            className="p-2 text-center text-green-600 text-sm cursor-pointer border-t"
+          >
+            View all results →
+          </div>
+        </div>
       )}
     </div>
   );
-}
+};
+
+export default SearchBox;
