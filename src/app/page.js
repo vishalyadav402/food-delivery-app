@@ -157,7 +157,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-
       {/* HEADER */}
       <Header
         location={location}
@@ -165,6 +164,7 @@ export default function Home() {
         cartCount={cart.length}
         onCartClick={() => setShowCart(true)}
       />
+
       {/* HERO */}
       {/* <div className="md:px-4 pt-4 mx-auto p-2 md:p-3 max-w-6xl h-[180px] sm:h-[220px] md:h-[300px]">
         <Image
@@ -180,7 +180,7 @@ export default function Home() {
       
 
       {/* MENU */}
-      <main className="max-w-full md:px-4 p-2 pb-4">
+      <main className="max-w-full md:px-4 p-2 pb-4 mt-32">
         <Menu
           cart={cart}
           addToCart={addToCart}
@@ -190,6 +190,8 @@ export default function Home() {
           onCartClick={() => setShowCart(true)}
         />
       </main>
+
+
       {/* CART DRAWER */}
       {showCart && (
         <div className="fixed inset-0 bg-black/70 flex justify-end z-50">
@@ -211,7 +213,8 @@ export default function Home() {
               removeItem={removeItem}
               setShowCart={setShowCart}
             />
-<div className="sticky bottom-2 bg-green-400/10 backdrop-blur-sm p-3 rounded-md">
+            
+            <div className="sticky bottom-2 bg-green-400/10 backdrop-blur-sm p-3 rounded-md">
             {/* DELIVERY SECTION */}
             <div className="mt-2 bg-white/10 p-3 rounded text-white text-sm">
 

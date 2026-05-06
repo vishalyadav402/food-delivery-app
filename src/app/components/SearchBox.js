@@ -66,6 +66,7 @@ const SearchBox = ({ search, setSearch }) => {
  const handleSelect = (item) => {
   localStorage.setItem("searchQuery", item.name);
   router.push("/s");
+  // console.log(item.name)
   setResults([]);
 };
 
