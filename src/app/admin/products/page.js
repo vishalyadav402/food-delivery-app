@@ -12,17 +12,19 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [categories, setCategories] = useState([]);
-const [subcategories, setSubcategories] = useState([]);
-const [filteredSubs, setFilteredSubs] = useState([]);
-const [search, setSearch] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
+  const [filteredSubs, setFilteredSubs] = useState([]);
+  const [search, setSearch] = useState("");
+
   const [form, setForm] = useState({
-    name: "",
-    category_id: "",
-    subcategory_id: "",
-    image: "/images/icon-vegacart.png",
-    variants: [],
-    is_active: false, // ✅ default OFFLINE
-  });
+  name: "",
+  slug: "", // ✅ NEW
+  category_id: "",
+  subcategory_id: "",
+  image: "/images/icon-vegacart.png",
+  variants: [],
+  is_active: false,
+});
 
   const [editId, setEditId] = useState(null);
 
@@ -35,6 +37,13 @@ const [search, setSearch] = useState("");
   setCategories(cat || []);
   setSubcategories(sub || []);
 };
+
+const generateSlug = (text) =>
+     text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 useEffect(() => {
   fetchAllData();
@@ -64,6 +73,7 @@ const handleAddOrUpdate = async () => {
 
   const productData = {
   name: form.name,
+  slug: form.slug, // ✅ ADD THIS
   category_id: form.category_id,
   subcategory_id: form.subcategory_id,
   image: form.image,
@@ -116,13 +126,14 @@ const handleAddOrUpdate = async () => {
   // ✅ Reset Form
  const resetForm = () => {
   setForm({
-    name: "",
-    category_id: "",
-    subcategory_id: "",
-    image: "/images/icon-vegacart.png",
-    variants: [],
-    is_active: false, // ✅ IMPORTANT
-  });
+  name: "",
+  slug: "", // ✅ ADD
+  category_id: "",
+  subcategory_id: "",
+  image: "/images/icon-vegacart.png",
+  variants: [],
+  is_active: false,
+});
   setEditId(null);
 };
 
@@ -130,13 +141,14 @@ const handleAddOrUpdate = async () => {
   // ✅ Edit
 const handleEdit = (product) => {
   setForm({
-    name: product.name,
-    category_id: product.category_id || "",
-    subcategory_id: product.subcategory_id || "",
-    image: product.image,
-    variants: product.variants || [],
-    is_active: product.is_active ?? false,
-  });
+  name: product.name,
+  slug: product.slug || "", // ✅ ADD
+  category_id: product.category_id || "",
+  subcategory_id: product.subcategory_id || "",
+  image: product.image,
+  variants: product.variants || [],
+  is_active: product.is_active ?? false,
+});
 
   setEditId(product.id);
   setShowModal(true);
@@ -317,9 +329,25 @@ const handleEdit = (product) => {
             <input
               placeholder="Product Name"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value;
+                setForm({
+                  ...form,
+                  name: value,
+                  slug: generateSlug(value), // ✅ auto slug
+                });
+              }}
               className="p-2 w-full border mt-2 text-black"
             />
+
+<input
+  placeholder="Slug"
+  value={form.slug}
+  onChange={(e) =>
+    setForm({ ...form, slug: e.target.value })
+  }
+  className="p-2 w-full border mt-2 text-black"
+/>
 
             <select
   value={form.category_id}

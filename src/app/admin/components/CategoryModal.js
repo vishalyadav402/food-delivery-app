@@ -11,16 +11,27 @@ export default function CategoryModal({
 }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
+const [slug, setSlug] = useState("");
 
-  useEffect(() => {
-    if (editData) {
-      setName(editData.name || "");
-      setImage(null);
-    } else {
-      setName("");
-      setImage(null);
-    }
-  }, [editData, open]);
+const generateSlug = (text) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+ useEffect(() => {
+  if (editData) {
+    setName(editData.name || "");
+    setSlug(editData.slug || ""); // ✅ NEW
+    setImage(null);
+  } else {
+    setName("");
+    setSlug("");
+    setImage(null);
+  }
+}, [editData, open]);
 
   const toBase64 = (file) =>
     new Promise((res) => {
@@ -48,18 +59,22 @@ export default function CategoryModal({
           .from("categories")
           .update({
             name,
+            slug,
             image: imageUrl,
           })
           .eq("id", editData.id);
-
+          
+console.log("updated:", name, slug)
         if (error) throw error;
       } else {
         // INSERT
         const { error } = await supabase.from("categories").insert([
           {
             name,
+            slug,
             image: imageUrl,
           },
+          
         ]);
 
         if (error) throw error;
@@ -87,7 +102,19 @@ export default function CategoryModal({
         <input
           placeholder="Category Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setName(value);
+            setSlug(generateSlug(value)); // 🔥 auto slug
+          }}
+          className="border p-2 w-full mb-2"
+        />
+
+        {/* SLUG */}
+        <input
+          placeholder="Slug"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
           className="border p-2 w-full mb-2"
         />
 

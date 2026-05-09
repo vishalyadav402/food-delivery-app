@@ -21,6 +21,9 @@ const SearchBox = ({ search, setSearch }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [results, setResults] = useState([]);
 
+const [suggestions, setSuggestions] = useState([]);
+const [categories, setCategories] = useState([]);
+
   // 🔁 Placeholder animation
   useEffect(() => {
     if (search) return;
@@ -34,51 +37,64 @@ const SearchBox = ({ search, setSearch }) => {
 
   // 🔥 Auto focus
   useEffect(() => {
-    if (pathname === "/s/" && inputRef.current) {
+    if (pathname === "/s" && inputRef.current) {
       inputRef.current.focus();
       setIsFocused(true);
     }
   }, [pathname]);
 
   // 🔍 SUPABASE SEARCH
-  useEffect(() => {
-    if (!search) {
-      setResults([]);
-      return;
-    }
+ useEffect(() => {
+  if (!search || search.length < 2) {
+    setResults([]);
+    setSuggestions([]);
+    setCategories([]);
+    return;
+  }
 
-    const delay = setTimeout(async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id,name,image,price,variants")
-        .ilike("name", `%${search}%`)
-        .limit(6);
+  const delay = setTimeout(async () => {
+    // 🔥 PRODUCTS
+    const { data } = await supabase
+      .from("products")
+      .select("id,name,slug,image,variants")
+      .ilike("name", `%${search}%`)
+      .limit(6);
 
-      if (!error) {
-        setResults(data || []);
-      }
-    }, 100);
+    setResults(data || []);
 
-    return () => clearTimeout(delay);
-  }, [search]);
+    // 🔥 CATEGORY MATCH
+    const { data: catData } = await supabase
+      .from("categories")
+      .select("id,name,slug,image")
+      .ilike("name", `%${search}%`)
+      .limit(5);
+
+    setCategories(catData || []);
+
+    // 🔥 SUGGESTIONS (FROM PRODUCT NAMES)
+    const uniqueSuggestions = [...new Set(data?.map((p) => p.name))];
+    setSuggestions(uniqueSuggestions.slice(0, 6));
+
+  }, 300);
+
+  return () => clearTimeout(delay);
+}, [search]);
 
   // 👉 select product
- const handleSelect = (item) => {
-  localStorage.setItem("searchQuery", item.name);
-  router.push("/s");
-  // console.log(item.name)
-  setResults([]);
-};
+  const handleSelect = (item) => {
+    router.push(`/s?q=${item.name}`);
+    setResults([]);
+  };
 
   return (
-    <div className="px-4 pb-3 relative">
+    <div className="relative w-full">
 
       {/* INPUT */}
       <div
-        // onClick={() => {
-        //   if (!isFocused) router.push("/s");
-        // }}
-        className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-200 cursor-text"
+        onClick={() => {
+          if (!isFocused) router.push("/s");
+        }}
+        className="flex items-center w-full bg-white rounded-lg px-3 py-2 border border-gray-200 cursor-text"
       >
         <span className="text-gray-500 mr-2">🔍</span>
 
@@ -88,7 +104,14 @@ const SearchBox = ({ search, setSearch }) => {
           onChange={(e) => {
             if (isFocused) setSearch(e.target.value);
           }}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            if (pathname !== "/s") {
+              sessionStorage.setItem("focusSearch", "true"); // 🔥 remember focus
+              router.push("/s");
+            } else {
+              setIsFocused(true);
+            }
+          }}
           placeholder={placeholderTexts[currentPlaceholder]}
           className="w-full bg-transparent outline-none text-sm text-black"
         />
@@ -108,40 +131,50 @@ const SearchBox = ({ search, setSearch }) => {
         )}
       </div>
 
-      {/* 🔥 DROPDOWN RESULTS */}
-      {results.length > 0 && isFocused && (
-        <div className="absolute left-4 right-4 mt-1 bg-white shadow-lg rounded-lg z-50 max-h-[300px] overflow-y-auto">
+      {(suggestions.length > 0 || categories.length > 0) && isFocused && (
+  <div className="absolute left-0 right-0 mt-1 bg-white shadow-lg rounded-lg z-50 p-2">
 
-          {results.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleSelect(item)}
-              className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer"
-            >
-              <img
-                src={item.image || "/images/icon-vegacart.png"}
-                className="w-10 h-10 object-cover rounded"
-              />
-
-              <div>
-                <p className="text-sm text-black">{item.name}</p>
-                <p className="text-xs text-gray-500">₹{item?.variants?.[0]?.price || item.price}</p>
-              </div>
-            </div>
-          ))}
-
-          {/* VIEW ALL */}
+    {/* 🔥 SUGGESTIONS */}
+    {suggestions.length > 0 && (
+      <>
+        <p className="text-xs text-gray-400 mb-1">Suggestions</p>
+        {suggestions.map((s, i) => (
           <div
-  onClick={() => {
-    localStorage.setItem("searchQuery", search);
-    router.push("/s");
-  }}
-  className="p-2 text-center text-green-600 text-sm cursor-pointer border-t"
->
-  View all results →
-</div>
-        </div>
-      )}
+            key={i}
+            onClick={() => {
+              setSuggestions([]); // 🔥 hide suggestions
+              router.push(`/s?q=${encodeURIComponent(s)}`);
+            }}
+            className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+          >
+            🔍 {s}
+          </div>
+        ))}
+      </>
+    )}
+
+    {/* 🔥 CATEGORIES */}
+    {categories.length > 0 && (
+      <>
+        <p className="text-xs text-gray-400 mt-2 mb-1">Categories</p>
+        {categories.map((cat) => (
+          <div
+            key={cat.id}
+            onClick={() => router.push(`/${encodeURIComponent(cat.slug)}`)}
+            className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
+          >
+            <img
+              src={cat.image || "/images/icon-vegacart.png"}
+              className="w-8 h-8 rounded"
+            />
+            <span className="text-sm">{cat.name}</span>
+          </div>
+        ))}
+      </>
+    )}
+
+  </div>
+)}
     </div>
   );
 };

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ProductCard = ({
   item,
@@ -11,6 +12,7 @@ const ProductCard = ({
   updateQty,
   onVariantChange,
 }) => {
+   const router= useRouter();
   return (
     <div className="bg-white min-w-[150px] min-h-[270px] rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
 
@@ -30,6 +32,7 @@ const ProductCard = ({
           width={120}
           height={100}
           className="object-contain"
+          onClick={()=>router.push("/"+category_slug+"/"+subcategory_slug+"/"+slug)}
         />
       </div>
 

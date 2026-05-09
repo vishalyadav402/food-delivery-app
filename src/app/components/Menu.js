@@ -119,7 +119,7 @@ const router = useRouter();
         {categoryList.map((cat) => (
           <div
             key={cat.id}
-           onClick={() => router.push(`/cn/${encodeURIComponent(cat.name)}`)}
+             onClick={() => router.push(`/${cat.slug}`)}
             className="flex flex-col items-center cursor-pointer min-w-[70px]"
           >
             <div className={`w-14 h-14 rounded-xl overflow-hidden ${
@@ -175,7 +175,7 @@ const router = useRouter();
                   );
 
                   return (
-                    <div key={item.id} className="py-2">
+                    <div key={item.id} className="py-2 min-w-48">
                       <ProductCard
                         item={item}
                         variant={variant}

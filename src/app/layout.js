@@ -27,13 +27,13 @@ export default function RootLayout({ children }) {
         <meta property="og:url" content="https://kirananeeds.com/"/>
         <meta property="og:description" content="Shop groceries online & get them delivered to your doorstep in minutes. Enjoy instant delivery with kirananeeds."/>
         <meta property="og:type" content="website"/>
-        <meta property="og:image" content="/favicon/favicon.ico"/>
+        <meta property="og:image" content="/favicon.ico"/>
 
         {/* Twitter Meta Tags */}
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="Dailyneeds delivering in minutes | kirananeeds" />
         <meta name="twitter:description" content="Shop groceries online & get them delivered to your doorstep in minutes. Enjoy instant delivery with kirananeeds." />
-        <meta name="twitter:image" content="/favicon/favicon.ico" />
+        <meta name="twitter:image" content="/favicon.ico" />
         <meta name="twitter:site" content="@kirananeeds" />
         <meta name="twitter:creator" content="@kirananeeds" />
 

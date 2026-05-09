@@ -13,18 +13,31 @@ export default function SubCategoryModal({
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
   const [categoryId, setCategoryId] = useState("");
+const [slug, setSlug] = useState("");
+
+
+const generateSlug = (text) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
 
   useEffect(() => {
-    if (editData) {
-      setName(editData.name || "");
-      setCategoryId(editData.category_id || "");
-      setImage(null);
-    } else {
-      setName("");
-      setCategoryId("");
-      setImage(null);
-    }
-  }, [editData, open]);
+  if (editData) {
+    setName(editData.name || "");
+    setSlug(editData.slug || ""); // ✅ added
+    setCategoryId(editData.category_id || "");
+    setImage(null);
+  } else {
+    setName("");
+    setSlug("");
+    setCategoryId("");
+    setImage(null);
+  }
+}, [editData, open]);
+
 
   const toBase64 = (file) =>
     new Promise((res) => {
@@ -52,6 +65,7 @@ export default function SubCategoryModal({
           .from("subcategories")
           .update({
             name,
+            slug,
             category_id: categoryId,
             image: imageUrl,
           })
@@ -59,10 +73,23 @@ export default function SubCategoryModal({
 
         if (error) throw error;
       } else {
+
+        const { data } = await supabase
+          .from("subcategories")
+          .select("id")
+          .eq("slug", slug)
+          .single();
+
+        if (data) {
+          alert("Slug already exists!");
+          return;
+        }
+
         // INSERT
         const { error } = await supabase.from("subcategories").insert([
           {
             name,
+            slug,
             category_id: categoryId,
             image: imageUrl,
           },
@@ -93,7 +120,19 @@ export default function SubCategoryModal({
         <input
           placeholder="Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setName(value);
+            setSlug(generateSlug(value)); // 🔥 auto slug
+          }}
+          className="border p-2 w-full mb-2"
+        />
+
+        {/* SLUG */}
+        <input
+          placeholder="Slug"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
           className="border p-2 w-full mb-2"
         />
 

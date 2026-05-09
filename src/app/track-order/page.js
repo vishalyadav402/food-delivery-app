@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "../utils/supabase";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Master from "../components/Master";
 
 export default function TrackOrder() {
   const [phone, setPhone] = useState("");
@@ -36,7 +37,7 @@ export default function TrackOrder() {
 
   return (
     <>
-    <Header/>
+    <Master>
     <div className="max-w-2xl min-h-[79vh] mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">
         Track Your Order
@@ -118,7 +119,7 @@ export default function TrackOrder() {
         ))}
       </div>
     </div>
-    <Footer/>
+    </Master>
     </>
   );
 }
