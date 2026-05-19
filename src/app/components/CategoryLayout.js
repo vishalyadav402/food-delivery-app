@@ -1,70 +1,84 @@
 "use client";
 
 import Image from "next/image";
-import { useParams } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/app/utils/supabase";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import Master from "../components/Master";
-import { useRouter } from "next/navigation";
 
 const CategoryLayout = ({ children }) => {
- 
-const { category, subcategory } = useParams();
-const router = useRouter();
-
-const selectedCategory = category;
-const selectedSubcategory = subcategory;
-
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
 
+  const [currentCategory, setCurrentCategory] =
+    useState("");
+
+  const [currentSubcategory, setCurrentSubcategory] =
+    useState("");
+
   const swiperRef = useRef(null);
+
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
-  const activeIndex = categories.findIndex(
-  (c) => c.slug === selectedCategory
-);
+  // GET CATEGORY + SUBCATEGORY FROM URL
+  useEffect(() => {
+    const updateRoute = () => {
+      const path = window.location.pathname.split("/");
 
-useEffect(() => {
-  if (!swiperRef.current || activeIndex < 0) return;
+      setCurrentCategory(path[1] || "");
+      setCurrentSubcategory(path[2] || "");
+    };
 
-  const total = categories.length;
+    updateRoute();
 
-  // center item (smart offset)
-  const indexToShow =
-    activeIndex === 0
-      ? 0
-      : activeIndex === total - 1
-      ? total - 1
-      : activeIndex - 1;
+    window.addEventListener(
+      "categoryChange",
+      updateRoute
+    );
 
-  swiperRef.current.slideTo(indexToShow);
-}, [activeIndex, categories]);
+    window.addEventListener(
+      "subcategoryChange",
+      updateRoute
+    );
 
+    return () => {
+      window.removeEventListener(
+        "categoryChange",
+        updateRoute
+      );
 
+      window.removeEventListener(
+        "subcategoryChange",
+        updateRoute
+      );
+    };
+  }, []);
 
   // FETCH CATEGORIES
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase.from("categories").select("*");
+      const { data } = await supabase
+        .from("categories")
+        .select("*");
+
       setCategories(data || []);
     };
+
     fetchCategories();
   }, []);
 
   // FETCH SUBCATEGORIES
   useEffect(() => {
-    if (!selectedCategory) return;
+    if (!currentCategory) return;
 
-    const fetchSub = async () => {
+    const fetchSubcategories = async () => {
       const { data: cat } = await supabase
         .from("categories")
         .select("id")
-        .eq("slug", selectedCategory)
+        .eq("slug", currentCategory)
         .single();
 
       if (!cat) return;
@@ -77,8 +91,28 @@ useEffect(() => {
       setSubcategories(subs || []);
     };
 
-    fetchSub();
-  }, [selectedCategory]);
+    fetchSubcategories();
+  }, [currentCategory]);
+
+  // ACTIVE CATEGORY CENTER
+  const activeIndex = categories.findIndex(
+    (c) => c.slug === currentCategory
+  );
+
+  useEffect(() => {
+    if (!swiperRef.current || activeIndex < 0) return;
+
+    const total = categories.length;
+
+    const indexToShow =
+      activeIndex === 0
+        ? 0
+        : activeIndex === total - 1
+        ? total - 1
+        : activeIndex - 1;
+
+    swiperRef.current.slideTo(indexToShow);
+  }, [activeIndex, categories]);
 
   return (
     <Master>
@@ -105,13 +139,24 @@ useEffect(() => {
             }}
           >
             {categories.map((cat) => (
-              <SwiperSlide key={cat.id} className="!w-auto">
+              <SwiperSlide
+                key={cat.id}
+                className="!w-auto"
+              >
                 <div
                   onClick={() => {
-                    router.push(`/${cat.slug}`);
-                    }}
+                    window.history.pushState(
+                      {},
+                      "",
+                      `/${cat.slug}`
+                    );
+
+                    window.dispatchEvent(
+                      new Event("categoryChange")
+                    );
+                  }}
                   className={`px-3 py-1 text-sm cursor-pointer ${
-                    selectedCategory === cat.slug
+                    currentCategory === cat.slug
                       ? "bg-purple-100 text-purple-700"
                       : ""
                   }`}
@@ -135,37 +180,54 @@ useEffect(() => {
         {/* GRID */}
         <div className="grid grid-cols-5">
 
-          {/* LEFT */}
+          {/* LEFT SIDEBAR */}
           <div className="col-span-1 bg-white max-h-[75vh] overflow-auto">
+
             {subcategories.map((sub) => (
               <div
                 key={sub.id}
-                    onClick={() =>
-                    router.push(`/${selectedCategory}/${sub.slug}`)
-                    }
+                onClick={() => {
+                  window.history.pushState(
+                    {},
+                    "",
+                    `/${currentCategory}/${sub.slug}?subId=${sub.id}`
+                  );
+
+                  window.dispatchEvent(
+                    new Event("subcategoryChange")
+                  );
+                }}
                 className={`p-2 cursor-pointer ${
-                  selectedSubcategory === sub.slug
-                    ? "border-r-4 border-purple-600"
+                  currentSubcategory === sub.slug
+                    ? "border-r-4 border-purple-600 bg-purple-50"
                     : ""
                 }`}
               >
                 <div className="self-center">
-                <Image
-                  src={sub.image || "/images/placeholder-icon.png"}
-                  width={50}
-                  height={50}
-                  alt={sub.name}
-                />
+                  <Image
+                    src={
+                      sub.image ||
+                      "/images/placeholder-icon.png"
+                    }
+                    width={50}
+                    height={50}
+                    alt={sub.name}
+                  />
                 </div>
-                <p className="text-xs">{sub.name}</p>
+
+                <p className="text-xs">
+                  {sub.name}
+                </p>
               </div>
             ))}
+
           </div>
 
-          {/* RIGHT (DYNAMIC CONTENT) */}
+          {/* RIGHT CONTENT */}
           <div className="col-span-4 bg-gray-100 p-3 h-[75vh] overflow-auto">
             {children}
           </div>
+
         </div>
       </div>
     </Master>

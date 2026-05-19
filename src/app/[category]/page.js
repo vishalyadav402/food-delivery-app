@@ -5,12 +5,38 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
 import ProductCard from "../components/Productcard";
 import CategoryLayout from "../components/CategoryLayout";
+import ProductCardSkeleton from "../components/skelton/ProductCardSkeleton";
 
 export default function Page() {
   const { category, subcategory } = useParams();
 const [selectedVariants, setSelectedVariants] = useState({});
 const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [subId, setSubId] = useState(null);
+
+  useEffect(() => {
+  const updateFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    setSubId(params.get("subId"));
+  };
+
+  updateFromUrl();
+
+  window.addEventListener(
+    "subcategoryChange",
+    updateFromUrl
+  );
+
+  return () => {
+    window.removeEventListener(
+      "subcategoryChange",
+      updateFromUrl
+    );
+  };
+}, []);
+
+
 
   useEffect(() => {
   const initial = {};
@@ -57,44 +83,55 @@ const updateQty = (id, qty) => {
   }
 };
 
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      let query = supabase.from("products").select("*");
+  const fetchProducts = async () => {
+    setLoading(true);
 
-      // filter by category
-      if (category) {
-        const { data: cat } = await supabase
-          .from("categories")
-          .select("id")
-          .eq("slug", category)
-          .single();
+    let query = supabase.from("products").select("*");
 
-        if (cat) query = query.eq("category_id", cat.id);
+    // category filter
+    if (category) {
+      const { data: cat } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", category)
+        .single();
+
+      if (cat) {
+        query = query.eq("category_id", cat.id);
       }
+    }
 
-      // filter by subcategory
-      if (subcategory) {
-        const { data: sub } = await supabase
-          .from("subcategories")
-          .select("id")
-          .eq("slug", subcategory)
-          .single();
+    // subcategory filter
+    if (subId) {
+      query = query.eq("subcategory_id", subId);
+    }
 
-        if (sub) query = query.eq("subcategory_id", sub.id);
-      }
+    const { data, error } = await query;
 
-      const { data } = await query;
-      setProducts(data || []);
-    };
+    console.log(data, error);
 
-    fetchProducts();
-  }, [category, subcategory]);
+    setProducts(data || []);
+    setLoading(false);
+  };
 
+  fetchProducts();
+}, [category, subId]);
+
+ 
   return (
     <CategoryLayout>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-
-        {products.length > 0 ? (
+          {loading ? (
+          <>
+          {[...Array(4)].map((_, i) => (
+              <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-6 gap-3">
+              <ProductCardSkeleton key={i} />
+              </div>
+            ))}
+            </>
+        ): products.length > 0 ? (
   products.map((item) => {
     const variant = selectedVariants[item.id];
 

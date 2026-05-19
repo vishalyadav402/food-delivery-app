@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { calculateDelivery } from "../utils/deliveryConfig";
+import toast from "react-hot-toast";
 
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -39,7 +41,8 @@ export default function Checkout() {
     setLoadingLocation(true);
 
     if (!navigator.geolocation) {
-      alert("Geolocation not supported");
+      console.error("Geolocation not supported");
+      toast.error("Geolocation not supported");
       setLoadingLocation(false);
       return;
     }
@@ -63,13 +66,15 @@ export default function Checkout() {
             address,
           }));
         } catch {
-          alert("Failed to fetch address");
+          console.error("Failed to fetch address");
+          toast.error("Failed to fetch address");
         }
 
         setLoadingLocation(false);
       },
       () => {
-        alert("Permission denied");
+        console.error("Permission denied");
+        toast.error("Permission denied")
         setLoadingLocation(false);
       }
     );
@@ -77,13 +82,17 @@ export default function Checkout() {
 
   // 🧾 Place Order
   const handleOrder = async () => {
+    setLoading(true);
     if (!form.name || !form.phone || !form.address) {
-      alert("Please fill all fields");
+      console.error("Please fill all fields");
+      toast.error("Please fill all fields");
+      setLoading(false);
       return;
     }
 
     if (!delivery.allowed) {
-      alert(delivery.message);
+      console.message(delivery.message);
+      toast.success(delivery.message);
       return;
     }
 
@@ -96,7 +105,7 @@ export default function Checkout() {
       )
       .join("\n");
 
-    const message = `🛒 *New Order - KiranaNeeds*
+    const message = `*New Order Received @KiranaNeeds.com*
 
 Order ID: ${orderId}
 
@@ -122,7 +131,8 @@ Total: ₹${finalTotal}`;
 
     if (error) {
       console.error(error);
-      alert("Error saving order");
+      console.error("Error saving order");
+      toast.error("Error saving order");
       return;
     }
 
@@ -141,7 +151,7 @@ Total: ₹${finalTotal}`;
     <>
       <Header />
 
-      <div className="max-w-2xl min-h-[79vh] mx-auto p-4 bg-white text-black">
+      <div className="max-w-2xl mt-20 min-h-[79vh] mx-auto p-4 bg-white text-black">
 
         <h1 className="text-2xl font-bold mt-5 md:mt-10 mb-4">
           Checkout
@@ -152,7 +162,7 @@ Total: ₹${finalTotal}`;
 
           <input
             placeholder="Your Name"
-            className="w-full p-2 border rounded"
+            className="w-full text-sm text-gray-500 capitalize p-2 border rounded"
             value={form.name}
             onChange={(e) =>
               setForm({ ...form, name: e.target.value })
@@ -161,7 +171,7 @@ Total: ₹${finalTotal}`;
 
           <input
             placeholder="Phone Number"
-            className="w-full p-2 border rounded"
+            className="w-full text-sm text-gray-500 p-2 border rounded"
             value={form.phone}
             onChange={(e) =>
               setForm({ ...form, phone: e.target.value })
@@ -172,7 +182,7 @@ Total: ₹${finalTotal}`;
           <div className="flex gap-2">
             <textarea
               placeholder="Enter full address"
-              className="w-full p-2 border rounded"
+              className="w-full h-20 p-2 leading-4 border text-sm text-gray-500 rounded"
               value={form.address}
               onChange={(e) =>
                 setForm({ ...form, address: e.target.value })
@@ -181,9 +191,9 @@ Total: ₹${finalTotal}`;
 
             <button
               onClick={detectLocation}
-              className="bg-blue-500 text-white px-3 rounded"
+              className="bg-blue-500 text-white px-3 rounded text-sm"
             >
-              {loadingLocation ? "..." : "📍"}
+              {loadingLocation ? "Loading..." : <span className="flex flex-row">📍Detect Location..</span>}
             </button>
           </div>
         </div>
@@ -195,7 +205,7 @@ Total: ₹${finalTotal}`;
           </h2>
 
           {cart.map((item, i) => (
-            <div key={i} className="flex justify-between py-1">
+            <div key={i} className="flex justify-between text-sm text-gray-500 py-1">
               <span>
                 {item.name} ({item.variant}) x {item.qty}
               </span>
@@ -203,7 +213,7 @@ Total: ₹${finalTotal}`;
             </div>
           ))}
 
-          <hr className="my-2" />
+          <hr className="my-2 text-gray-300" />
 
           <div className="flex justify-between">
             <span>Items Total</span>
@@ -214,7 +224,7 @@ Total: ₹${finalTotal}`;
             <span>Delivery</span>
             <span>
               {delivery.charge === 0
-                ? "FREE 🎉"
+                ? <span className="text-green-600">FREE 🎉</span>
                 : `₹${delivery.charge}`}
             </span>
           </div>
@@ -225,7 +235,7 @@ Total: ₹${finalTotal}`;
             </p>
           )}
 
-          <hr className="my-2" />
+          <hr className="my-2 text-gray-300" />
 
           <div className="flex justify-between font-bold">
             <span>Total Payable</span>
@@ -244,7 +254,7 @@ Total: ₹${finalTotal}`;
           }`}
         >
           {delivery.allowed
-            ? "Place Order on WhatsApp"
+            ? <span className="font-semibold text-xl">{loading? "Hold On..":"Place Order on WhatsApp"}</span>
             : "Minimum Order Required"}
         </button>
       </div>

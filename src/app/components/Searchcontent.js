@@ -43,7 +43,7 @@ export default function SearchContent() {
   }, [products]);
 
   return (
-    <div className="p-4 mt-20 max-w-6xl mx-auto">
+    <div className="p-4 mt-25 max-w-6xl mx-auto">
 
       {query && (
         <p className="mb-3 font-semibold">

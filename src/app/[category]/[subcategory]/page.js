@@ -5,14 +5,17 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
 import CategoryLayout from "@/app/components/CategoryLayout";
 import ProductCard from "@/app/components/Productcard";
+import ProductCardSkeleton from "@/app//components/skelton/ProductCardSkeleton";
 
 export default function Page() {
   const { category, subcategory } = useParams();
 
   const [products, setProducts] = useState([]);
+const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       let query = supabase.from("products").select("*");
 
       // filter by category
@@ -39,6 +42,8 @@ export default function Page() {
 
       const { data } = await query;
       setProducts(data || []);
+      setLoading(false);
+
     };
 
     fetchProducts();
@@ -47,8 +52,15 @@ export default function Page() {
   return (
     <CategoryLayout>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-
-        {products.length > 0 ? (
+        {loading ? (
+          <>
+          {[...Array(4)].map((_, i) => (
+              <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-6 gap-3">
+              <ProductCardSkeleton key={i} />
+              </div>
+            ))}
+            </>
+        ) : products.length > 0 ? (
           products.map((item) => (
             <ProductCard key={item.id} item={item} />
           ))
