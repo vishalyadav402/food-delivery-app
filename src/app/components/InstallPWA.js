@@ -44,9 +44,9 @@ const InstallPWA = () => {
   return (
     isVisible && (
       <div className="fixed z-10 top-32 right-5 w-[280px] bg-[#eee1f2] p-4 border border-purple-dark rounded-md shadow-lg text-center">
-        <p className="mb-3 text-xl text-purple-dark font-bold">VegaCart Light</p>
+        <p className="mb-3 text-xl text-purple-dark font-bold">Kirananeeds Web App</p>
         <p className="mb-3 leading-snug text-purple-dark text-sm font-light">
-          Get a better experience by installing our VegaCart Light app on your device.
+          Get a better experience by installing our Kirananeeds web app on your device.
         </p>
         <div className="flex gap-2 justify-center">
           <button
