@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { calculateDelivery, DELIVERY_RULES } from "../utils/deliveryConfig";
 
 const Cart = ({
@@ -17,6 +17,8 @@ const Cart = ({
   // ✅ Delivery logic
   const delivery = calculateDelivery(total);
   const finalTotal = total + (delivery.charge || 0);
+
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="flex flex-col h-full">
@@ -156,7 +158,7 @@ const Cart = ({
                 disabled={!delivery.allowed}
                 className={`px-4 py-2 rounded-full ${
                   delivery.allowed
-                    ? "bg-green-700 text-white hover:bg-green-900"
+                    ? "bg-green-700 text-xl text-white hover:bg-green-900"
                     : "bg-gray-400 text-gray-200 cursor-not-allowed"
                 }`}
               >
@@ -168,7 +170,7 @@ const Cart = ({
           <div className="flex justify-center p-3">
             <button
               onClick={() => setShowCart(false)}
-              className="bg-green-700 text-white px-4 py-2 rounded-full"
+              className="bg-green-700 text-xl text-white px-4 py-2 rounded-full"
             >
               Go to menu
             </button>
