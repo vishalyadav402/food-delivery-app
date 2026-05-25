@@ -229,7 +229,7 @@ const { cart, addToCart, updateQty } = useCart();
       </div>
 
       {/* 🛒 Floating Bottom Cart */}
-      {cart && cart.length > 0 && (
+      {/* {cart && cart.length > 0 && (
         <div className="md:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-lg z-50">
           <div>
             <p className="text-md font-semibold">
@@ -246,7 +246,7 @@ const { cart, addToCart, updateQty } = useCart();
             View Cart →
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

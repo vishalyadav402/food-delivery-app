@@ -96,13 +96,13 @@ const [showHeader, setShowHeader] = useState(true);
         </button>
       </div>
       {/* cart */}
-      {<div className='hidden lg:block lg:order-6'>
+      {/* {<div className='hidden lg:block lg:order-6'>
         {cartCount > 0 && (
           <button className="bg-white rounded-lg px-3 py-2 border text-sm text-gray-600 cursor-pointer border-gray-200">
             🛒 {cartCount}
           </button>
         )}
-      </div>}
+      </div>} */}
 
     </header>
     </>
