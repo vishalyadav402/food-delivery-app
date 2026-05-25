@@ -5,20 +5,22 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
 import CategoryLayout from "@/app/components/CategoryLayout";
 import ProductCard from "@/app/components/Productcard";
-import ProductCardSkeleton from "@/app//components/skelton/ProductCardSkeleton";
+import ProductCardSkeleton from "@/app/components/skelton/ProductCardSkeleton";
+import { useCart } from "@/app/context/CartContext"; // 👈
 
 export default function Page() {
   const { category, subcategory } = useParams();
+  const { cart, addToCart, updateQty } = useCart(); // 👈
 
   const [products, setProducts] = useState([]);
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [selectedVariants, setSelectedVariants] = useState({}); // 👈
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       let query = supabase.from("products").select("*");
 
-      // filter by category
       if (category) {
         const { data: cat } = await supabase
           .from("categories")
@@ -29,7 +31,6 @@ const [loading, setLoading] = useState(true);
         if (cat) query = query.eq("category_id", cat.id);
       }
 
-      // filter by subcategory
       if (subcategory) {
         const { data: sub } = await supabase
           .from("subcategories")
@@ -43,33 +44,60 @@ const [loading, setLoading] = useState(true);
       const { data } = await query;
       setProducts(data || []);
       setLoading(false);
-
     };
 
     fetchProducts();
   }, [category, subcategory]);
 
+  // 👈 set default variants when products load
+  useEffect(() => {
+    const initial = {};
+    products.forEach((p) => {
+      initial[p.id] = p.variants?.[0] || {
+        label: "Default",
+        price: p.price || 0,
+        mrp: p.mrp || p.price || 0,
+      };
+    });
+    setSelectedVariants(initial);
+  }, [products]);
+
   return (
     <CategoryLayout>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {loading ? (
-          <>
-          {[...Array(4)].map((_, i) => (
-              <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-6 gap-3">
-              <ProductCardSkeleton key={i} />
-              </div>
-            ))}
-            </>
-        ) : products.length > 0 ? (
-          products.map((item) => (
-            <ProductCard key={item.id} item={item} />
+          [...Array(4)].map((_, i) => (
+            <ProductCardSkeleton key={i} />
           ))
+        ) : products.length > 0 ? (
+          products.map((item) => {
+            const variant = selectedVariants[item.id];
+            const cartItem = cart.find(
+              (c) => c.name === item.name && c.variant === variant?.label
+            );
+
+            return (
+              <ProductCard
+                key={item.id}
+                item={item}
+                variant={variant}
+                cartItem={cartItem}
+                addToCart={addToCart}
+                updateQty={updateQty}
+                onVariantChange={(v) =>
+                  setSelectedVariants((prev) => ({
+                    ...prev,
+                    [item.id]: v,
+                  }))
+                }
+              />
+            );
+          })
         ) : (
           <p className="col-span-full text-center text-gray-500">
             No products found 😔
           </p>
         )}
-
       </div>
     </CategoryLayout>
   );

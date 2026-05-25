@@ -4,10 +4,13 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/utils/supabase";
 import ProductCard from "../components/Productcard";
+import { useCart } from "@/app/context/CartContext"; // 👈
 
 export default function SearchContent() {
   const params = useSearchParams();
   const query = params.get("q") || "";
+
+  const { cart, addToCart, updateQty } = useCart(); // 👈
 
   const [products, setProducts] = useState([]);
   const [selectedVariants, setSelectedVariants] = useState({});
@@ -56,15 +59,18 @@ export default function SearchContent() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {products.map((item) => {
             const variant = selectedVariants[item.id];
+            const cartItem = cart.find( // 👈 real cartItem
+              (c) => c.name === item.name && c.variant === variant?.label
+            );
 
             return (
               <ProductCard
                 key={item.id}
                 item={item}
                 variant={variant}
-                cartItem={null}
-                addToCart={() => {}}
-                updateQty={() => {}}
+                cartItem={cartItem}   // 👈
+                addToCart={addToCart} // 👈
+                updateQty={updateQty} // 👈
                 onVariantChange={(v) =>
                   setSelectedVariants((prev) => ({
                     ...prev,

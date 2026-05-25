@@ -2,6 +2,9 @@ import "./globals.css";
 import InstallPWA from "./components/InstallPWA";
 import { Toaster } from "react-hot-toast";
 import { Inter } from "next/font/google";
+import FloatingCart from "./components/FloatingCart";
+import { CartProvider } from "./context/CartContext";
+import CartDrawer from "./components/CartDrawer";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
@@ -60,7 +63,11 @@ export default function RootLayout({ children }) {
     </head>
       <body className={inter.className}>
          <Toaster position="bottom-center" />
+            <CartProvider>
           {children}
+          <FloatingCart /> {/* onCartClick handled below */}
+          <CartDrawer />
+        </CartProvider>
           <InstallPWA/>
       </body>
     </html>
