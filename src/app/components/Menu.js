@@ -11,6 +11,86 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import { useCart } from "../context/CartContext";
 
+
+
+function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
+  const { cart, addToCart, updateQty } = useCart();
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const swiperRef = useRef(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const swiper = swiperRef.current;
+    if (!swiper || !swiper.navigation) return;
+    swiper.params.navigation.prevEl = prevRef.current;
+    swiper.params.navigation.nextEl = nextRef.current;
+    swiper.navigation.destroy();
+    swiper.navigation.init();
+    swiper.navigation.update();
+  }, []);
+
+  return (
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-bold text-sm text-gray-800">{cat.name}</h2>
+        <button
+          onClick={() => router.push(`/${cat.slug}`)}
+          className="text-xs text-green-600 font-semibold border border-green-500 px-2 py-0.5 rounded-full hover:bg-green-50 transition"
+        >
+          See All →
+        </button>
+      </div>
+
+      <div className="relative px-6">
+        <button ref={prevRef} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <Swiper
+          modules={[FreeMode, Navigation]}
+          freeMode={true}
+          slidesPerView="auto"
+          spaceBetween={12}
+          navigation={false}
+          onSwiper={(swiper) => { swiperRef.current = swiper; }}
+        >
+          {cat.items.map((item) => {
+            const variant = selectedVariants[item.id];
+            const cartItem = cart.find(
+              (c) => c.slug === item.slug && c.variant === variant?.label
+            );
+            return (
+              <SwiperSlide key={item.id} style={{ maxWidth: "150px" }}>
+                <div className="py-2">
+                  <ProductCard
+                    item={item}
+                    variant={variant}
+                    cartItem={cartItem}
+                    addToCart={addToCart}
+                    updateQty={updateQty}
+                    onVariantChange={(v) =>
+                      setSelectedVariants((prev) => ({ ...prev, [item.id]: v }))
+                    }
+                  />
+                </div>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
+
+        <button ref={nextRef} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Menu({ onCartClick }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -89,7 +169,7 @@ const { cart, addToCart, updateQty } = useCart();
   }
 
   return (
-    <div className="mx-auto md:p-3 py-3 max-w-6xl">
+    <div className="mx-auto md:p-3 pb-3 max-w-6xl">
 
       {/* 🔥 CATEGORY ICONS */}
       <Swiper
@@ -122,84 +202,17 @@ const { cart, addToCart, updateQty } = useCart();
       </Swiper>
 
       {/* 🔥 FEATURED CATEGORY SECTIONS */}
-      {groupedProducts.map((cat) => {
-        if (!cat.items.length) return null;
-
-        const prevClass = `prev-${cat.id}`;
-        const nextClass = `next-${cat.id}`;
-
-        return (
-          <div key={cat.id} className="mb-6">
-            <div className="flex justify-between items-center py-2 mb-2">
-              <h2 className="font-semibold text-black">{cat.name}</h2>
-            </div>
-
-            <div className="relative px-6">
-
-              {/* Left Arrow */}
-              <button
-                className={`${prevClass} absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-
-              <Swiper
-                modules={[FreeMode, Navigation]}
-                freeMode={true}
-                slidesPerView="auto"
-                spaceBetween={12}
-                navigation={{
-                  prevEl: `.${prevClass}`,
-                  nextEl: `.${nextClass}`,
-                }}
-                onSwiper={(swiper) => {
-                  // Re-init navigation after mount so it finds the buttons
-                  setTimeout(() => swiper.navigation.init(), 0);
-                }}
-              >
-                {cat.items.map((item) => {
-                  const variant = selectedVariants[item.id];
-                  const cartItem = cart.find(
-                    (c) => c.name === item.name && c.variant === variant?.label
-                  );
-
-                  return (
-                    <SwiperSlide key={item.id} style={{ width: "192px" }}>
-                      <div className="py-2">
-                        <ProductCard
-                          item={item}
-                          variant={variant}
-                          cartItem={cartItem}
-                          addToCart={addToCart}
-                          updateQty={updateQty}
-                          onVariantChange={(v) =>
-                            setSelectedVariants((prev) => ({
-                              ...prev,
-                              [item.id]: v,
-                            }))
-                          }
-                        />
-                      </div>
-                    </SwiperSlide>
-                  );
-                })}
-              </Swiper>
-
-              {/* Right Arrow */}
-              <button
-                className={`${nextClass} absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-
-            </div>
-          </div>
-        );
-      })}
+{groupedProducts.map((cat) => {
+  if (!cat.items.length) return null;
+  return (
+    <CategoryRow
+      key={cat.id}
+      cat={cat}
+      selectedVariants={selectedVariants}
+      setSelectedVariants={setSelectedVariants}
+    />
+  );
+})}
 
       {/* 🔥 GRID (WHEN CATEGORY SELECTED) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

@@ -5,10 +5,9 @@ import Cart from "./Cart";
 import { calculateDelivery, DELIVERY_RULES } from "../utils/deliveryConfig";
 
 export default function CartDrawer() {
+  // ✅ ALL hooks at the top
   const { cart, updateQty, removeItem, total, showCart, setShowCart } = useCart();
-  if (!showCart) return null; // 👈 this line needs showCart defined above first
-  
-  const router = useRouter();
+  const router = useRouter(); // 👈 moved up
 
   const delivery = calculateDelivery(total);
   const finalTotal = total + (delivery.charge || 0);
@@ -19,18 +18,21 @@ export default function CartDrawer() {
     router.push("/checkout");
   };
 
+  // ✅ single conditional return AFTER all hooks
   if (!showCart) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex justify-end z-50">
-      <div className="bg-green-900 w-full md:max-w-md p-4 flex flex-col">
-
+    <div
+      className="fixed inset-0 bg-black/70 flex justify-end z-50"
+      onClick={() => setShowCart(false)}
+    >
+      <div
+        className="bg-green-900 w-full md:max-w-md p-4 flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between">
           <p className="text-white text-xl font-bold my-2">My Cart</p>
-          <button
-            onClick={() => setShowCart(false)}
-            className="text-white text-xl self-end mb-2"
-          >
+          <button onClick={() => setShowCart(false)} className="text-white text-xl self-end mb-2">
             ✖
           </button>
         </div>
@@ -78,7 +80,6 @@ export default function CartDrawer() {
             {delivery.allowed ? "Proceed to Checkout" : "Minimum Order Required"}
           </button>
         </div>
-
       </div>
     </div>
   );

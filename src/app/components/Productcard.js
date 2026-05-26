@@ -14,7 +14,7 @@ const ProductCard = ({
 }) => {
    const router= useRouter();
   return (
-    <div className="bg-white min-w-[150px] min-h-[270px] rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
+    <div className="bg-white min-w-[100px] min-h-[270px] rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
 
       {/* IMAGE */}
       <div className="relative h-28 flex justify-center">
@@ -31,8 +31,8 @@ const ProductCard = ({
           alt={item?.name}
           width={120}
           height={100}
-          className="object-contain"
-          onClick={()=>router.push("/"+category_slug+"/"+subcategory_slug+"/"+slug)}
+          className="object-contain cursor-pointer"
+          onClick={() => router.push(`/${item.category_slug}/${item.subcategory_slug}/${item.slug}`)}
         />
       </div>
 

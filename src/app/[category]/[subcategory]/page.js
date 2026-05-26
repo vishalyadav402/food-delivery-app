@@ -35,10 +35,10 @@ export default function Page() {
         const { data: sub } = await supabase
           .from("subcategories")
           .select("id")
-          .eq("slug", subcategory)
+          .eq("slug", subcategory) // 👈 already using slug, no ID in URL
           .single();
 
-        if (sub) query = query.eq("subcategory_id", sub.id);
+        if (sub) query = query.eq("subcategory_id", sub.id); // 👈 resolve ID internally
       }
 
       const { data } = await query;
@@ -47,7 +47,7 @@ export default function Page() {
     };
 
     fetchProducts();
-  }, [category, subcategory]);
+  }, [category, subcategory]); // 👈 both slugs from URL params
 
   // 👈 set default variants when products load
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function Page() {
 
   return (
     <CategoryLayout>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {loading ? (
           [...Array(4)].map((_, i) => (
             <ProductCardSkeleton key={i} />

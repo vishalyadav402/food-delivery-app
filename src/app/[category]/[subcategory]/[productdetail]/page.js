@@ -1,104 +1,247 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ImageMagnifier from "@/app/components/ImageMagnifier";
 import { useParams } from "next/navigation";
 import Master from "@/app/components/Master";
+import { supabase } from "@/app/utils/supabase";
+import { useCart } from "@/app/context/CartContext";
+import { Minus, Plus } from "lucide-react";
+import Image from "next/image";
+
 const Page = () => {
-
   const { productdetail, category, subcategory } = useParams();
-
-  // 🔥 DUMMY PRODUCT DATA
-  const dummyProduct = {
-    id: 1,
-    name: "Dove Shampoo 340ml",
-    price: 249,
-    description:
-      "Nourishes deeply and strengthens hair. Suitable for daily use.",
-    image: "/images/icon-vegacart.png",
-  };
+  const { cart, addToCart, updateQty } = useCart();
 
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
-    // 🔥 simulate API delay
-    setTimeout(() => {
-      setProduct(dummyProduct);
-    }, 300);
-  }, []);
+    const fetchProduct = async () => {
+      setLoading(true);
+
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .eq("slug", productdetail)
+        .single();
+
+      setProduct(data || null);
+      setSelectedVariant(data?.variants?.[0] || {
+        label: "Default",
+        price: data?.price || 0,
+        mrp: data?.mrp || data?.price || 0,
+      });
+
+      setLoading(false);
+    };
+
+    if (productdetail) fetchProduct();
+  }, [productdetail]);
+
+  const cartItem = cart.find(
+    (c) => c.slug === product?.slug && c.variant === selectedVariant?.label
+  );
+
+  if (loading) {
+    return (
+      <Master>
+        <div className="flex flex-col md:grid md:grid-cols-2 px-4 gap-4 mt-4">
+          {/* Left skeleton */}
+          <div className="p-4 bg-white rounded-xl animate-pulse">
+            <div className="h-72 bg-gray-200 rounded-xl mx-auto w-3/4" />
+            <div className="h-4 bg-gray-200 rounded mt-6 w-3/4" />
+            <div className="h-3 bg-gray-200 rounded mt-3 w-full" />
+            <div className="h-3 bg-gray-200 rounded mt-2 w-5/6" />
+          </div>
+          {/* Right skeleton */}
+          <div className="hidden md:flex flex-col p-10 bg-white rounded-xl animate-pulse gap-4">
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-6 bg-gray-200 rounded w-3/4" />
+            <div className="h-px bg-gray-200 w-full" />
+            <div className="h-8 bg-gray-200 rounded w-1/3" />
+            <div className="h-10 bg-gray-200 rounded-full w-1/2" />
+          </div>
+        </div>
+      </Master>
+    );
+  }
+
+  if (!product) {
+    return (
+      <Master>
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          Product not found 😔
+        </div>
+      </Master>
+    );
+  }
+
+  const discount = selectedVariant?.mrp > selectedVariant?.price
+    ? Math.round(((selectedVariant.mrp - selectedVariant.price) / selectedVariant.mrp) * 100)
+    : 0;
+
+  // ✅ Reusable add to cart button
+  const CartButton = () => (
+    cartItem ? (
+      <div className="flex items-center justify-center gap-3 border-2 border-green-500 rounded-full px-4 py-2">
+        <button onClick={() => updateQty(product.slug, selectedVariant.label, cartItem.qty - 1)}>
+          <Minus size={16} className="text-green-600" />
+        </button>
+        <span className="font-bold text-green-700 w-9 text-center">{cartItem.qty}</span>
+        <button onClick={() => addToCart({
+          slug: product.slug,
+          name: product.name,
+          image: product.image,
+          variant: selectedVariant.label,
+          price: selectedVariant.price,
+        })}>
+          <Plus size={16} className="text-green-600" />
+        </button>
+      </div>
+    ) : (
+      <button
+        onClick={() => addToCart({
+          slug: product.slug,
+          name: product.name,
+          image: product.image,
+          variant: selectedVariant.label,
+          price: selectedVariant.price,
+        })}
+        className="bg-green-500 hover:bg-green-600 text-white px-8 py-2 rounded-full font-bold transition"
+      >
+        ADD TO CART
+      </button>
+    )
+  );
 
   return (
     <Master>
-      <div className="flex flex-col md:grid md:grid-cols-2 px-4">
+      <div className="flex flex-col md:grid md:grid-cols-2 px-4 gap-4 mt-28 max-w-5xl mx-auto">
 
         {/* LEFT */}
-        <div className="p-4 bg-white md:border">
+        <div className="p-4 bg-white rounded-xl border border-gray-300">
+
+          {/* DISCOUNT BADGE */}
+          {discount > 0 && (
+            <span className="inline-block bg-red-500 text-white text-xs px-2 py-0.5 rounded mb-2">
+              {discount}% OFF
+            </span>
+          )}
 
           {/* IMAGE */}
-          <div className="flex justify-center">
-            <ImageMagnifier
-              src={product?.image || "/images/icon-vegacart.png"}
-              zoom={2}
+          <div className="flex justify-center items-center h-64">
+            <Image
+              src={product.image || "/images/icon-vegacart.png"}
+              alt={product.name}
+              width={240}
+              height={240}
+              className="object-contain h-full w-auto"
             />
           </div>
 
           {/* MOBILE INFO */}
-          <div className="block md:hidden mt-6">
-            <p className="text-xl font-semibold">{product?.name}</p>
+          <div className="block md:hidden mt-4">
+            <p className="text-lg font-semibold">{product.name}</p>
 
-            <div className="flex justify-between items-center my-4">
-              <div>
-                <p className="text-sm">MRP ₹{product?.price}</p>
+            {/* VARIANTS */}
+            {product.variants?.length > 1 && (
+              <div className="flex gap-2 flex-wrap my-3">
+                {product.variants.map((v, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedVariant(v)}
+                    className={`text-xs px-3 py-1 rounded-full border ${
+                      selectedVariant?.label === v.label
+                        ? "bg-green-500 text-white border-green-500"
+                        : "bg-white text-gray-600 border-gray-300"
+                    }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
               </div>
+            )}
 
-              {/* <Addtocartbtn data={product} /> */}
+            <div className="flex justify-between items-center my-3">
+              <div>
+                <p className="text-xl font-bold text-green-600">₹{selectedVariant?.price}</p>
+                {discount > 0 && (
+                  <p className="text-sm text-gray-400 line-through">₹{selectedVariant?.mrp}</p>
+                )}
+              </div>
+              <CartButton />
             </div>
           </div>
 
           {/* DETAILS */}
-          <div className="border-t my-6">
-            <p className="text-lg font-semibold my-4">Product Details</p>
-
-            <p className="text-sm text-gray-600">
-              {product?.description}
+          <div className="border-t border-gray-300 mt-4 pt-4">
+            <p className="text-base font-semibold mb-2">Product Details</p>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {product.description || "No description available."}
             </p>
           </div>
-
         </div>
 
-        {/* RIGHT */}
-        <div className="hidden md:flex flex-col p-10 border">
+        {/* RIGHT — desktop only */}
+        <div className="hidden md:flex flex-col p-8 bg-white rounded-xl border border-gray-300">
 
           {/* BREADCRUMB */}
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 text-xs capitalize">
             {category} / {subcategory} / {productdetail}
           </p>
 
           {/* TITLE */}
-          <p className="text-2xl font-semibold my-2">
-            {product?.name}
-          </p>
+          <p className="text-2xl font-bold mt-3 mb-1">{product.name}</p>
 
-          <hr className="my-4" />
+          <hr className="my-4 border border-gray-300" />
 
-          {/* PRICE + CART */}
-          <div className="flex justify-between items-center">
-            <p className="text-lg font-semibold">
-              ₹{product?.price}
-            </p>
+          {/* VARIANTS */}
+          {product.variants?.length > 1 && (
+            <div className="mb-4">
+              <p className="text-sm font-medium text-gray-600 mb-2">Select Size</p>
+              <div className="flex gap-2 flex-wrap">
+                {product.variants.map((v, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedVariant(v)}
+                    className={`text-sm px-4 py-1.5 rounded-full border ${
+                      selectedVariant?.label === v.label
+                        ? "bg-green-500 text-white border-green-500"
+                        : "bg-white text-gray-600 border-gray-300"
+                    }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-            <Addtocartbtn data={product} />
+          {/* PRICE */}
+          <div className="flex items-baseline gap-3 mb-6">
+            <p className="text-3xl font-bold text-green-600">₹{selectedVariant?.price}</p>
+            {discount > 0 && (
+              <>
+                <p className="text-gray-400 line-through text-lg">₹{selectedVariant?.mrp}</p>
+                <span className="text-red-500 text-sm font-semibold">{discount}% off</span>
+              </>
+            )}
           </div>
+
+          <CartButton />
+
+          <hr className="my-6 border border-gray-300" />
 
           {/* WHY SHOP */}
-          <div className="mt-10">
-            <p className="font-semibold mb-5">Why shop from Vega?</p>
-
-            <p className="text-sm text-gray-500">
-              Fast delivery, best prices, and wide assortment.
-            </p>
+          <div>
+            <p className="font-semibold mb-3">Why shop from us?</p>
+            <div className="flex flex-col gap-2 text-sm text-gray-500">
+              <p>🚚 Fast delivery in minutes</p>
+              <p>✅ Best prices guaranteed</p>
+              <p>🔄 Easy returns & refunds</p>
+            </div>
           </div>
-
         </div>
 
       </div>

@@ -2,15 +2,24 @@
 import { useCart } from "../context/CartContext";
 import { usePathname } from "next/navigation";
 
+const HIDDEN_PATHS = ["/checkout", "/cart", "/orders", "/profile", "/admin"];
+
 export default function FloatingCart() {
   const { cart, total, setShowCart } = useCart();
   const pathname = usePathname();
 
+  // ✅ check exclusions first
+  const isHidden = HIDDEN_PATHS.some((p) => pathname.startsWith(p));
+
   const isVisible =
-  pathname === "/" ||
-  pathname.startsWith("/s") ||
-  pathname.match(/^\/[^/]+$/) ||        // matches /[category]  e.g. /fruits
-  pathname.match(/^\/[^/]+\/[^/]+$/);   // matches /[category]/[subcategory] e.g. /fruits/mango
+    !isHidden && (
+      pathname === "/" ||
+      pathname.startsWith("/search") ||
+      pathname.match(/^\/[^/]+$/) ||                    // /[category]
+      pathname.match(/^\/[^/]+\/[^/]+$/) ||             // /[category]/[subcategory]
+      pathname.match(/^\/[^/]+\/[^/]+\/[^/]+$/)       // 👈 /[category]/[subcategory]/[product]
+    );
+
   if (!cart.length) return null;
   if (!isVisible) return null;
 

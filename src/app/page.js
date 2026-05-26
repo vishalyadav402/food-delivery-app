@@ -68,7 +68,7 @@ export default function Home() {
         onCartClick={() => setShowCart(true)} // 👈 opens global CartDrawer
       />
 
-      <main className="max-w-full md:px-4 p-2 pb-4 mt-32">
+      <main className="max-w-full md:px-4 p-2 pb-4 mt-28">
         <Menu onCartClick={() => setShowCart(true)} />
       </main>
 

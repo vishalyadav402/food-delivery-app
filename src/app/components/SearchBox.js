@@ -72,7 +72,7 @@ const [categories, setCategories] = useState([]);
     setCategories(catData || []);
 
     // 🔥 SUGGESTIONS (FROM PRODUCT NAMES)
-    const uniqueSuggestions = [...new Set(data?.map((p) => p.name))];
+    const uniqueSuggestions = [...new Set(data?.map((p) => p.slug))];
     setSuggestions(uniqueSuggestions.slice(0, 6));
 
   }, 300);
@@ -82,7 +82,7 @@ const [categories, setCategories] = useState([]);
 
   // 👉 select product
   const handleSelect = (item) => {
-    router.push(`/s?q=${item.name}`);
+    router.push(`/s?q=${item.slug}`);
     setResults([]);
   };
 
