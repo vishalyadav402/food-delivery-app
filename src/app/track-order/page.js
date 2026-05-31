@@ -38,7 +38,7 @@ export default function TrackOrder() {
   return (
     <>
     <Master>
-    <div className="max-w-2xl min-h-[79vh] mx-auto p-4">
+    <div className="max-w-2xl min-h-[79vh] mx-auto mt-28 p-4">
       <h1 className="text-2xl font-bold mb-4">
         Track Your Order
       </h1>
@@ -55,7 +55,7 @@ export default function TrackOrder() {
 
         <button
           onClick={handleSearch}
-          className="bg-green-600 text-white px-4 rounded"
+          className="bg-purple-600 text-white px-4 rounded"
         >
           Search
         </button>
@@ -90,7 +90,7 @@ export default function TrackOrder() {
                     : order.status === "accepted"
                     ? "bg-blue-500"
                     : order.status === "delivered"
-                    ? "bg-green-600"
+                    ? "bg-purple-600"
                     : "bg-red-500"
                 }`}
               >

@@ -1,12 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
+import { useRouter } from "next/navigation";
 
 
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const auth = sessionStorage.getItem("admin_auth");
+    if (!auth) router.replace("/admin/login"); // 👈 redirect if not logged in
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">

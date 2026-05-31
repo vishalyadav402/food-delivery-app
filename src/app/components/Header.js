@@ -46,7 +46,7 @@ const Header = ({
   const [search, setSearch] = useState("");
 
   return (
-    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-10 w-full items-center justify-between px-2 md:px-6 border-b border-purple-200">
+    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-99 w-full items-center justify-between px-2 md:px-6 border-b border-purple-200">
 
       {/* 👈 BACK BUTTON — only on child pages */}
       {!isHome && (

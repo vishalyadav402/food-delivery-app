@@ -23,16 +23,16 @@ export default function CartDrawer() {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 flex justify-end z-50"
+      className="fixed inset-0 bg-black/70 flex justify-end z-99"
       onClick={() => setShowCart(false)}
     >
       <div
-        className="bg-green-900 w-full md:max-w-md p-4 flex flex-col"
+        className="bg-gradient-to-b from-purple-100 to-white w-full  md:max-w-md p-4 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between">
-          <p className="text-white text-xl font-bold my-2">My Cart</p>
-          <button onClick={() => setShowCart(false)} className="text-white text-xl self-end mb-2">
+          <p className="text-xl font-bold my-2">My Cart</p>
+          <button onClick={() => setShowCart(false)} className="text-xl self-end mb-2">
             ✖
           </button>
         </div>
@@ -44,8 +44,8 @@ export default function CartDrawer() {
           setShowCart={setShowCart}
         />
 
-        <div className="sticky bottom-2 bg-green-400/10 backdrop-blur-sm p-3 rounded-md">
-          <div className="mt-2 bg-white/10 p-3 rounded text-white text-sm">
+        <div className="sticky bottom-2 bg-gradient-to-b from-purple-200 to-white backdrop-blur-sm p-3 rounded-md">
+          <div className="mt-2 bg-white/10 p-3 rounded text-sm">
             {!delivery.allowed ? (
               <p className="text-red-300">{delivery.message}</p>
             ) : (
@@ -74,7 +74,7 @@ export default function CartDrawer() {
             onClick={goToCheckout}
             disabled={!delivery.allowed}
             className={`mt-4 w-full py-2 rounded ${
-              delivery.allowed ? "bg-green-600" : "bg-gray-50 cursor-not-allowed"
+              delivery.allowed ? "bg-purple-500" : "bg-gray-50 cursor-not-allowed"
             }`}
           >
             {delivery.allowed ? "Proceed to Checkout" : "Minimum Order Required"}

@@ -18,14 +18,13 @@ const Cart = ({
   const delivery = calculateDelivery(total);
   const finalTotal = total + (delivery.charge || 0);
 
-  const [loading, setLoading] = useState(false);
 
   return (
     <div className="flex flex-col h-full">
 
       {/* 🛒 EMPTY */}
       {cart.length === 0 ? (
-        <p className="text-gray-50 text-center mt-8">
+        <p className="text-gray-400 text-center mt-8">
           🛒 Your cart is empty
         </p>
       ) : (
@@ -37,13 +36,13 @@ const Cart = ({
             >
               {/* LEFT */}
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-white">
+                <h3 className="font-semibold text-sm">
                   {item.name}
                 </h3>
 
-                <p className="text-gray-400 text-xs">
+                {/* <p className="text-gray-400 text-xs">
                   ₹{item.price} each
-                </p>
+                </p> */}
 
                 {/* QTY */}
                 <div className="flex items-center mt-2">
@@ -56,12 +55,12 @@ const Cart = ({
                       )
                     }
                     disabled={item.qty <= 1}
-                    className="bg-gray-200 text-red-700 font-bold px-2 rounded disabled:opacity-50"
+                    className="bg-purple-300 text-white font-bold px-2 rounded disabled:opacity-50"
                   >
                     -
                   </button>
 
-                  <span className="px-3 text-white">
+                  <span className="px-3">
                     {item.qty}
                   </span>
 
@@ -73,7 +72,7 @@ const Cart = ({
                         item.qty + 1
                       )
                     }
-                    className="bg-gray-200 text-red-700 font-bold px-2 rounded"
+                    className="bg-purple-400 text-white font-bold px-2 rounded"
                   >
                     +
                   </button>
@@ -82,7 +81,7 @@ const Cart = ({
 
               {/* RIGHT */}
               <div className="flex flex-col items-end gap-2">
-                <span className="font-semibold text-white">
+                <span className="font-semibold">
                   ₹{item.price * item.qty}
                 </span>
 
@@ -104,7 +103,7 @@ const Cart = ({
       <div className="sticky bottom-2 hidden mt-4">
 
         {total > 0 ? (
-          <div className="bg-green-400/90 backdrop-blur-sm p-3 rounded-md">
+          <div className="bg-gradient-to-b from-purple-200 to-white backdrop-blur-sm p-3 rounded-md">
 
             {/* 🚚 DELIVERY INFO */}
             <div className="text-sm text-gray-800 mb-2">
@@ -131,7 +130,7 @@ const Cart = ({
 
                   {/* Free delivery hint */}
                   {delivery.charge > 0 && (
-                    <p className="text-xs text-yellow-800 mt-1">
+                    <p className="text-xs text-purple-900 mt-1">
                       Add ₹
                       {DELIVERY_RULES.freeDeliveryAbove - total} more for FREE delivery
                     </p>

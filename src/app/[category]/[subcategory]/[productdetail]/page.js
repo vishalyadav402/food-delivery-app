@@ -84,11 +84,11 @@ const Page = () => {
   // ✅ Reusable add to cart button
   const CartButton = () => (
     cartItem ? (
-      <div className="flex items-center justify-center gap-3 border-2 border-green-500 rounded-full px-4 py-2">
+      <div className="flex items-center justify-center gap-3 border-2 border-purple-500 rounded-full px-4 py-2">
         <button onClick={() => updateQty(product.slug, selectedVariant.label, cartItem.qty - 1)}>
-          <Minus size={16} className="text-green-600" />
+          <Minus size={16} className="text-purple-600" />
         </button>
-        <span className="font-bold text-green-700 w-9 text-center">{cartItem.qty}</span>
+        <span className="font-bold text-purple-700 w-9 text-center">{cartItem.qty}</span>
         <button onClick={() => addToCart({
           slug: product.slug,
           name: product.name,
@@ -96,7 +96,7 @@ const Page = () => {
           variant: selectedVariant.label,
           price: selectedVariant.price,
         })}>
-          <Plus size={16} className="text-green-600" />
+          <Plus size={16} className="text-purple-600" />
         </button>
       </div>
     ) : (
@@ -108,7 +108,7 @@ const Page = () => {
           variant: selectedVariant.label,
           price: selectedVariant.price,
         })}
-        className="bg-green-500 hover:bg-green-600 text-white px-8 py-2 rounded-full font-bold transition"
+        className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-2 rounded-full font-bold transition"
       >
         ADD TO CART
       </button>
@@ -153,7 +153,7 @@ const Page = () => {
                     onClick={() => setSelectedVariant(v)}
                     className={`text-xs px-3 py-1 rounded-full border ${
                       selectedVariant?.label === v.label
-                        ? "bg-green-500 text-white border-green-500"
+                        ? "bg-purple-500 text-white border-purple-500"
                         : "bg-white text-gray-600 border-gray-300"
                     }`}
                   >
@@ -165,7 +165,7 @@ const Page = () => {
 
             <div className="flex justify-between items-center my-3">
               <div>
-                <p className="text-xl font-bold text-green-600">₹{selectedVariant?.price}</p>
+                <p className="text-xl font-bold text-purple-600">₹{selectedVariant?.price}</p>
                 {discount > 0 && (
                   <p className="text-sm text-gray-400 line-through">₹{selectedVariant?.mrp}</p>
                 )}
@@ -207,7 +207,7 @@ const Page = () => {
                     onClick={() => setSelectedVariant(v)}
                     className={`text-sm px-4 py-1.5 rounded-full border ${
                       selectedVariant?.label === v.label
-                        ? "bg-green-500 text-white border-green-500"
+                        ? "bg-purple-500 text-white border-purple-500"
                         : "bg-white text-gray-600 border-gray-300"
                     }`}
                   >
@@ -220,7 +220,7 @@ const Page = () => {
 
           {/* PRICE */}
           <div className="flex items-baseline gap-3 mb-6">
-            <p className="text-3xl font-bold text-green-600">₹{selectedVariant?.price}</p>
+            <p className="text-3xl font-bold text-purple-600">₹{selectedVariant?.price}</p>
             {discount > 0 && (
               <>
                 <p className="text-gray-400 line-through text-lg">₹{selectedVariant?.mrp}</p>

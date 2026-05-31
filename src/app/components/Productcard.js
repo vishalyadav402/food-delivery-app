@@ -64,7 +64,7 @@ const ProductCard = ({
               onClick={() => onVariantChange?.(v)}
               className={`text-[11px] px-2 py-[2px] rounded ${
                 displayLabel === v.label
-                  ? "bg-green-500 text-white"
+                  ? "bg-purple-500 text-white"
                   : "bg-gray-100 text-gray-600"
               }`}
             >
@@ -79,7 +79,7 @@ const ProductCard = ({
 
         {/* PRICE */}
         <div className="flex flex-col">
-          <span className="text-green-600 text-[15px] font-bold">
+          <span className="text-purple-600 text-[15px] font-bold">
             ₹{displayPrice}  {/* ✅ single price, no duplicate */}
           </span>
           {displayMrp > displayPrice && (
@@ -91,9 +91,9 @@ const ProductCard = ({
 
         {/* BUTTON / QTY */}
         {cartItem ? (
-          <div className="flex items-center gap-2 border border-green-500 rounded-full px-2 py-0.5 text-sm font-bold">
+          <div className="flex items-center gap-2 border border-purple-500 rounded-full px-2 py-0.5 text-sm font-bold">
             <button onClick={() => updateQty(item.slug, displayLabel, cartItem.qty - 1)}>
-              <Minus size={14} className="text-green-600" />
+              <Minus size={14} className="text-purple-600" />
             </button>
             <span className="text-black w-4 text-center">{cartItem.qty}</span>
             <button
@@ -104,7 +104,7 @@ const ProductCard = ({
                 variant: displayLabel,
                 price: displayPrice,
               })}
-              className="text-green-600"
+              className="text-purple-600"
             >
               <Plus size={14} />
             </button>
@@ -118,7 +118,7 @@ const ProductCard = ({
               variant: displayLabel,
               price: displayPrice,
             })}
-            className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+            className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold"
           >
             ADD
           </button>

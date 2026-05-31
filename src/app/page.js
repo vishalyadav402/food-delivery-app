@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Menu from "./components/Menu";
-import { useRouter } from "next/navigation";
 import LocationModal from "./components/LocationModal";
 import { useCart } from "./context/CartContext";
 
@@ -11,8 +10,6 @@ export default function Home() {
   const { cart, setShowCart } = useCart(); // 👈 only what's needed
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [location, setLocation] = useState("");
-
-  const router = useRouter();
 
   useEffect(() => {
     const savedLocation = localStorage.getItem("userLocation");

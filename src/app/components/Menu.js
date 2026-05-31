@@ -36,7 +36,7 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
         <h2 className="font-bold text-sm text-gray-800">{cat.name}</h2>
         <button
           onClick={() => router.push(`/${cat.slug}`)}
-          className="text-xs text-green-600 font-semibold border border-green-500 px-2 py-0.5 rounded-full hover:bg-green-50 transition"
+          className="text-xs text-purple-600 font-semibold border border-purple-500 px-2 py-0.5 rounded-full hover:bg-purple-50 transition"
         >
           See All →
         </button>
@@ -91,16 +91,14 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
   );
 }
 
-export default function Menu({ onCartClick }) {
+export default function Menu() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedVariants, setSelectedVariants] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-// Remove from props: cart, addToCart, updateQty
-// Add at top:
-const { cart, addToCart, updateQty } = useCart();
+  const { cart, addToCart, updateQty } = useCart();
   useEffect(() => {
     const fetchData = async () => {
       const { data: prod } = await supabase
@@ -186,7 +184,7 @@ const { cart, addToCart, updateQty } = useCart();
               className="flex flex-col items-center cursor-pointer w-[70px]"
             >
               <div className={`w-14 h-14 rounded-xl overflow-hidden ${
-                selectedCategory === cat.id ? "ring-2 ring-green-500" : ""
+                selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
               }`}>
                 <Image
                   src={cat.image || "/images/icon-vegacart.png"}
@@ -240,26 +238,6 @@ const { cart, addToCart, updateQty } = useCart();
           );
         })}
       </div>
-
-      {/* 🛒 Floating Bottom Cart */}
-      {/* {cart && cart.length > 0 && (
-        <div className="md:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-lg z-50">
-          <div>
-            <p className="text-md font-semibold">
-              {cart.length} item{cart.length > 1 ? "s" : ""}
-            </p>
-            <p className="text-sm">
-              ₹{cart.reduce((sum, item) => sum + item.price * item.qty, 0)}
-            </p>
-          </div>
-          <button
-            onClick={onCartClick}
-            className="bg-white text-green-700 px-4 py-2 rounded-full font-semibold"
-          >
-            View Cart →
-          </button>
-        </div>
-      )} */}
     </div>
   );
 }

@@ -1,8 +1,18 @@
 "use client";
 import React from "react";
 import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const AdminHeader = ({ toggleSidebar }) => {
+
+  const router = useRouter();
+  const handleLogout = () => {
+  sessionStorage.removeItem("admin_auth");
+  router.push("/admin/login");
+};
+
+
+
   return (
     <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center shadow-md">
       
@@ -15,8 +25,8 @@ const AdminHeader = ({ toggleSidebar }) => {
       </div>
 
       {/* Right */}
-      <div className="text-sm">
-        👤 Admin
+      <div onClick={handleLogout} className="text-sm cursor-pointer">
+        👤 Logout
       </div>
     </div>
   );
