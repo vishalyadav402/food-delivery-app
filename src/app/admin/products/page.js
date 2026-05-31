@@ -31,7 +31,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
               <p className="text-xs text-orange-400">Exp: {p.expiry_date}</p>
             )}
             {profits.length > 0 && (
-              <p className="text-xs text-green-600">
+              <p className="text-xs text-purple-600">
                 Profit: ₹{profits[0].profit} ({profits[0].margin}%)
               </p>
             )}
@@ -52,7 +52,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
               await supabase.from("products").update({ is_active: !p.is_active }).eq("id", p.id);
               fetchAllData();
             }}
-            className={`text-xs px-2 py-1 rounded ${p.is_active ? "bg-green-500 text-white" : "bg-gray-400 text-white"}`}
+            className={`text-xs px-2 py-1 rounded ${p.is_active ? "bg-purple-500 text-white" : "bg-gray-400 text-white"}`}
           >
             {p.is_active ? "Online" : "Offline"}
           </button>
@@ -69,7 +69,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
             </div>
             <div className="bg-white rounded p-2 border">
               <p className="text-gray-400">Status</p>
-              <p className={`font-medium ${p.is_active ? "text-green-600" : "text-gray-400"}`}>
+              <p className={`font-medium ${p.is_active ? "text-purple-600" : "text-gray-400"}`}>
                 {p.is_active ? "● Online" : "● Offline"}
               </p>
             </div>
@@ -109,14 +109,14 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                           <td className="p-2 font-medium">{v.label}</td>
                           <td className="p-2 text-right text-gray-500">{v.cp ? `₹${v.cp}` : "—"}</td>
                           <td className="p-2 text-right text-gray-400 line-through">{v.mrp ? `₹${v.mrp}` : "—"}</td>
-                          <td className="p-2 text-right text-green-600 font-semibold">₹{v.price}</td>
+                          <td className="p-2 text-right text-purple-600 font-semibold">₹{v.price}</td>
                           <td className="p-2 text-right text-blue-600 font-semibold">
                             {profit != null ? `₹${profit}` : "—"}
                           </td>
                           <td className="p-2 text-right">
                             {margin != null ? (
                               <span className={`px-1.5 py-0.5 rounded text-white text-[10px] ${
-                                Number(margin) >= 20 ? "bg-green-500"
+                                Number(margin) >= 20 ? "bg-purple-500"
                                 : Number(margin) >= 10 ? "bg-yellow-500"
                                 : "bg-red-400"
                               }`}>
@@ -129,13 +129,13 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                     })}
                   </tbody>
                   {p.variants.some((v) => v.cp) && (
-                    <tfoot className="bg-green-50">
+                    <tfoot className="bg-purple-50">
                       <tr>
                         <td className="p-2 font-semibold" colSpan={4}>Avg Profit</td>
-                        <td className="p-2 text-right font-bold text-green-700">
+                        <td className="p-2 text-right font-bold text-purple-700">
                           ₹{(p.variants.filter(v => v.cp).reduce((s, v) => s + (v.price - v.cp), 0) / p.variants.filter(v => v.cp).length).toFixed(0)}
                         </td>
-                        <td className="p-2 text-right font-bold text-green-700">
+                        <td className="p-2 text-right font-bold text-purple-700">
                           {(p.variants.filter(v => v.cp).reduce((s, v) => s + ((v.price - v.cp) / v.price * 100), 0) / p.variants.filter(v => v.cp).length).toFixed(1)}%
                         </td>
                       </tr>
@@ -342,11 +342,10 @@ export default function AdminPage() {
 
   return (
     <AdminLayout>
-      <div className="md:p-6 mx-auto max-w-2xl">
-
+      <div className="md:p-6 mx-auto max-w-lg">
         <button
           onClick={() => { resetForm(); setShowModal(true); }}
-          className="bg-green-600 text-white px-4 py-2 rounded mb-4"
+          className="bg-purple-600 text-white px-4 py-2 rounded mb-4"
         >
           + Add New Product
         </button>
@@ -446,7 +445,7 @@ export default function AdminPage() {
                 <label className="font-medium">Product Status</label>
                 <button
                   onClick={() => setForm((prev) => ({ ...prev, is_active: !prev.is_active }))}
-                  className={`px-4 py-1 rounded-full text-white ${form.is_active ? "bg-green-500" : "bg-gray-400"}`}
+                  className={`px-4 py-1 rounded-full text-white ${form.is_active ? "bg-purple-500" : "bg-gray-400"}`}
                 >
                   {form.is_active ? "Online" : "Offline"}
                 </button>
@@ -519,8 +518,8 @@ export default function AdminPage() {
 
                 {/* Live profit preview */}
                 {variant.cp && variant.price && (
-                  <div className="mt-2 text-sm bg-green-50 border border-green-200 rounded p-2">
-                    <span className="text-green-700 font-medium">
+                  <div className="mt-2 text-sm bg-purple-50 border border-purple-200 rounded p-2">
+                    <span className="text-purple-700 font-medium">
                       Profit: ₹{Number(variant.price) - Number(variant.cp)} &nbsp;
                       ({(((Number(variant.price) - Number(variant.cp)) / Number(variant.price)) * 100).toFixed(1)}% margin)
                     </span>
@@ -550,11 +549,11 @@ export default function AdminPage() {
                     <div key={i} className="flex justify-between items-center mt-2 bg-gray-50 p-2 rounded border">
                       <div className="text-sm">
                         <span className="font-medium">{v.label}</span>
-                        <span className="ml-2 text-green-600">₹{v.price}</span>
+                        <span className="ml-2 text-purple-600">₹{v.price}</span>
                         {v.mrp > v.price && <span className="ml-1 line-through text-gray-400 text-xs">₹{v.mrp}</span>}
                         {v.cp > 0 && <span className="ml-1 text-gray-500 text-xs">CP: ₹{v.cp}</span>}
                         {p && (
-                          <span className="ml-2 text-xs text-green-600 font-medium">
+                          <span className="ml-2 text-xs text-purple-600 font-medium">
                             Profit: ₹{p.profit} ({p.margin}%)
                           </span>
                         )}
@@ -568,12 +567,12 @@ export default function AdminPage() {
                 })}
 
                 {form.variants.some((v) => v.cp) && (
-                  <div className="mt-3 bg-green-100 rounded p-3 text-sm">
-                    <p className="font-semibold text-green-800">Profit Summary</p>
+                  <div className="mt-3 bg-purple-100 rounded p-3 text-sm">
+                    <p className="font-semibold text-purple-800">Profit Summary</p>
                     {form.variants.filter((v) => v.cp).map((v, i) => {
                       const p = calcProfit(v);
                       return p ? (
-                        <p key={i} className="text-green-700">
+                        <p key={i} className="text-purple-700">
                           {v.label}: ₹{p.profit} profit ({p.margin}% margin)
                         </p>
                       ) : null;
@@ -587,7 +586,7 @@ export default function AdminPage() {
                 <button
                   onClick={handleAddOrUpdate}
                   disabled={loading}
-                  className={`px-4 py-2 rounded text-white flex-1 ${loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"}`}
+                  className={`px-4 py-2 rounded text-white flex-1 ${loading ? "bg-gray-400" : "bg-purple-600 hover:bg-purple-700"}`}
                 >
                   {loading ? "Saving..." : editId ? "Update" : "Add"}
                 </button>
@@ -597,7 +596,7 @@ export default function AdminPage() {
               </div>
 
               {message && (
-                <div className="my-2 text-center text-sm font-medium text-green-600">{message}</div>
+                <div className="my-2 text-center text-sm font-medium text-purple-600">{message}</div>
               )}
             </div>
           </div>

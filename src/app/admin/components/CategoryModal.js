@@ -135,7 +135,7 @@ console.log("updated:", name, slug)
         {/* BUTTONS */}
         <button
           onClick={handleSave}
-          className="bg-green-500 text-white px-4 py-2 mt-3 w-full"
+          className="bg-purple-500 text-white px-4 py-2 mt-3 w-full"
         >
           Save
         </button>

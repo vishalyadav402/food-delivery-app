@@ -41,7 +41,7 @@ export default function OrdersPage() {
     <div className="md:p-6">
       <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4">
   {orders.map((order) => (
     <div
       key={order.id}
@@ -60,7 +60,7 @@ export default function OrdersPage() {
               : order.status === "accepted"
               ? "bg-blue-500"
               : order.status === "delivered"
-              ? "bg-green-600"
+              ? "bg-purple-600"
               : "bg-red-500"
           }`}
         >
@@ -111,7 +111,7 @@ export default function OrdersPage() {
             onClick={() =>
               updateStatus(order.id, "delivered")
             }
-            className="bg-green-600 text-white px-2 py-1 text-xs rounded"
+            className="bg-purple-600 text-white px-2 py-1 text-xs rounded"
           >
             Deliver
           </button>
