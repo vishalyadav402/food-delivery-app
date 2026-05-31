@@ -54,10 +54,13 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png"/>
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
-        <link rel="manifest" href="/manifest.json"/>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#69247C" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Kirananeeds" />
         <meta name="msapplication-TileColor" content="#da532c"/>
         <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png"/>
-        <meta name="theme-color" content="#69247C"></meta>
         <link rel="shortcut icon" href="/favicon/favicon.ico" type="image/x-icon"/>
         <link rel="icon" href="/favicon/favicon.ico" type="image/x-icon"></link>
     </head>

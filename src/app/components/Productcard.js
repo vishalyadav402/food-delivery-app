@@ -12,27 +12,41 @@ const ProductCard = ({
   updateQty,
   onVariantChange,
 }) => {
-   const router= useRouter();
+  const router = useRouter();
+
+  // ✅ fallback chain for price
+  const displayPrice = variant?.price || item?.variants?.[0]?.price || item?.price || 0;
+  const displayMrp = variant?.mrp || item?.variants?.[0]?.mrp || item?.mrp || displayPrice;
+  const displayLabel = variant?.label || item?.variants?.[0]?.label || "Default";
+
+  const discount = displayMrp > displayPrice
+    ? Math.round(((displayMrp - displayPrice) / displayMrp) * 100)
+    : 0;
+
+  const handleProductClick = () => {
+    if (item?.slug) {
+      router.push(
+        `/${item.categories?.slug || item.category_slug || "c"}/${item.subcategories?.slug || item.subcategory_slug || "s"}/${item.slug}`
+      );
+    }
+  };
+
   return (
     <div className="bg-white min-w-[100px] min-h-[270px] rounded-xl shadow-sm p-2 flex flex-col justify-between hover:shadow-md transition">
 
       {/* IMAGE */}
-      <div className="relative h-28 flex justify-center">
-
-        {/* Discount badge */}
-        {variant?.mrp > variant?.price && (
-          <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] px-1 rounded">
-            {Math.round(((variant.mrp - variant.price) / variant.mrp) * 100)}% OFF
+      <div className="relative h-28 flex justify-center cursor-pointer" onClick={handleProductClick}>
+        {discount > 0 && (
+          <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] px-1 rounded z-10">
+            {discount}% OFF
           </span>
         )}
-
         <Image
           src={item?.image || "/images/icon-vegacart.png"}
-          alt={item?.name}
+          alt={item?.name || "product"}
           width={120}
           height={100}
-          className="object-contain cursor-pointer"
-          onClick={() => router.push(`/${item.category_slug}/${item.subcategory_slug}/${item.slug}`)}
+          className="object-contain h-full w-auto"
         />
       </div>
 
@@ -41,7 +55,7 @@ const ProductCard = ({
         {item?.name}
       </p>
 
-      {/* ✅ VARIANTS (FIXED) */}
+      {/* VARIANTS */}
       {item?.variants?.length > 1 && (
         <div className="flex gap-1 flex-wrap mt-1">
           {item.variants.map((v, i) => (
@@ -49,7 +63,7 @@ const ProductCard = ({
               key={i}
               onClick={() => onVariantChange?.(v)}
               className={`text-[11px] px-2 py-[2px] rounded ${
-                variant?.label === v.label
+                displayLabel === v.label
                   ? "bg-green-500 text-white"
                   : "bg-gray-100 text-gray-600"
               }`}
@@ -66,42 +80,30 @@ const ProductCard = ({
         {/* PRICE */}
         <div className="flex flex-col">
           <span className="text-green-600 text-[15px] font-bold">
-            ₹{variant?.price}
+            ₹{displayPrice}  {/* ✅ single price, no duplicate */}
           </span>
-
-          {variant?.mrp > variant?.price && (
-            <span className="text-gray-600 line-through text-[12px]">
-              ₹{variant?.mrp}
+          {displayMrp > displayPrice && (
+            <span className="text-gray-400 line-through text-[12px]">
+              ₹{displayMrp}
             </span>
           )}
         </div>
 
         {/* BUTTON / QTY */}
         {cartItem ? (
-          <div className="flex items-center gap-2 border border-gray-300 rounded-full px-2 text-sm font-bold">
-            
-            <button
-              onClick={() =>
-                updateQty(
-                  item.name,
-                  variant.label,
-                  cartItem.qty - 1
-                )
-              }
-            >
-              <Minus size={14} />
+          <div className="flex items-center gap-2 border border-green-500 rounded-full px-2 py-0.5 text-sm font-bold">
+            <button onClick={() => updateQty(item.slug, displayLabel, cartItem.qty - 1)}>
+              <Minus size={14} className="text-green-600" />
             </button>
-
-            <span className="text-black">{cartItem.qty}</span>
-
+            <span className="text-black w-4 text-center">{cartItem.qty}</span>
             <button
-              onClick={() =>
-                addToCart({
-                  name: item.name,
-                  variant: variant.label,
-                  price: variant.price,
-                })
-              }
+              onClick={() => addToCart({
+                slug: item.slug,
+                name: item.name,
+                image: item.image,
+                variant: displayLabel,
+                price: displayPrice,
+              })}
               className="text-green-600"
             >
               <Plus size={14} />
@@ -109,13 +111,13 @@ const ProductCard = ({
           </div>
         ) : (
           <button
-            onClick={() =>
-              addToCart({
-                name: item.name,
-                variant: variant.label,
-                price: variant.price,
-              })
-            }
+            onClick={() => addToCart({
+              slug: item.slug,
+              name: item.name,
+              image: item.image,
+              variant: displayLabel,
+              price: displayPrice,
+            })}
             className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold"
           >
             ADD

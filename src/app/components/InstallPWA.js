@@ -6,14 +6,13 @@ const InstallPWA = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if the user has skipped before
     const hasSkipped = localStorage.getItem("pwa-skip") === "true";
     if (hasSkipped) return;
 
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setIsVisible(true); // Show the install popup
+      setIsVisible(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -22,48 +21,48 @@ const InstallPWA = () => {
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
-
     deferredPrompt.prompt();
-    const choiceResult = await deferredPrompt.userChoice;
-
-    if (choiceResult.outcome === "accepted") {
-      console.log("User accepted the install prompt");
-    } else {
-      console.log("User dismissed the install prompt");
-    }
-
+    const { outcome } = await deferredPrompt.userChoice;
     setDeferredPrompt(null);
-    setIsVisible(false); // Hide popup after decision
-  };
-
-  const handleSkip = () => {
-    localStorage.setItem("pwa-skip", "true"); // Remember user's choice
     setIsVisible(false);
   };
 
+  const handleSkip = () => {
+    localStorage.setItem("pwa-skip", "true");
+    setIsVisible(false);
+  };
+
+  if (!isVisible) return null; // 👈 cleaner than wrapping JSX in &&
+
   return (
-    isVisible && (
-      <div className="fixed z-10 top-32 right-5 w-[280px] bg-[#eee1f2] p-4 border border-purple-dark rounded-md shadow-lg text-center">
-        <p className="mb-3 text-xl text-purple-dark font-bold">Kirananeeds Web App</p>
-        <p className="mb-3 leading-snug text-purple-dark text-sm font-light">
-          Get a better experience by installing our Kirananeeds web app on your device.
-        </p>
-        <div className="flex gap-2 justify-center">
-          <button
-            className="bg-pink-dark px-4 py-1 rounded-md shadow-lg text-beige-light"
-            onClick={handleInstall}
-          >
-            Install App
-          </button>
-          <button
-            className="border border-pink-dark px-4 py-1 rounded-md shadow-lg text-pink-dark"
-            onClick={handleSkip}
-          >
-            Skip
-          </button>
-        </div>
+    <div className="fixed z-50 bottom-24 left-1/2 -translate-x-1/2 w-[300px] bg-white border border-purple-200 rounded-2xl shadow-xl p-5 text-center">
+      {/* ICON */}
+      <div className="flex justify-center mb-3">
+        <img src="/icon.png" alt="Kirananeeds" className="w-14 h-14 rounded-xl shadow" />
       </div>
-    )
+
+      {/* TEXT */}
+      <p className="text-lg font-bold text-purple-700 mb-1">Install Kirananeeds</p>
+      <p className="text-sm text-gray-500 leading-snug mb-4">
+        Add to your home screen for faster access and a better experience.
+      </p>
+
+      {/* BUTTONS */}
+      <div className="flex gap-2 justify-center">
+        <button
+          onClick={handleInstall}
+          className="bg-purple-600 text-white px-5 py-2 rounded-full text-sm font-semibold shadow hover:bg-purple-700 transition"
+        >
+          Install
+        </button>
+        <button
+          onClick={handleSkip}
+          className="border border-gray-300 text-gray-500 px-5 py-2 rounded-full text-sm hover:bg-gray-50 transition"
+        >
+          Not now
+        </button>
+      </div>
+    </div>
   );
 };
 
