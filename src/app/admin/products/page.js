@@ -166,6 +166,8 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [editVariantIndex, setEditVariantIndex] = useState(null);
   const [expandedId, setExpandedId] = useState(null); // 👈 moved here from ProductRow
+  const [fetching, setFetching] = useState(true); // 👈 add this state
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const [form, setForm] = useState({
     name: "", slug: "", category_id: "", subcategory_id: "",
@@ -176,12 +178,14 @@ export default function AdminPage() {
   const [editId, setEditId] = useState(null);
 
   const fetchAllData = async () => {
+    setFetching(true);
     const { data: prod } = await supabase.from("products").select("*");
     const { data: cat } = await supabase.from("categories").select("*");
     const { data: sub } = await supabase.from("subcategories").select("*");
     setProducts(prod || []);
     setCategories(cat || []);
     setSubcategories(sub || []);
+    setFetching(false); 
   };
 
   const generateSlug = (text) =>
@@ -281,11 +285,11 @@ export default function AdminPage() {
   setShowModal(true);
 };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this product?")) return;
-    await supabase.from("products").delete().eq("id", id);
-    fetchAllData();
-  };
+const handleDelete = async (id) => {
+  await supabase.from("products").delete().eq("id", id);
+  setDeleteConfirmId(null);
+  fetchAllData();
+};
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -350,40 +354,69 @@ export default function AdminPage() {
           + Add New Product
         </button>
 
+        {/* Sticky Search with Clear Button */}
+    <div className="sticky top-0 z-30 bg-gray-100 py-2 -mx-4 px-4 md:-mx-6 md:px-6">
+      <div className="relative">
         <input
           type="text"
           placeholder="Search product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 w-full mb-3"
+          className="border rounded-md p-2 w-full pr-8"
         />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+    </div>
 
         {/* Product List */}
-        <div className="mt-4 space-y-2">
-          {products
-            .filter((p) => p.name?.toLowerCase().includes(search.toLowerCase()))
-            .map((p) => {
-              const profits = (p.variants || [])
-                .filter((v) => v.cp)
-                .map((v) => ({
-                  profit: v.price - v.cp,
-                  margin: (((v.price - v.cp) / v.price) * 100).toFixed(1),
-                }));
-
-              return (
-                <ProductRow
-                  key={p.id}
-                  p={p}
-                  profits={profits}
-                  handleEdit={handleEdit}
-                  handleDelete={handleDelete}
-                  fetchAllData={fetchAllData}
-                  expandedId={expandedId}       // 👈
-                  setExpandedId={setExpandedId} // 👈
-                />
-              );
-            })}
+<div className="mt-4 space-y-2">
+  {fetching ? (
+    // Skeleton loader
+    [...Array(5)].map((_, i) => (
+      <div key={i} className="animate-pulse flex items-center gap-3 bg-white border rounded-lg p-3">
+        <div className="w-12 h-12 bg-gray-200 rounded" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 bg-gray-200 rounded w-2/3" />
+          <div className="h-3 bg-gray-200 rounded w-1/3" />
         </div>
+        <div className="w-16 h-7 bg-gray-200 rounded" />
+      </div>
+    ))
+  ) : products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase())).length === 0 ? (
+    <div className="text-center text-gray-400 py-10">No products found</div>
+  ) : (
+    products
+      .filter((p) => p.name?.toLowerCase().includes(search.toLowerCase()))
+      .map((p) => {
+        const profits = (p.variants || [])
+          .filter((v) => v.cp)
+          .map((v) => ({
+            profit: v.price - v.cp,
+            margin: (((v.price - v.cp) / v.price) * 100).toFixed(1),
+          }));
+
+        return (
+          <ProductRow
+            key={p.id}
+            p={p}
+            profits={profits}
+            handleEdit={handleEdit}
+            handleDelete={() => setDeleteConfirmId(p.id)}
+            fetchAllData={fetchAllData}
+            expandedId={expandedId}
+            setExpandedId={setExpandedId}
+          />
+        );
+      })
+  )}
+</div>
 
         {/* MODAL */}
         {showModal && (
@@ -601,7 +634,36 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 mx-4 max-w-sm w-full shadow-xl">
+              <div className="text-center">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-lg font-bold text-gray-800 mb-1">Delete Product?</h3>
+                <p className="text-sm text-gray-500 mb-5">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(deleteConfirmId)}
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
+
   );
 }
