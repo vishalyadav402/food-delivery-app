@@ -58,6 +58,7 @@ const [categories, setCategories] = useState([]);
       .from("products")
       .select("id,name,slug,image,variants")
       .ilike("name", `%${search}%`)
+      .eq("is_active", true)
       .limit(6);
 
     setResults(data || []);

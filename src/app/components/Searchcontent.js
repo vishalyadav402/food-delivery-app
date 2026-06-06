@@ -25,7 +25,9 @@ export default function SearchContent() {
       const { data } = await supabase
         .from("products")
         .select("*")
-        .ilike("slug", `%${query}%`);
+        .ilike("slug", `%${query}%`)
+        .eq("is_active", true);
+
 
       setProducts(data || []);
     };

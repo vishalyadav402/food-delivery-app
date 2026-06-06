@@ -102,8 +102,9 @@ export default function Menu() {
   useEffect(() => {
     const fetchData = async () => {
       const { data: prod } = await supabase
-        .from("products")
-        .select(`*, categories(id,name)`);
+            .from("products")
+            .select(`*, categories(id,name)`)
+            .eq("is_active", true);
       const { data: cat } = await supabase.from("categories").select("*");
       setProducts(prod || []);
       setCategories(cat || []);

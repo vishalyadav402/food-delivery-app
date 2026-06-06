@@ -78,6 +78,7 @@ export default function Home() {
         setLocation={setLocation}
         handleSaveLocation={handleSaveLocation}
       />
+      {/* <LocationModal showLocationModal={showLocationModal} setShowLocationModal={setShowLocationModal} /> */}
       <Footer />
     </div>
   );

@@ -44,7 +44,7 @@ export default function Page() {
     const fetchProducts = async () => {
       setLoading(true);
 
-      let query = supabase.from("products").select("*");
+      let query = supabase.from("products").select("*").eq("is_active", true);
 
       if (category) {
         const { data: cat } = await supabase

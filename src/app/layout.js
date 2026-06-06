@@ -5,11 +5,26 @@ import { Inter } from "next/font/google";
 import FloatingCart from "./components/FloatingCart";
 import { CartProvider } from "./context/CartContext";
 import CartDrawer from "./components/CartDrawer";
+import { LocationProvider } from "./context/LocationContext";
+import LocationModal from "./components/LocationModal";
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Kirananeeds",
+  description: "Fresh groceries delivered fast",
+  manifest: "/manifest.json", // 👈
+  themeColor: "#7c3aed",      // 👈
+  appleWebApp: {              // 👈 iOS support
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kirananeeds",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      
     <head>
         <meta charSet="UTF-8"/>
         <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -56,6 +71,10 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#69247C" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Kirananeeds" />
@@ -66,11 +85,14 @@ export default function RootLayout({ children }) {
     </head>
       <body className={inter.className}>
          <Toaster position="bottom-center" />
+         <LocationProvider>
             <CartProvider>
-          {children}
-          <FloatingCart /> {/* onCartClick handled below */}
-          <CartDrawer />
-        </CartProvider>
+              {children}
+              <FloatingCart /> {/* onCartClick handled below */}
+              <LocationModal />
+            <CartDrawer />
+          </CartProvider>
+          </LocationProvider>
           <InstallPWA/>
       </body>
     </html>
