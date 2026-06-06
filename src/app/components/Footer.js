@@ -11,7 +11,7 @@ const Footer = () => {
   return (
     <>
     {/* Mobile Footer (Only visible on mobile screens) */}
-    <footer className="block md:hidden fixed z-50 bottom-0 left-0 right-0 py-3 bg-purple-dark text-beige-light">
+    <footer className="hidden fixed z-50 bottom-0 left-0 right-0 py-3 bg-purple-dark text-beige-light">
       <div className="flex justify-around items-center">
         {/* Home */}
         <button onClick={() => router.push("/")} className="flex flex-col items-center">

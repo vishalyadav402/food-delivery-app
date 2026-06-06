@@ -47,13 +47,7 @@ const Cart = ({
                 {/* QTY */}
                 <div className="flex items-center mt-2">
                   <button
-                    onClick={() =>
-                      updateQty(
-                        item.name,
-                        item.variant,
-                        item.qty - 1
-                      )
-                    }
+                    onClick={() => updateQty(item.slug, item.variant, item.qty - 1)}
                     disabled={item.qty <= 1}
                     className="bg-purple-300 text-white font-bold px-2 rounded disabled:opacity-50"
                   >
@@ -65,13 +59,7 @@ const Cart = ({
                   </span>
 
                   <button
-                    onClick={() =>
-                      updateQty(
-                        item.name,
-                        item.variant,
-                        item.qty + 1
-                      )
-                    }
+                    onClick={() => updateQty(item.slug, item.variant, item.qty + 1)}
                     className="bg-purple-400 text-white font-bold px-2 rounded"
                   >
                     +
@@ -86,9 +74,7 @@ const Cart = ({
                 </span>
 
                 <button
-                  onClick={() =>
-                    removeItem(item.name, item.variant)
-                  }
+                  onClick={() => removeItem(item.slug, item.variant)}
                   className="text-gray-400 text-sm hover:underline"
                 >
                   Delete
