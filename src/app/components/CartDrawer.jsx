@@ -58,7 +58,7 @@ export default function CartDrawer() {
                   <span>{delivery.charge === 0 ? "FREE 🎉" : `₹${delivery.charge}`}</span>
                 </div>
                 {delivery.charge > 0 && (
-                  <p className="text-yellow-300 text-xs mt-1">
+                  <p className="text-purple-400 text-xs mt-1">
                     Add ₹{DELIVERY_RULES.freeDeliveryAbove - total} more for FREE delivery
                   </p>
                 )}
@@ -74,7 +74,7 @@ export default function CartDrawer() {
             onClick={goToCheckout}
             disabled={!delivery.allowed}
             className={`mt-4 w-full py-2 rounded ${
-              delivery.allowed ? "bg-purple-500" : "bg-gray-50 cursor-not-allowed"
+              delivery.allowed ? "bg-purple-500 text-white" : "bg-gray-50 text-gray-400 cursor-not-allowed"
             }`}
           >
             {delivery.allowed ? "Proceed to Checkout" : "Minimum Order Required"}

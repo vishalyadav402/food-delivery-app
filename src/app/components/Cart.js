@@ -18,15 +18,18 @@ const Cart = ({
   const delivery = calculateDelivery(total);
   const finalTotal = total + (delivery.charge || 0);
 
-
   return (
     <div className="flex flex-col h-full">
 
       {/* 🛒 EMPTY */}
       {cart.length === 0 ? (
+        <>
         <p className="text-gray-400 text-center mt-8">
           🛒 Your cart is empty
         </p>
+
+        <button className="bg-purple-500 p-2 px-5 m-auto rounded my-5 cursor-pointer text-white text-md max-w-[300px]" onClick={() => setShowCart(false)}>Continue Shopping</button>
+        </>
       ) : (
         <ul className="space-y-4 flex-1 overflow-y-auto scrollbar-hide max-h-[65vh]">
           {cart.map((item, index) => (
