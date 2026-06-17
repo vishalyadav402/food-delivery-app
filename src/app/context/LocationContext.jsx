@@ -5,21 +5,28 @@ const LocationContext = createContext(null);
 
 export function LocationProvider({ children }) {
   const [location, setLocation] = useState("");
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("location");
-    if (saved) setLocation(saved);
+    if (saved) {
+      setLocation(saved);
+      setShowLocationModal(false);
+    } else {
+      setShowLocationModal(true); // 👈 open by default when no location saved
+    }
   }, []);
 
   const updateLocation = (newLocation) => {
     setLocation(newLocation);
     localStorage.setItem("location", newLocation);
+    setShowLocationModal(false); // 👈 close modal once a location is set
   };
 
-  const [showLocationModal, setShowLocationModal] = useState(false);
-
   return (
-    <LocationContext.Provider value={{ location, updateLocation, showLocationModal, setShowLocationModal }}>
+    <LocationContext.Provider
+      value={{ location, updateLocation, showLocationModal, setShowLocationModal }}
+    >
       {children}
     </LocationContext.Provider>
   );

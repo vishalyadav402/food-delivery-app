@@ -84,17 +84,17 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon/favicon.ico" type="image/x-icon"></link>
     </head>
       <body className={inter.className}>
-         <Toaster position="bottom-center" />
-         <LocationProvider>
-            <CartProvider>
-              {children}
-              <FloatingCart /> {/* onCartClick handled below */}
-              <LocationModal />
-            <CartDrawer />
-          </CartProvider>
-          </LocationProvider>
-          <InstallPWA/>
-      </body>
+  <Toaster position="bottom-center" />
+  <LocationProvider>
+    <CartProvider>
+      {children}
+      <FloatingCart />
+      <CartDrawer />
+    </CartProvider>
+    <LocationModal /> {/* 👈 only here */}
+  </LocationProvider>
+  <InstallPWA />
+</body>
     </html>
   );
 }

@@ -57,7 +57,7 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
 
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${inputValue}&format=json&limit=1`,
+          `https://nominatim.openstreetmap.org/search?q=${inputValue}&format=json&limit=1&countrycodes=in`,
           { headers: { "User-Agent": "KiranaNeedsApp/1.0" } }
         );
         const data = await res.json();
@@ -91,7 +91,7 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
         const { latitude: lat, longitude: lng } = pos.coords;
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&countrycodes=in`,
             { headers: { "User-Agent": "KiranaNeedsApp/1.0" } }
           );
           const data = await res.json();
@@ -118,7 +118,7 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
       setLoadingSuggest(true);
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${inputValue}&format=json&limit=5`,
+          `https://nominatim.openstreetmap.org/search?q=${inputValue}&format=json&limit=5&countrycodes=in`,
           { headers: { "User-Agent": "KiranaNeedsApp/1.0" } }
         );
         setSuggestions(await res.json());
