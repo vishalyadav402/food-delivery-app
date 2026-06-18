@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Master from "@/app/components/Master";
 import { supabase } from "@/app/utils/supabase";
 import { useCart } from "@/app/context/CartContext";
@@ -10,23 +10,46 @@ import Image from "next/image";
 
 const Page = () => {
   const { productdetail, category, subcategory } = useParams();
+  const router = useRouter();
   const { cart, addToCart, updateQty } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
+      setNotFound(false);
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, categories(slug), subcategories(slug)")
         .eq("slug", productdetail)
         .single();
 
-      setProduct(data || null);
+      if (error || !data) {
+        setProduct(null);
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+
+      // 👈 canonical slug check — redirect if URL category/subcategory don't match the product's real ones
+      const realCategorySlug = data.categories?.slug;
+      const realSubcategorySlug = data.subcategories?.slug;
+
+      if (
+        realCategorySlug &&
+        realSubcategorySlug &&
+        (category !== realCategorySlug || subcategory !== realSubcategorySlug)
+      ) {
+        router.replace(`/${realCategorySlug}/${realSubcategorySlug}/${data.slug}`);
+        return; // 👈 bail out, redirect is in flight, avoid rendering with stale params
+      }
+
+      setProduct(data);
       setSelectedVariant(data?.variants?.[0] || {
         label: "Default",
         price: data?.price || 0,
@@ -37,7 +60,7 @@ const Page = () => {
     };
 
     if (productdetail) fetchProduct();
-  }, [productdetail]);
+  }, [productdetail, category, subcategory, router]);
 
   const cartItem = cart.find(
     (c) => c.slug === product?.slug && c.variant === selectedVariant?.label
@@ -47,14 +70,12 @@ const Page = () => {
     return (
       <Master>
         <div className="flex flex-col md:grid md:grid-cols-2 px-4 gap-4 mt-4">
-          {/* Left skeleton */}
           <div className="p-4 bg-white rounded-xl animate-pulse">
             <div className="h-72 bg-gray-200 rounded-xl mx-auto w-3/4" />
             <div className="h-4 bg-gray-200 rounded mt-6 w-3/4" />
             <div className="h-3 bg-gray-200 rounded mt-3 w-full" />
             <div className="h-3 bg-gray-200 rounded mt-2 w-5/6" />
           </div>
-          {/* Right skeleton */}
           <div className="hidden md:flex flex-col p-10 bg-white rounded-xl animate-pulse gap-4">
             <div className="h-3 bg-gray-200 rounded w-1/2" />
             <div className="h-6 bg-gray-200 rounded w-3/4" />
@@ -67,7 +88,7 @@ const Page = () => {
     );
   }
 
-  if (!product) {
+  if (notFound || !product) {
     return (
       <Master>
         <div className="flex items-center justify-center h-64 text-gray-500">
@@ -81,7 +102,6 @@ const Page = () => {
     ? Math.round(((selectedVariant.mrp - selectedVariant.price) / selectedVariant.mrp) * 100)
     : 0;
 
-  // ✅ Reusable add to cart button
   const CartButton = () => (
     cartItem ? (
       <div className="flex items-center justify-center gap-3 border-2 border-purple-500 rounded-full px-4 py-2">
@@ -122,14 +142,12 @@ const Page = () => {
         {/* LEFT */}
         <div className="p-4 bg-white rounded-xl border border-gray-300">
 
-          {/* DISCOUNT BADGE */}
           {discount > 0 && (
             <span className="inline-block bg-red-500 text-white text-xs px-2 py-0.5 rounded mb-2">
               {discount}% OFF
             </span>
           )}
 
-          {/* IMAGE */}
           <div className="flex justify-center items-center h-64">
             <Image
               src={product.image || "/images/icon-vegacart.png"}
@@ -140,11 +158,9 @@ const Page = () => {
             />
           </div>
 
-          {/* MOBILE INFO */}
           <div className="block md:hidden mt-4">
             <p className="text-lg font-semibold">{product.name}</p>
 
-            {/* VARIANTS */}
             {product.variants?.length > 1 && (
               <div className="flex gap-2 flex-wrap my-3">
                 {product.variants.map((v, i) => (
@@ -174,11 +190,10 @@ const Page = () => {
             </div>
           </div>
 
-          {/* DETAILS */}
           <div className="border-t border-gray-300 mt-4 pt-4">
             <p className="text-base font-semibold mb-2">Product Details</p>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {product.description || "No description available."}
+              {product.description || product.name}
             </p>
           </div>
         </div>
@@ -186,17 +201,14 @@ const Page = () => {
         {/* RIGHT — desktop only */}
         <div className="hidden md:flex flex-col p-8 bg-white rounded-xl border border-gray-300">
 
-          {/* BREADCRUMB */}
           <p className="text-gray-400 text-xs capitalize">
             {category} / {subcategory} / {productdetail}
           </p>
 
-          {/* TITLE */}
           <p className="text-2xl font-bold mt-3 mb-1">{product.name}</p>
 
           <hr className="my-4 border border-gray-300" />
 
-          {/* VARIANTS */}
           {product.variants?.length > 1 && (
             <div className="mb-4">
               <p className="text-sm font-medium text-gray-600 mb-2">Select Size</p>
@@ -218,7 +230,6 @@ const Page = () => {
             </div>
           )}
 
-          {/* PRICE */}
           <div className="flex items-baseline gap-3 mb-6">
             <p className="text-3xl font-bold text-purple-600">₹{selectedVariant?.price}</p>
             {discount > 0 && (
@@ -233,7 +244,6 @@ const Page = () => {
 
           <hr className="my-6 border border-gray-300" />
 
-          {/* WHY SHOP */}
           <div>
             <p className="font-semibold mb-3">Why shop from us?</p>
             <div className="flex flex-col gap-2 text-sm text-gray-500">

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
-import CategoryLayout from "@/app/components/CategoryLayout";
 import ProductCard from "@/app/components/Productcard";
 import ProductCardSkeleton from "@/app/components/skelton/ProductCardSkeleton";
 import { useCart } from "@/app/context/CartContext"; // 👈
@@ -63,7 +62,7 @@ export default function Page() {
   }, [products]);
 
   return (
-    <CategoryLayout>
+    <>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {loading ? (
           [...Array(4)].map((_, i) => (
@@ -99,6 +98,6 @@ export default function Page() {
           </p>
         )}
       </div>
-    </CategoryLayout>
+    </>
   );
 }

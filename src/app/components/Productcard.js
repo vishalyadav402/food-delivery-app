@@ -56,7 +56,7 @@ const ProductCard = ({
       </p>
 
       {/* VARIANTS */}
-      {item?.variants?.length > 1 && (
+      {item?.variants?.length > 0 && (
         <div className="flex gap-1 flex-wrap mt-1">
           {item.variants.map((v, i) => (
             <button
