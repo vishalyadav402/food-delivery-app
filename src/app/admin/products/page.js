@@ -1,8 +1,8 @@
 "use client";
 import { supabase } from "@/app/utils/supabase";
 import Image from "next/image";
-import { useState, useEffect } from "react";
 import AdminLayout from "../components/AdminLayout";
+import { useState, useEffect, useMemo } from "react";
 
 function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId }) {
   const expanded = expandedId === p.id;
@@ -165,8 +165,8 @@ export default function AdminPage() {
   const [filteredSubs, setFilteredSubs] = useState([]);
   const [search, setSearch] = useState("");
   const [editVariantIndex, setEditVariantIndex] = useState(null);
-  const [expandedId, setExpandedId] = useState(null); // 👈 moved here from ProductRow
-  const [fetching, setFetching] = useState(true); // 👈 add this state
+  const [expandedId, setExpandedId] = useState(null);
+  const [fetching, setFetching] = useState(true);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const [form, setForm] = useState({
@@ -185,7 +185,7 @@ export default function AdminPage() {
     setProducts(prod || []);
     setCategories(cat || []);
     setSubcategories(sub || []);
-    setFetching(false); 
+    setFetching(false);
   };
 
   const generateSlug = (text) =>
@@ -193,10 +193,9 @@ export default function AdminPage() {
 
   useEffect(() => { fetchAllData(); }, []);
 
-  useEffect(() => {
-    const delay = setTimeout(() => fetchAllData(search), 400);
-    return () => clearTimeout(delay);
-  }, [search]);
+  // ✅ REMOVED — the debounced refetch-on-search effect that was here is gone.
+  // Search is now a pure client-side filter via `filteredProducts` below,
+  // with zero network calls on keystroke.
 
   useEffect(() => {
     const filtered = subcategories.filter((s) => s.category_id === form.category_id);
@@ -263,33 +262,32 @@ export default function AdminPage() {
   };
 
   const handleEdit = (product) => {
-  setForm({
-    name: product.name,
-    slug: product.slug || "",
-    category_id: product.category_id || "",
-    subcategory_id: product.subcategory_id || "",
-    image: product.image,
-    variants: product.variants || [],
-    is_active: product.is_active ?? false,
-    stock: product.stock ?? "",
-    expiry_date: product.expiry_date || "",
-  });
+    setForm({
+      name: product.name,
+      slug: product.slug || "",
+      category_id: product.category_id || "",
+      subcategory_id: product.subcategory_id || "",
+      image: product.image,
+      variants: product.variants || [],
+      is_active: product.is_active ?? false,
+      stock: product.stock ?? "",
+      expiry_date: product.expiry_date || "",
+    });
 
-  // ✅ manually filter subcategories immediately for the selected category
-  const filtered = subcategories.filter(
-    (s) => s.category_id === product.category_id
-  );
-  setFilteredSubs(filtered); // 👈 set before modal opens
+    const filtered = subcategories.filter(
+      (s) => s.category_id === product.category_id
+    );
+    setFilteredSubs(filtered);
 
-  setEditId(product.id);
-  setShowModal(true);
-};
+    setEditId(product.id);
+    setShowModal(true);
+  };
 
-const handleDelete = async (id) => {
-  await supabase.from("products").delete().eq("id", id);
-  setDeleteConfirmId(null);
-  fetchAllData();
-};
+  const handleDelete = async (id) => {
+    await supabase.from("products").delete().eq("id", id);
+    setDeleteConfirmId(null);
+    fetchAllData();
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -344,6 +342,11 @@ const handleDelete = async (id) => {
     setForm((prev) => ({ ...prev, variants: prev.variants.filter((_, i) => i !== index) }));
   };
 
+  const filteredProducts = useMemo(
+    () => products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase())),
+    [products, search]
+  );
+
   return (
     <AdminLayout>
       <div className="md:p-6 mx-auto max-w-lg">
@@ -355,68 +358,65 @@ const handleDelete = async (id) => {
         </button>
 
         {/* Sticky Search with Clear Button */}
-    <div className="sticky top-0 z-30 bg-gray-100 py-2 -mx-4 px-4 md:-mx-6 md:px-6">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search product..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border rounded-md p-2 w-full pr-8"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-    </div>
+        <div className="sticky top-0 z-30 bg-gray-100 py-2 -mx-4 px-4 md:-mx-6 md:px-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search product..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border rounded-md p-2 w-full pr-8"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Product List */}
-<div className="mt-4 space-y-2">
-  {fetching ? (
-    // Skeleton loader
-    [...Array(5)].map((_, i) => (
-      <div key={i} className="animate-pulse flex items-center gap-3 bg-white border rounded-lg p-3">
-        <div className="w-12 h-12 bg-gray-200 rounded" />
-        <div className="flex-1 space-y-2">
-          <div className="h-3 bg-gray-200 rounded w-2/3" />
-          <div className="h-3 bg-gray-200 rounded w-1/3" />
-        </div>
-        <div className="w-16 h-7 bg-gray-200 rounded" />
-      </div>
-    ))
-  ) : products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase())).length === 0 ? (
-    <div className="text-center text-gray-400 py-10">No products found</div>
-  ) : (
-    products
-      .filter((p) => p.name?.toLowerCase().includes(search.toLowerCase()))
-      .map((p) => {
-        const profits = (p.variants || [])
-          .filter((v) => v.cp)
-          .map((v) => ({
-            profit: v.price - v.cp,
-            margin: (((v.price - v.cp) / v.price) * 100).toFixed(1),
-          }));
+        <div className="mt-4 space-y-2">
+          {fetching ? (
+            [...Array(5)].map((_, i) => (
+              <div key={i} className="animate-pulse flex items-center gap-3 bg-white border rounded-lg p-3">
+                <div className="w-12 h-12 bg-gray-200 rounded" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                </div>
+                <div className="w-16 h-7 bg-gray-200 rounded" />
+              </div>
+            ))
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center text-gray-400 py-10">No products found</div>
+          ) : (
+            filteredProducts.map((p) => {
+              const profits = (p.variants || [])
+                .filter((v) => v.cp)
+                .map((v) => ({
+                  profit: v.price - v.cp,
+                  margin: (((v.price - v.cp) / v.price) * 100).toFixed(1),
+                }));
 
-        return (
-          <ProductRow
-            key={p.id}
-            p={p}
-            profits={profits}
-            handleEdit={handleEdit}
-            handleDelete={() => setDeleteConfirmId(p.id)}
-            fetchAllData={fetchAllData}
-            expandedId={expandedId}
-            setExpandedId={setExpandedId}
-          />
-        );
-      })
-  )}
-</div>
+              return (
+                <ProductRow
+                  key={p.id}
+                  p={p}
+                  profits={profits}
+                  handleEdit={handleEdit}
+                  handleDelete={() => setDeleteConfirmId(p.id)}
+                  fetchAllData={fetchAllData}
+                  expandedId={expandedId}
+                  setExpandedId={setExpandedId}
+                />
+              );
+            })
+          )}
+        </div>
 
         {/* MODAL */}
         {showModal && (
@@ -587,7 +587,7 @@ const handleDelete = async (id) => {
                         {v.cp > 0 && <span className="ml-1 text-gray-500 text-xs">CP: ₹{v.cp}</span>}
                         {p && (
                           <span className="ml-2 text-xs text-purple-600 font-medium">
-                            Profit: ₹{p.profit} ({p.margin}%)
+                            Profit: ₹{p.profit.toFixed(1)} ({p.margin}%)
                           </span>
                         )}
                       </div>
@@ -635,7 +635,6 @@ const handleDelete = async (id) => {
           </div>
         )}
 
-
         {/* Delete Confirmation Modal */}
         {deleteConfirmId && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -664,6 +663,5 @@ const handleDelete = async (id) => {
         )}
       </div>
     </AdminLayout>
-
   );
 }

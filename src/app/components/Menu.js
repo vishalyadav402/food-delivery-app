@@ -11,8 +11,6 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import { useCart } from "../context/CartContext";
 
-
-
 function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
   const { cart, addToCart, updateQty } = useCart();
   const prevRef = useRef(null);
@@ -98,13 +96,14 @@ export default function Menu() {
   const [selectedVariants, setSelectedVariants] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const { cart, addToCart, updateQty } = useCart();
+  const router = useRouter();
+
   useEffect(() => {
     const fetchData = async () => {
       const { data: prod } = await supabase
-            .from("products")
-            .select(`*, categories(id,name)`)
-            .eq("is_active", true);
+        .from("products")
+        .select(`*, categories(id,name)`)
+        .eq("is_active", true);
       const { data: cat } = await supabase.from("categories").select("*");
       setProducts(prod || []);
       setCategories(cat || []);
@@ -127,13 +126,6 @@ export default function Menu() {
 
   const categoryList = [{ id: "all", name: "All" }, ...categories];
 
-  const filtered = products.filter((p) => {
-    const matchCategory =
-      selectedCategory === "all" || p.category_id === selectedCategory;
-    const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
-  });
-
   const groupedProducts = categories.map((cat) => ({
     ...cat,
     items: products.filter(
@@ -142,8 +134,6 @@ export default function Menu() {
         p.name?.toLowerCase().includes(search.toLowerCase())
     ),
   }));
-
-  const router = useRouter();
 
   if (loading) {
     return (
@@ -170,75 +160,41 @@ export default function Menu() {
   return (
     <div className="mx-auto md:p-3 pb-3 max-w-6xl">
 
-      {/* 🔥 CATEGORY ICONS */}
-      <Swiper
-        modules={[FreeMode]}
-        freeMode={true}
-        slidesPerView="auto"
-        spaceBetween={12}
-        className="mb-4"
-      >
+      {/* CATEGORY ICONS */}
+      <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(70px,1fr))] gap-4">
         {categoryList.map((cat) => (
-          <SwiperSlide key={cat.id} style={{ width: "auto" }}>
-            <div
-              onClick={() => router.push(`/${cat.slug}`)}
-              className="flex flex-col items-center cursor-pointer w-[70px]"
-            >
-              <div className={`w-14 h-14 rounded-xl overflow-hidden ${
-                selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
-              }`}>
-                <Image
-                  src={cat.image || "/images/icon-vegacart.png"}
-                  alt={cat.name}
-                  width={60}
-                  height={60}
-                />
-              </div>
-              <p className="text-xs text-center text-black mt-1">{cat.name}</p>
+          <div
+            key={cat.id}
+            onClick={() => router.push(`/${cat.slug}`)}
+            className="flex flex-col items-center cursor-pointer w-[70px]"
+          >
+            <div className={`w-14 h-14 rounded-xl overflow-hidden ${
+              selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
+            }`}>
+              <Image
+                src={cat.image || "/images/icon-vegacart.png"}
+                alt={cat.name}
+                width={60}
+                height={60}
+              />
             </div>
-          </SwiperSlide>
+            <p className="text-xs text-center text-black mt-1">{cat.name}</p>
+          </div>
         ))}
-      </Swiper>
-
-      {/* 🔥 FEATURED CATEGORY SECTIONS */}
-{groupedProducts.map((cat) => {
-  if (!cat.items.length) return null;
-  return (
-    <CategoryRow
-      key={cat.id}
-      cat={cat}
-      selectedVariants={selectedVariants}
-      setSelectedVariants={setSelectedVariants}
-    />
-  );
-})}
-
-      {/* 🔥 GRID (WHEN CATEGORY SELECTED) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        {filtered.map((item) => {
-          const variant = selectedVariants[item.id];
-          const cartItem = cart.find(
-            (c) => c.name === item.name && c.variant === variant?.label
-          );
-
-          return (
-            <ProductCard
-              key={item.id}
-              item={item}
-              variant={variant}
-              cartItem={cartItem}
-              addToCart={addToCart}
-              updateQty={updateQty}
-              onVariantChange={(v) =>
-                setSelectedVariants((prev) => ({
-                  ...prev,
-                  [item.id]: v,
-                }))
-              }
-            />
-          );
-        })}
       </div>
+
+      {/* FEATURED CATEGORY SECTIONS */}
+      {groupedProducts.map((cat) => {
+        if (!cat.items.length) return null;
+        return (
+          <CategoryRow
+            key={cat.id}
+            cat={cat}
+            selectedVariants={selectedVariants}
+            setSelectedVariants={setSelectedVariants}
+          />
+        );
+      })}
     </div>
   );
 }
