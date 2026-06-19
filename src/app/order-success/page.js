@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -12,8 +12,17 @@ import { Check, Zap, MessageCircle } from "lucide-react";
 function OrderSuccessContent() {
   const params = useSearchParams();
   const router = useRouter();
-
   const orderId = params.get("id");
+
+useEffect(() => {
+  const hasReloaded = sessionStorage.getItem("hasReloaded");
+
+  if (!hasReloaded) {
+    sessionStorage.setItem("hasReloaded", "true");
+    window.location.reload();
+  }
+}, []);
+
 
   return (
     <>
@@ -43,7 +52,7 @@ function OrderSuccessContent() {
             )}
             <div className="flex items-center gap-2">
               <Zap size={16} className="text-green-600" />
-              <span className="text-[13px] text-gray-700">Arriving within same day</span>
+              <span className="text-[13px] text-gray-700">Will Arrive within same day</span>
             </div>
           </div>
 
