@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Check, Zap, MessageCircle } from "lucide-react";
 
 // ✅ INNER COMPONENT (uses hooks)
 function OrderSuccessContent() {
@@ -17,37 +18,60 @@ function OrderSuccessContent() {
   return (
     <>
       <Header />
-      <div className="flex min-h-[79vh] bg-white text-black flex-col items-center justify-center text-center p-6">
-        <div className="text-green-500 text-6xl mb-4">✅</div>
+      <div className="flex min-h-[79vh] bg-gray-50 flex-col items-center justify-center text-center p-6">
+        <div className="w-full max-w-sm">
 
-        <h1 className="text-2xl font-bold mb-2">
-          Order Placed Successfully!
-        </h1>
+          {/* SUCCESS ICON */}
+          <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+            <Check size={32} className="text-green-600" strokeWidth={2.5} />
+          </div>
 
-        <p className="text-gray-600 mb-4">
-          Thank you for your order 🙏
-        </p>
-
-        {orderId && (
-          <p className="bg-gray-100 px-4 py-2 rounded mb-4">
-            Order ID: <strong>{orderId}</strong>
+          <h1 className="text-lg font-semibold text-gray-900 mb-1">
+            Order placed successfully
+          </h1>
+          <p className="text-[13px] text-gray-500 mb-6">
+            Thank you for your order
           </p>
-        )}
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => router.push("/")}
-            className="bg-green-600 text-white px-6 py-2 rounded"
-          >
-            Back to Home
-          </button>
+          {/* ORDER ID + ETA CARD */}
+          <div className="bg-white rounded-xl border border-gray-200 p-4 text-left mb-4">
+            {orderId && (
+              <div className="flex justify-between items-center pb-2.5 border-b border-gray-100 mb-2.5">
+                <span className="text-[13px] text-gray-500">Order ID</span>
+                <span className="text-[13px] font-semibold text-gray-900">{orderId}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Zap size={16} className="text-green-600" />
+              <span className="text-[13px] text-gray-700">Arriving within same day</span>
+            </div>
+          </div>
 
-          <button
-            onClick={() => router.push("/track-order")}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
-            Track Order
-          </button>
+          {/* WHATSAPP NOTICE */}
+          <div className="bg-blue-50 rounded-xl p-3.5 text-left mb-6 flex gap-2.5">
+            <MessageCircle size={18} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <p className="text-[12px] text-blue-700 leading-relaxed">
+              We've sent your order details on WhatsApp. Our team will confirm shortly.
+            </p>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex gap-2.5">
+            <button
+              onClick={() => router.push("/")}
+              className="flex-1 py-3 rounded-lg border border-gray-300 bg-white text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition"
+            >
+              Back to home
+            </button>
+
+            <button
+              onClick={() => router.push("/track-order")}
+              className="flex-1 py-3 rounded-lg bg-gray-900 text-[13px] font-semibold text-white hover:bg-gray-800 transition"
+            >
+              Track order
+            </button>
+          </div>
+
         </div>
       </div>
       <Footer />
@@ -58,7 +82,7 @@ function OrderSuccessContent() {
 // ✅ OUTER COMPONENT (Suspense wrapper)
 export default function Page() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={<p className="text-center py-20 text-gray-400">Loading...</p>}>
       <OrderSuccessContent />
     </Suspense>
   );
