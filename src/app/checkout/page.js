@@ -177,6 +177,7 @@ Total: ₹${finalTotal.toFixed(2)}`;
               placeholder="Phone number"
               className="w-full text-sm text-gray-700 pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-purple-400"
               value={form.phone}
+              type="number"
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
           </div>
@@ -222,13 +223,6 @@ Total: ₹${finalTotal.toFixed(2)}`;
             <p className="text-[12px] text-gray-500">Pay with cash at delivery time</p>
           </div>
         </div>
-
-        {/* DELIVERY MIN-ORDER WARNING (only if blocked) */}
-        {!delivery.allowed && (
-          <p className="text-red-600 text-sm font-medium mt-4 text-center">
-            {delivery.message}
-          </p>
-        )}
       </div>
 
       {/* STICKY PLACE ORDER BAR */}
