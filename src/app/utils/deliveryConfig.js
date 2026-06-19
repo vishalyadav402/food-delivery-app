@@ -60,6 +60,7 @@ export const calculateDelivery = (cartTotal) => {
   if (cartTotal < DELIVERY_RULES.minOrder) {
     return {
       allowed: false,
+      charge: DELIVERY_RULES.baseCharge, // 👈 always a real number now
       message: `Minimum order ₹${DELIVERY_RULES.minOrder}`,
     };
   }

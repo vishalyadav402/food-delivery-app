@@ -117,6 +117,7 @@ const ProductCard = ({
               image: item.image,
               variant: displayLabel,
               price: displayPrice,
+              mrp:displayMrp,
             })}
             className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold"
           >
