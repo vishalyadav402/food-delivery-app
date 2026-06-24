@@ -7,7 +7,7 @@ import { getDeliveryInfo } from "../utils/deliveryConfig";
 import SearchBox from "./SearchBox";
 import Image from "next/image";
 import { useLocation } from "../context/LocationContext"; // 👈
-
+import { MdArrowDropDown } from "react-icons/md";
 const Header = ({
   openLocationModal = () => {},
   // 👆 removed `location` prop — now comes from context
@@ -42,7 +42,7 @@ const { setShowLocationModal } = useLocation();
   const [search, setSearch] = useState("");
 
   return (
-    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-99 w-full items-center justify-between px-2 md:px-6 border-b border-purple-200">
+    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-99 w-full items-center justify-between px-2 md:px-6">
 
       {!isHome && (
         <button
@@ -63,27 +63,26 @@ const { setShowLocationModal } = useLocation();
       <div className="border-l border-purple-200 h-[80px] hidden lg:block lg:order-2" />
 
       <div onClick={() => router.push("/")} className="my-2 md:mb-0 order-1 lg:order-3 cursor-pointer">
-        <p
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   openLocationModal?.();
-          // }}
+        <div
           onClick={() => setShowLocationModal(true)}
-          className="flex items-center gap-1 max-w-[160px]"
-        >
-          <SlLocationPin size={20} />
-          <span className="truncate text-sm">
+          className="flex-1">
+          <div className="font-bold">Delivery in 4 - 5 hours</div>
+          {/* <SlLocationPin size={20} /> */}
+          <div className="flex gap-2"> 
+          <span className="truncate text-[12px] font-light">
             {location || "Select Location"} {/* 👈 from context */}
           </span>
-        </p>
+          <MdArrowDropDown size={20}/>
+          </div>
+        </div>
 
-        {deliveryInfo && (
+        {/* {deliveryInfo && (
           <div className="text-[11px] mt-1 flex gap-2">
             <span>🚚 {deliveryInfo.distance} km</span>
             <span>•</span>
             <span>⏱ {deliveryInfo.eta}</span>
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="order-3 lg:order-4 flex items-center w-full lg:w-1/2 mb-2 lg:mb-0">
@@ -93,7 +92,7 @@ const { setShowLocationModal } = useLocation();
       <div className="order-2 lg:order-5">
         <button
           onClick={() => router.push("/track-order")}
-          className="bg-white rounded-lg px-3 py-2 border text-sm text-gray-600 cursor-pointer border-gray-200"
+          className="bg-white rounded-lg px-3 py-2 border text-sm text-gray-700 cursor-pointer border-gray-200"
         >
           Track Order
         </button>

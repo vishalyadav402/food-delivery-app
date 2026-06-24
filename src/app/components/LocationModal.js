@@ -145,7 +145,7 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
   if (!showLocationModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white w-[90%] max-w-sm rounded-2xl shadow-xl p-5">
         <h2 className="text-lg font-semibold text-center text-gray-800">Choose your location</h2>
         <p className="text-xs text-gray-500 text-center mb-4">Serviceable: 230133, 230134, 230135</p>

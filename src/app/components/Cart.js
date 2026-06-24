@@ -25,15 +25,22 @@ const Cart = ({
 
   if (cart.length === 0) {
     return (
-      <div className="flex flex-col h-full">
-        <p className="text-gray-400 text-center mt-8">🛒 Your cart is empty</p>
-        <button
-          className="bg-purple-500 p-2 px-5 m-auto rounded my-5 cursor-pointer text-white text-md max-w-[300px]"
-          onClick={() => setShowCart(false)}
-        >
-          Continue Shopping
-        </button>
-      </div>
+      <div className="flex flex-col items-center justify-center h-full gap-3 px-6">
+  {/* Cart illustration */}
+  <div className="text-6xl mb-2">🛒</div>
+
+  <h3 className="text-lg font-semibold text-gray-700">Your cart is empty</h3>
+  <p className="text-sm text-gray-400 text-center">
+    Looks like you haven't added anything yet. Start shopping to fill it up!
+  </p>
+
+  <button
+    onClick={() => setShowCart(false)}
+    className="mt-4 w-full max-w-[260px] bg-purple-600 hover:bg-purple-700 transition text-white text-sm font-medium py-3 rounded-xl shadow-md"
+  >
+    Continue Shopping →
+  </button>
+</div>
     );
   }
 

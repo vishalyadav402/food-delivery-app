@@ -79,7 +79,7 @@ const ProductCard = ({
 
         {/* PRICE */}
         <div className="flex flex-col">
-          <span className="text-purple-600 text-[15px] font-bold">
+          <span className="text-gray-600 text-[15px] font-bold">
             ₹{displayPrice}  {/* ✅ single price, no duplicate */}
           </span>
           {displayMrp > displayPrice && (
@@ -119,7 +119,7 @@ const ProductCard = ({
               price: displayPrice,
               mrp:displayMrp,
             })}
-            className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+            className="border border-purple-500 text-gray-600 px-3 py-1 rounded-full text-sm font-semibold"
           >
             ADD
           </button>

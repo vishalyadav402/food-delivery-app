@@ -40,7 +40,7 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
         </button>
       </div>
 
-      <div className="relative px-6">
+      <div className="relative">
         <button ref={prevRef} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -124,7 +124,7 @@ export default function Menu() {
     setSelectedVariants(initial);
   }, [products]);
 
-  const categoryList = [{ id: "all", name: "All" }, ...categories];
+  // const categoryList = [{ id: "all", name: "All" }, ...categories];
 
   const groupedProducts = categories.map((cat) => ({
     ...cat,
@@ -161,21 +161,21 @@ export default function Menu() {
     <div className="mx-auto md:p-3 pb-3 max-w-6xl">
 
       {/* CATEGORY ICONS */}
-      <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(70px,1fr))] gap-4">
-        {categoryList.map((cat) => (
+      <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(70px,1fr))] md:gap-14 gap-6">
+        {categories.map((cat) => (
           <div
             key={cat.id}
             onClick={() => router.push(`/${cat.slug}`)}
-            className="flex flex-col items-center cursor-pointer w-[70px]"
+            className="flex md:bg-purple-50 rounded-md p-3 flex-col items-center cursor-pointer w-[100px]"
           >
-            <div className={`w-14 h-14 rounded-xl overflow-hidden ${
+            <div className={`w-18 h-18 rounded-xl overflow-hidden ${
               selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
             }`}>
               <Image
                 src={cat.image || "/images/icon-vegacart.png"}
                 alt={cat.name}
-                width={60}
-                height={60}
+                width={80}
+                height={80}
               />
             </div>
             <p className="text-xs text-center text-black mt-1">{cat.name}</p>

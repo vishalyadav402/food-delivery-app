@@ -23,7 +23,7 @@ export default function Home() {
       </main>
 
       <Footer />
-      {/* ❌ no LocationModal here — it's global, rendered once in layout.jsx */}
+      
     </div>
   );
 }

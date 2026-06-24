@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
+import { IoSearch } from "react-icons/io5";
 
 const placeholderTexts = [
   'Search "diaper"',
@@ -97,7 +98,7 @@ const [categories, setCategories] = useState([]);
         }}
         className="flex items-center w-full bg-white rounded-lg px-3 py-2 border border-gray-200 cursor-text"
       >
-        <span className="text-gray-500 mr-2">🔍</span>
+        <span className="text-black mr-2"><IoSearch size={20} /></span>
 
         <input
           ref={inputRef}
