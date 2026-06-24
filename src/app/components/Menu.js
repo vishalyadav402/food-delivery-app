@@ -166,7 +166,7 @@ export default function Menu() {
           <div
             key={cat.id}
             onClick={() => router.push(`/${cat.slug}`)}
-            className="flex md:bg-purple-50 rounded-md p-3 flex-col items-center cursor-pointer w-[100px]"
+            className="flex md:bg-purple-50 rounded-md p-3 flex-col items-center cursor-pointer"
           >
             <div className={`w-18 h-18 rounded-xl overflow-hidden ${
               selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""

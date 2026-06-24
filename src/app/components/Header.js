@@ -67,11 +67,10 @@ const { setShowLocationModal } = useLocation();
           onClick={() => setShowLocationModal(true)}
           className="flex-1">
           <div className="font-bold">Delivery in 4 - 5 hours</div>
-          {/* <SlLocationPin size={20} /> */}
           <div className="flex gap-2"> 
-          <span className="truncate text-[12px] font-light">
-            {location || "Select Location"} {/* 👈 from context */}
-          </span>
+          <span className="truncate text-[12px] font-light leading-none max-w-[200px] block">
+  {location || "Select Location"}
+</span>
           <MdArrowDropDown size={20}/>
           </div>
         </div>
