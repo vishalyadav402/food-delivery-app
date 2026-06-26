@@ -60,7 +60,7 @@ const { setShowLocationModal } = useLocation();
         </div>
       </a>
 
-      <div className="border-l border-purple-200 h-[80px] hidden lg:block lg:order-2" />
+      <div className="h-[80px] hidden lg:block lg:order-2" />
 
       <div onClick={() => router.push("/")} className="my-2 md:mb-0 order-1 lg:order-3 cursor-pointer">
         <div
