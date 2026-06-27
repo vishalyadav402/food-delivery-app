@@ -2,8 +2,7 @@
 import { supabase } from "@/app/utils/supabase";
 import Image from "next/image";
 import AdminLayout from "../components/AdminLayout";
-import { useState, useEffect, useMemo } from "react";
-
+import { useState, useRef, useEffect, useMemo } from "react";
 function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId }) {
   const expanded = expandedId === p.id;
 
@@ -21,6 +20,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
 
         <div className="flex-1 text-sm min-w-0">
           <p className="font-medium truncate">{p.name}</p>
+          <p className="font-medium font-mono text-xs">{p.barcode || "—"}</p>
           <div className="flex gap-3 flex-wrap">
             {p.stock != null && (
               <p className={`text-xs ${p.stock <= 5 ? "text-red-500" : "text-gray-400"}`}>
@@ -169,11 +169,16 @@ export default function AdminPage() {
   const [fetching, setFetching] = useState(true);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  const [form, setForm] = useState({
-    name: "", slug: "", category_id: "", subcategory_id: "",
-    image: "/images/icon-vegacart.png", variants: [],
-    is_active: false, stock: "", expiry_date: "",
-  });
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const barcodeVideoRef = useRef(null);
+  const barcodeControlsRef = useRef(null);
+
+const [form, setForm] = useState({
+  name: "", slug: "", category_id: "", subcategory_id: "",
+  image: "/images/icon-vegacart.png", variants: [],
+  is_active: false, stock: "", expiry_date: "",
+  barcode: "", // ✅ add this
+});
 
   const [editId, setEditId] = useState(null);
 
@@ -190,6 +195,38 @@ export default function AdminPage() {
 
   const generateSlug = (text) =>
     text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+  useEffect(() => {
+  if (!showBarcodeScanner) return;
+
+  const startScanner = async () => {
+    try {
+      const { BrowserMultiFormatReader } = await import("@zxing/browser");
+      const codeReader = new BrowserMultiFormatReader();
+      barcodeControlsRef.current = await codeReader.decodeFromVideoDevice(
+        null,
+        barcodeVideoRef.current,
+        (result) => {
+          if (result) {
+            setForm((prev) => ({ ...prev, barcode: result.getText() }));
+            barcodeControlsRef.current?.stop();
+            setShowBarcodeScanner(false);
+          }
+        }
+      );
+    } catch (err) {
+      alert("Camera access denied or unavailable");
+      setShowBarcodeScanner(false);
+    }
+  };
+
+  startScanner();
+
+  return () => {
+    barcodeControlsRef.current?.stop();
+    barcodeControlsRef.current = null;
+  };
+}, [showBarcodeScanner]);
 
   useEffect(() => { fetchAllData(); }, []);
 
@@ -214,13 +251,14 @@ export default function AdminPage() {
     setLoading(true);
     setMessage("");
 
-    const productData = {
-      name: form.name, slug: form.slug,
-      category_id: form.category_id, subcategory_id: form.subcategory_id,
-      image: form.image, variants: form.variants, is_active: form.is_active,
-      stock: form.stock ? Number(form.stock) : null,
-      expiry_date: form.expiry_date || null,
-    };
+   const productData = {
+  name: form.name, slug: form.slug,
+  category_id: form.category_id, subcategory_id: form.subcategory_id,
+  image: form.image, variants: form.variants, is_active: form.is_active,
+  stock: form.stock ? Number(form.stock) : null,
+  expiry_date: form.expiry_date || null,
+  barcode: form.barcode || null, // ✅ add this
+};
 
     try {
       let error;
@@ -254,6 +292,7 @@ export default function AdminPage() {
       name: "", slug: "", category_id: "", subcategory_id: "",
       image: "/images/icon-vegacart.png", variants: [],
       is_active: false, stock: "", expiry_date: "",
+      barcode: ""
     });
     setEditId(null);
     setShowMore(false);
@@ -272,6 +311,7 @@ export default function AdminPage() {
       is_active: product.is_active ?? false,
       stock: product.stock ?? "",
       expiry_date: product.expiry_date || "",
+      barcode: product.barcode || "", // ✅ add this
     });
 
     const filtered = subcategories.filter(
@@ -447,13 +487,29 @@ export default function AdminPage() {
                 }}
                 className="p-2 w-full border mt-2 text-black rounded"
               />
+
               <input
                 placeholder="Slug"
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
                 className="p-2 w-full border mt-2 text-black rounded"
               />
-
+{/* Barcode */}
+<div className="flex gap-2 mt-2">
+  <input
+    placeholder="Barcode (scan or type)"
+    value={form.barcode}
+    onChange={(e) => setForm({ ...form, barcode: e.target.value })}
+    className="p-2 flex-1 border text-black rounded"
+  />
+  <button
+    type="button"
+    onClick={() => setShowBarcodeScanner(true)}
+    className="px-3 py-2 bg-gray-800 text-white rounded flex items-center gap-1 text-sm"
+  >
+    📷 Scan
+  </button>
+</div>
               {/* Category / Subcategory */}
               <select
                 value={form.category_id}
@@ -662,6 +718,50 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+
+
+
+
+
+
+      {/* Barcode Scanner Modal */}
+{showBarcodeScanner && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60]">
+    <div className="bg-gray-900 rounded-xl p-4 w-[340px] relative">
+      <button
+        onClick={() => {
+          barcodeControlsRef.current?.stop();
+          setShowBarcodeScanner(false);
+        }}
+        className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-xl"
+      >
+        ✖
+      </button>
+      <h2 className="text-white text-lg font-semibold mb-3 text-center">
+        📷 Scan Product Barcode
+      </h2>
+      <video
+        ref={barcodeVideoRef}
+        className="w-full rounded-lg border border-gray-600"
+        style={{ height: "240px", objectFit: "cover" }}
+      />
+      <p className="text-xs text-gray-400 text-center mt-2">
+        Point camera at barcode — auto-detects
+      </p>
+      <button
+        onClick={() => {
+          barcodeControlsRef.current?.stop();
+          setShowBarcodeScanner(false);
+        }}
+        className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
     </AdminLayout>
   );
 }
