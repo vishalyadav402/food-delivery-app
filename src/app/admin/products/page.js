@@ -3,6 +3,8 @@ import { supabase } from "@/app/utils/supabase";
 import Image from "next/image";
 import AdminLayout from "../components/AdminLayout";
 import { useState, useRef, useEffect, useMemo } from "react";
+import { BrowserMultiFormatReader } from "@zxing/browser";
+
 function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId }) {
   const expanded = expandedId === p.id;
 
@@ -195,27 +197,29 @@ const [form, setForm] = useState({
 
   const generateSlug = (text) =>
     text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-  useEffect(() => {
+  
+useEffect(() => {
   if (!showBarcodeScanner) return;
+
+  const codeReader = new BrowserMultiFormatReader(); // ✅ same as POS
 
   const startScanner = async () => {
     try {
-      const { BrowserMultiFormatReader } = await import("@zxing/browser");
-      const codeReader = new BrowserMultiFormatReader();
       barcodeControlsRef.current = await codeReader.decodeFromVideoDevice(
         null,
         barcodeVideoRef.current,
-        (result) => {
+        (result, err) => {
           if (result) {
-            setForm((prev) => ({ ...prev, barcode: result.getText() }));
+            const scannedCode = result.getText();
+            setForm((prev) => ({ ...prev, barcode: scannedCode }));
             barcodeControlsRef.current?.stop();
+            barcodeControlsRef.current = null;
             setShowBarcodeScanner(false);
           }
         }
       );
     } catch (err) {
-      alert("Camera access denied or unavailable");
+      alert("Camera access denied or not available");
       setShowBarcodeScanner(false);
     }
   };
