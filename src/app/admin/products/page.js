@@ -201,35 +201,15 @@ const [form, setForm] = useState({
 useEffect(() => {
   if (!showBarcodeScanner) return;
 
-  const codeReader = new BrowserMultiFormatReader();
-  let scanned = false;
+  const codeReader = new BrowserMultiFormatReader(); // ✅ same as POS
 
   const startScanner = async () => {
     try {
-      // ✅ explicitly request camera permission first
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" } // rear camera on mobile
-      });
-
-      // stop the permission stream — zxing will open its own
-      stream.getTracks().forEach((t) => t.stop());
-
-      // ✅ now get available devices and pick rear camera
-      const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-      const rearCamera = devices.find((d) =>
-        d.label.toLowerCase().includes("back") ||
-        d.label.toLowerCase().includes("rear") ||
-        d.label.toLowerCase().includes("environment")
-      );
-      const deviceId = rearCamera?.deviceId || devices[0]?.deviceId || null;
-
       barcodeControlsRef.current = await codeReader.decodeFromVideoDevice(
-        deviceId,
+        null,
         barcodeVideoRef.current,
-        (result) => {
-          if (result && !scanned) {
-            scanned = true;
-            playBeep();
+        (result, err) => {
+          if (result) {
             const scannedCode = result.getText();
             setForm((prev) => ({ ...prev, barcode: scannedCode }));
             barcodeControlsRef.current?.stop();
@@ -239,14 +219,7 @@ useEffect(() => {
         }
       );
     } catch (err) {
-      console.error("Scanner error:", err);
-      if (err.name === "NotAllowedError") {
-        alert("Camera permission denied. Please allow camera access in your browser settings.");
-      } else if (err.name === "NotFoundError") {
-        alert("No camera found on this device.");
-      } else {
-        alert("Camera error: " + err.message);
-      }
+      alert("Camera access denied or not available");
       setShowBarcodeScanner(false);
     }
   };
