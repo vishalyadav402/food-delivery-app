@@ -22,7 +22,6 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
 
         <div className="flex-1 text-sm min-w-0">
           <p className="font-medium truncate">{p.name}</p>
-          <p className="font-medium font-mono text-xs">{p.barcode || "—"}</p>
           <div className="flex gap-3 flex-wrap">
             {p.stock != null && (
               <p className={`text-xs ${p.stock <= 5 ? "text-red-500" : "text-gray-400"}`}>
@@ -95,6 +94,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="text-left p-2 border-b">Size</th>
+                      <th className="text-left p-2 border-b">Barcode</th>
                       <th className="text-right p-2 border-b">CP ₹</th>
                       <th className="text-right p-2 border-b">MRP ₹</th>
                       <th className="text-right p-2 border-b">Price ₹</th>
@@ -109,6 +109,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                       return (
                         <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                           <td className="p-2 font-medium">{v.label}</td>
+                          <td className="p-2 font-mono text-gray-400">{v.barcode || "—"}</td>
                           <td className="p-2 text-right text-gray-500">{v.cp ? `₹${v.cp}` : "—"}</td>
                           <td className="p-2 text-right text-gray-400 line-through">{v.mrp ? `₹${v.mrp}` : "—"}</td>
                           <td className="p-2 text-right text-purple-600 font-semibold">₹{v.price}</td>
@@ -133,7 +134,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                   {p.variants.some((v) => v.cp) && (
                     <tfoot className="bg-purple-50">
                       <tr>
-                        <td className="p-2 font-semibold" colSpan={4}>Avg Profit</td>
+                        <td className="p-2 font-semibold" colSpan={5}>Avg Profit</td>
                         <td className="p-2 text-right font-bold text-purple-700">
                           ₹{(p.variants.filter(v => v.cp).reduce((s, v) => s + (v.price - v.cp), 0) / p.variants.filter(v => v.cp).length).toFixed(0)}
                         </td>
@@ -157,7 +158,8 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
 
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
-  const [variant, setVariant] = useState({ label: "", price: "", mrp: "", cp: "" });
+  // ✅ barcode always defined — never undefined
+  const [variant, setVariant] = useState({ label: "", price: "", mrp: "", cp: "", barcode: "" });
   const [showModal, setShowModal] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -175,12 +177,11 @@ export default function AdminPage() {
   const barcodeVideoRef = useRef(null);
   const barcodeControlsRef = useRef(null);
 
-const [form, setForm] = useState({
-  name: "", slug: "", category_id: "", subcategory_id: "",
-  image: "/images/icon-vegacart.png", variants: [],
-  is_active: false, stock: "", expiry_date: "",
-  barcode: "", // ✅ add this
-});
+  const [form, setForm] = useState({
+    name: "", slug: "", category_id: "", subcategory_id: "",
+    image: "/images/icon-vegacart.png", variants: [],
+    is_active: false, stock: "", expiry_date: "",
+  });
 
   const [editId, setEditId] = useState(null);
 
@@ -197,46 +198,43 @@ const [form, setForm] = useState({
 
   const generateSlug = (text) =>
     text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  
-useEffect(() => {
-  if (!showBarcodeScanner) return;
 
-  const codeReader = new BrowserMultiFormatReader(); // ✅ same as POS
+  useEffect(() => {
+    if (!showBarcodeScanner) return;
 
-  const startScanner = async () => {
-    try {
-      barcodeControlsRef.current = await codeReader.decodeFromVideoDevice(
-        null,
-        barcodeVideoRef.current,
-        (result, err) => {
-          if (result) {
-            const scannedCode = result.getText();
-            setForm((prev) => ({ ...prev, barcode: scannedCode }));
-            barcodeControlsRef.current?.stop();
-            barcodeControlsRef.current = null;
-            setShowBarcodeScanner(false);
+    const codeReader = new BrowserMultiFormatReader();
+
+    const startScanner = async () => {
+      try {
+        barcodeControlsRef.current = await codeReader.decodeFromVideoDevice(
+          null,
+          barcodeVideoRef.current,
+          (result, err) => {
+            if (result) {
+              const scannedCode = result.getText();
+              // ✅ always goes to variant barcode
+              setVariant((prev) => ({ ...prev, barcode: scannedCode }));
+              barcodeControlsRef.current?.stop();
+              barcodeControlsRef.current = null;
+              setShowBarcodeScanner(false);
+            }
           }
-        }
-      );
-    } catch (err) {
-      alert("Camera access denied or not available");
-      setShowBarcodeScanner(false);
-    }
-  };
+        );
+      } catch (err) {
+        alert("Camera access denied or not available");
+        setShowBarcodeScanner(false);
+      }
+    };
 
-  startScanner();
+    startScanner();
 
-  return () => {
-    barcodeControlsRef.current?.stop();
-    barcodeControlsRef.current = null;
-  };
-}, [showBarcodeScanner]);
+    return () => {
+      barcodeControlsRef.current?.stop();
+      barcodeControlsRef.current = null;
+    };
+  }, [showBarcodeScanner]);
 
   useEffect(() => { fetchAllData(); }, []);
-
-  // ✅ REMOVED — the debounced refetch-on-search effect that was here is gone.
-  // Search is now a pure client-side filter via `filteredProducts` below,
-  // with zero network calls on keystroke.
 
   useEffect(() => {
     const filtered = subcategories.filter((s) => s.category_id === form.category_id);
@@ -255,14 +253,13 @@ useEffect(() => {
     setLoading(true);
     setMessage("");
 
-   const productData = {
-  name: form.name, slug: form.slug,
-  category_id: form.category_id, subcategory_id: form.subcategory_id,
-  image: form.image, variants: form.variants, is_active: form.is_active,
-  stock: form.stock ? Number(form.stock) : null,
-  expiry_date: form.expiry_date || null,
-  barcode: form.barcode || null, // ✅ add this
-};
+    const productData = {
+      name: form.name, slug: form.slug,
+      category_id: form.category_id, subcategory_id: form.subcategory_id,
+      image: form.image, variants: form.variants, is_active: form.is_active,
+      stock: form.stock ? Number(form.stock) : null,
+      expiry_date: form.expiry_date || null,
+    };
 
     try {
       let error;
@@ -296,12 +293,12 @@ useEffect(() => {
       name: "", slug: "", category_id: "", subcategory_id: "",
       image: "/images/icon-vegacart.png", variants: [],
       is_active: false, stock: "", expiry_date: "",
-      barcode: ""
     });
     setEditId(null);
     setShowMore(false);
     setEditVariantIndex(null);
-    setVariant({ label: "", price: "", mrp: "", cp: "" });
+    // ✅ barcode always included
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
   };
 
   const handleEdit = (product) => {
@@ -315,7 +312,6 @@ useEffect(() => {
       is_active: product.is_active ?? false,
       stock: product.stock ?? "",
       expiry_date: product.expiry_date || "",
-      barcode: product.barcode || "", // ✅ add this
     });
 
     const filtered = subcategories.filter(
@@ -359,6 +355,7 @@ useEffect(() => {
       price: Number(variant.price),
       mrp: Number(variant.mrp) || Number(variant.price),
       cp: Number(variant.cp) || 0,
+      barcode: variant.barcode || "", // ✅ always included
     };
     if (editVariantIndex !== null) {
       const updated = [...form.variants];
@@ -368,17 +365,25 @@ useEffect(() => {
     } else {
       setForm((prev) => ({ ...prev, variants: [...prev.variants, newVariant] }));
     }
-    setVariant({ label: "", price: "", mrp: "", cp: "" });
+    // ✅ always reset with barcode
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
   };
 
   const handleEditVariant = (index) => {
     const v = form.variants[index];
-    setVariant({ label: v.label, price: v.price, mrp: v.mrp || "", cp: v.cp || "" });
+    // ✅ barcode always included — this was the root cause of the console error
+    setVariant({
+      label: v.label,
+      price: v.price,
+      mrp: v.mrp || "",
+      cp: v.cp || "",
+      barcode: v.barcode || "",
+    });
     setEditVariantIndex(index);
   };
 
   const resetVariant = () => {
-    setVariant({ label: "", price: "", mrp: "", cp: "" });
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
     setEditVariantIndex(null);
   };
 
@@ -498,22 +503,7 @@ useEffect(() => {
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
                 className="p-2 w-full border mt-2 text-black rounded"
               />
-{/* Barcode */}
-<div className="flex gap-2 mt-2">
-  <input
-    placeholder="Barcode (scan or type)"
-    value={form.barcode}
-    onChange={(e) => setForm({ ...form, barcode: e.target.value })}
-    className="p-2 flex-1 border text-black rounded"
-  />
-  <button
-    type="button"
-    onClick={() => setShowBarcodeScanner(true)}
-    className="px-3 py-2 bg-gray-800 text-white rounded flex items-center gap-1 text-sm"
-  >
-    📷 Scan
-  </button>
-</div>
+
               {/* Category / Subcategory */}
               <select
                 value={form.category_id}
@@ -607,6 +597,22 @@ useEffect(() => {
                     onChange={(e) => setVariant({ ...variant, price: e.target.value })}
                     className="p-2 border text-black rounded"
                   />
+                  {/* ✅ Barcode always in variant form — no product-level barcode */}
+                  <div className="col-span-2 flex gap-2">
+                    <input
+                      placeholder="Barcode (scan or type)"
+                      value={variant.barcode}
+                      onChange={(e) => setVariant({ ...variant, barcode: e.target.value })}
+                      className="p-2 flex-1 border text-black rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowBarcodeScanner(true)}
+                      className="px-3 py-2 bg-gray-800 text-white rounded text-sm"
+                    >
+                      📷 Scan
+                    </button>
+                  </div>
                 </div>
 
                 {/* Live profit preview */}
@@ -645,6 +651,9 @@ useEffect(() => {
                         <span className="ml-2 text-purple-600">₹{v.price}</span>
                         {v.mrp > v.price && <span className="ml-1 line-through text-gray-400 text-xs">₹{v.mrp}</span>}
                         {v.cp > 0 && <span className="ml-1 text-gray-500 text-xs">CP: ₹{v.cp}</span>}
+                        {v.barcode && (
+                          <span className="ml-2 text-xs text-gray-400 font-mono">{v.barcode}</span>
+                        )}
                         {p && (
                           <span className="ml-2 text-xs text-purple-600 font-medium">
                             Profit: ₹{p.profit.toFixed(1)} ({p.margin}%)
@@ -723,48 +732,42 @@ useEffect(() => {
         )}
       </div>
 
-
-
-
-
-
-
       {/* Barcode Scanner Modal */}
-{showBarcodeScanner && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60]">
-    <div className="bg-gray-900 rounded-xl p-4 w-[340px] relative">
-      <button
-        onClick={() => {
-          barcodeControlsRef.current?.stop();
-          setShowBarcodeScanner(false);
-        }}
-        className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-xl"
-      >
-        ✖
-      </button>
-      <h2 className="text-white text-lg font-semibold mb-3 text-center">
-        📷 Scan Product Barcode
-      </h2>
-      <video
-        ref={barcodeVideoRef}
-        className="w-full rounded-lg border border-gray-600"
-        style={{ height: "240px", objectFit: "cover" }}
-      />
-      <p className="text-xs text-gray-400 text-center mt-2">
-        Point camera at barcode — auto-detects
-      </p>
-      <button
-        onClick={() => {
-          barcodeControlsRef.current?.stop();
-          setShowBarcodeScanner(false);
-        }}
-        className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
+      {showBarcodeScanner && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60]">
+          <div className="bg-gray-900 rounded-xl p-4 w-[340px] relative">
+            <button
+              onClick={() => {
+                barcodeControlsRef.current?.stop();
+                setShowBarcodeScanner(false);
+              }}
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-xl"
+            >
+              ✖
+            </button>
+            <h2 className="text-white text-lg font-semibold mb-3 text-center">
+              📷 Scan Variant Barcode
+            </h2>
+            <video
+              ref={barcodeVideoRef}
+              className="w-full rounded-lg border border-gray-600"
+              style={{ height: "240px", objectFit: "cover" }}
+            />
+            <p className="text-xs text-gray-400 text-center mt-2">
+              Point camera at barcode — auto-detects
+            </p>
+            <button
+              onClick={() => {
+                barcodeControlsRef.current?.stop();
+                setShowBarcodeScanner(false);
+              }}
+              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
     </AdminLayout>
   );
