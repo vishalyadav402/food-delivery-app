@@ -1,131 +1,305 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../utils/supabase";
 import AdminLayout from "../components/AdminLayout";
 
+import OrderCard from "../components/OrderCard";
+import DeleteModal from "../components/DeleteModal";
+import EditOrderModal from "../components/EditOrderModal";
+import { printInvoice } from "../../utils/printInvoice";
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchOrders = async () => {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const [deleteOrderId, setDeleteOrderId] = useState(null);
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [editOrder, setEditOrder] = useState(null);
+
+  async function fetchOrders() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false,
+      });
 
-    if (error) console.error(error);
-    else setOrders(data || []);
-  };
+    if (!error) {
+      setOrders(data || []);
+    }
+
+    setLoading(false);
+  }
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // ✅ Update status
-  const updateStatus = async (id, status) => {
+  async function updateStatus(id, status) {
     const { error } = await supabase
       .from("orders")
-      .update({ status })
+      .update({
+        status,
+      })
       .eq("id", id);
 
-    if (error) {
-      console.error(error);
-      alert("Error updating status");
-    } else {
-      fetchOrders(); // refresh
+    if (!error) {
+      fetchOrders();
     }
-  };
+  }
+
+  const deleteOrder = async () => {
+  try {
+    setDeleteLoading(true);
+
+    const { error } = await supabase
+      .from("orders")
+      .delete()
+      .eq("id", deleteOrderId);
+
+    if (error) throw error;
+
+    setDeleteOrderId(null);
+
+    fetchOrders();
+
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    setDeleteLoading(false);
+  }
+};
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const keyword = search.toLowerCase();
+
+      const matchSearch =
+        order.order_id.toLowerCase().includes(keyword) ||
+        order.name.toLowerCase().includes(keyword) ||
+        (order.phone || "").includes(keyword);
+
+      const matchStatus =
+        statusFilter === "all"
+          ? true
+          : order.status === statusFilter;
+
+      return matchSearch && matchStatus;
+    });
+  }, [orders, search, statusFilter]);
+
+  const stats = useMemo(() => {
+    const pending = orders.filter(
+      (o) => o.status === "pending"
+    ).length;
+
+    const accepted = orders.filter(
+      (o) => o.status === "accepted"
+    ).length;
+
+    const delivered = orders.filter(
+      (o) => o.status === "completed" ||
+      o.status === "delivered"
+    ).length;
+
+    const rejected = orders.filter(
+      (o) => o.status === "rejected"
+    ).length;
+
+    const revenue = orders.reduce(
+      (sum, o) => sum + Number(o.total),
+      0
+    );
+
+    return {
+      total: orders.length,
+      pending,
+      accepted,
+      delivered,
+      rejected,
+      revenue,
+    };
+  }, [orders]);
 
   return (
-    <>
     <AdminLayout>
-    <div className="md:p-6">
-      <h1 className="text-2xl font-bold mb-4">Orders</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4">
-  {orders.map((order) => (
-    <div
-      key={order.id}
-      className="border p-4 rounded shadow bg-white"
-    >
-      <p className="text-sm"><strong>ID:</strong> {order.order_id}</p>
-      <p className="text-sm"><strong>Name:</strong> {order.name}</p>
-      <p className="text-sm"><strong>Phone:</strong> {order.phone}</p>
+      <div className="p-6">
 
-      <p className="text-sm mt-1">
-        <strong>Status:</strong>{" "}
-        <span
-          className={`px-2 py-1 rounded text-white text-xs ${
-            order.status === "pending"
-              ? "bg-yellow-500"
-              : order.status === "accepted"
-              ? "bg-blue-500"
-              : order.status === "delivered"
-              ? "bg-purple-600"
-              : "bg-red-500"
-          }`}
-        >
-          {order.status}
-        </span>
-      </p>
+        <h1 className="text-3xl font-bold mb-6">
+          Orders Dashboard
+        </h1>
 
-      {/* Items */}
-      <div className="mt-2 text-xs">
-        <strong>Items:</strong>
-        {order.items.map((item, i) => (
-          <div key={i}>
-            {item.name} ({item.variant}) x {item.qty}
+        {/* Statistics */}
+
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+
+          <div className="bg-white rounded-lg shadow p-4">
+            <div className="text-gray-500 text-sm">
+              Total Orders
+            </div>
+            <div className="text-3xl font-bold">
+              {stats.total}
+            </div>
           </div>
-        ))}
-      </div>
 
-      <p className="mt-2 font-bold text-sm">
-        ₹{order.total}
-      </p>
+          <div className="bg-yellow-50 rounded-lg shadow p-4">
+            <div className="text-yellow-700 text-sm">
+              Pending
+            </div>
+            <div className="text-3xl font-bold">
+              {stats.pending}
+            </div>
+          </div>
 
-      {/* Buttons */}
-      <div className="flex gap-2 mt-3 flex-wrap">
-        {order.status === "pending" && (
-          <>
-            <button
-              onClick={() =>
-                updateStatus(order.id, "accepted")
+          <div className="bg-blue-50 rounded-lg shadow p-4">
+            <div className="text-blue-700 text-sm">
+              Accepted
+            </div>
+            <div className="text-3xl font-bold">
+              {stats.accepted}
+            </div>
+          </div>
+
+          <div className="bg-green-50 rounded-lg shadow p-4">
+            <div className="text-green-700 text-sm">
+              Completed
+            </div>
+            <div className="text-3xl font-bold">
+              {stats.delivered}
+            </div>
+          </div>
+
+          <div className="bg-red-50 rounded-lg shadow p-4">
+            <div className="text-red-700 text-sm">
+              Rejected
+            </div>
+            <div className="text-3xl font-bold">
+              {stats.rejected}
+            </div>
+          </div>
+
+          <div className="bg-purple-50 rounded-lg shadow p-4">
+            <div className="text-purple-700 text-sm">
+              Revenue
+            </div>
+            <div className="text-3xl font-bold">
+              ₹{stats.revenue}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Search */}
+
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+
+          <div className="flex flex-col lg:flex-row gap-4">
+
+            <input
+              className="border rounded-lg p-3 flex-1"
+              placeholder="Search Order ID, Customer or Phone..."
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
               }
-              className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
-            >
-              Accept
-            </button>
+            />
 
-            <button
-              onClick={() =>
-                updateStatus(order.id, "rejected")
+            <select
+              className="border rounded-lg p-3 w-56"
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value)
               }
-              className="bg-red-500 text-white px-2 py-1 text-xs rounded"
             >
-              Reject
-            </button>
-          </>
+              <option value="all">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="accepted">Accepted</option>
+              <option value="completed">Completed</option>
+              <option value="rejected">Rejected</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        {/* Orders */}
+
+        {loading ? (
+
+          <div className="text-center py-20">
+
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+
+            <div className="mt-3">
+              Loading Orders...
+            </div>
+
+          </div>
+
+        ) : (
+
+          <div className="grid xl:grid-cols-2 gap-6">
+
+            {filteredOrders.map((order) => (
+
+              <OrderCard
+                key={order.id}
+                order={order}
+                onAccept={() =>
+                  updateStatus(order.id, "accepted")
+                }
+                onReject={() =>
+                  updateStatus(order.id, "rejected")
+                }
+                onDeliver={() =>
+                  updateStatus(order.id, "completed")
+                }
+                onDelete={() =>
+                  setDeleteOrderId(order.id)
+                }
+                onPrint={() =>
+                  printInvoice(order)
+                }
+                onEdit={() =>
+                  setEditOrder(order)
+                }
+              />
+
+            ))}
+
+          </div>
+
         )}
 
-        {order.status === "accepted" && (
-          <button
-            onClick={() =>
-              updateStatus(order.id, "delivered")
-            }
-            className="bg-purple-600 text-white px-2 py-1 text-xs rounded"
-          >
-            Deliver
-          </button>
-        )}
       </div>
 
-      <p className="text-[10px] text-gray-400 mt-2">
-        {new Date(order.created_at).toLocaleString()}
-      </p>
-    </div>
-  ))}
-</div>
-    </div>
+      <DeleteModal
+        open={!!deleteOrderId}
+        loading={deleteLoading}
+        onClose={() => setDeleteOrderId(null)}
+        onConfirm={deleteOrder}
+      />
+
+      <EditOrderModal
+        order={editOrder}
+        onClose={() => setEditOrder(null)}
+        refresh={fetchOrders}
+      />
+
+
+      
+
     </AdminLayout>
-    </>
   );
 }
