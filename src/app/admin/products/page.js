@@ -8,6 +8,19 @@ import { BrowserMultiFormatReader } from "@zxing/browser";
 function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId }) {
   const expanded = expandedId === p.id;
 
+  // ✅ aggregate stock/expiry from variants
+  const variantStocks = (p.variants || []).filter((v) => v.stock != null);
+  const totalStock = variantStocks.length > 0
+    ? variantStocks.reduce((sum, v) => sum + Number(v.stock), 0)
+    : null;
+  const lowStockCount = variantStocks.filter((v) => v.stock <= 5).length;
+
+  const datedVariants = (p.variants || []).filter((v) => v.expiry_date);
+  const nearestExpiry = datedVariants.length > 0
+    ? datedVariants.reduce((earliest, v) =>
+        !earliest || v.expiry_date < earliest ? v.expiry_date : earliest, null)
+    : null;
+
   return (
     <div className="border rounded-lg overflow-hidden">
       {/* MAIN ROW */}
@@ -23,13 +36,13 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
         <div className="flex-1 text-sm min-w-0">
           <p className="font-medium truncate">{p.name}</p>
           <div className="flex gap-3 flex-wrap">
-            {p.stock != null && (
-              <p className={`text-xs ${p.stock <= 5 ? "text-red-500" : "text-gray-400"}`}>
-                Stock: {p.stock} {p.stock <= 5 ? "⚠️" : ""}
+            {totalStock != null && (
+              <p className={`text-xs ${lowStockCount > 0 ? "text-red-500" : "text-gray-400"}`}>
+                Stock: {totalStock} {lowStockCount > 0 ? `⚠️ (${lowStockCount} low)` : ""}
               </p>
             )}
-            {p.expiry_date && (
-              <p className="text-xs text-orange-400">Exp: {p.expiry_date}</p>
+            {nearestExpiry && (
+              <p className="text-xs text-orange-400">Exp: {nearestExpiry}</p>
             )}
             {profits.length > 0 && (
               <p className="text-xs text-purple-600">
@@ -74,16 +87,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                 {p.is_active ? "● Online" : "● Offline"}
               </p>
             </div>
-            <div className="bg-white rounded p-2 border">
-              <p className="text-gray-400">Stock</p>
-              <p className={`font-medium ${p.stock <= 5 ? "text-red-500" : "text-gray-700"}`}>
-                {p.stock ?? "—"} {p.stock <= 5 && p.stock != null ? "⚠️ Low" : ""}
-              </p>
-            </div>
-            <div className="bg-white rounded p-2 border">
-              <p className="text-gray-400">Expiry</p>
-              <p className="font-medium text-orange-500">{p.expiry_date || "—"}</p>
-            </div>
+            
           </div>
 
           {p.variants?.length > 0 ? (
@@ -95,6 +99,8 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                     <tr>
                       <th className="text-left p-2 border-b">Size</th>
                       <th className="text-left p-2 border-b">Barcode</th>
+                      <th className="text-right p-2 border-b">Stock</th>
+                      <th className="text-right p-2 border-b">Expiry</th>
                       <th className="text-right p-2 border-b">CP ₹</th>
                       <th className="text-right p-2 border-b">MRP ₹</th>
                       <th className="text-right p-2 border-b">Price ₹</th>
@@ -110,6 +116,10 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
                         <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                           <td className="p-2 font-medium">{v.label}</td>
                           <td className="p-2 font-mono text-gray-400">{v.barcode || "—"}</td>
+                          <td className={`p-2 text-right ${v.stock != null && v.stock <= 5 ? "text-red-500" : "text-gray-500"}`}>
+                            {v.stock != null ? v.stock : "—"}
+                          </td>
+                          <td className="p-2 text-right text-orange-500">{v.expiry_date || "—"}</td>
                           <td className="p-2 text-right text-gray-500">{v.cp ? `₹${v.cp}` : "—"}</td>
                           <td className="p-2 text-right text-gray-400 line-through">{v.mrp ? `₹${v.mrp}` : "—"}</td>
                           <td className="p-2 text-right text-purple-600 font-semibold">₹{v.price}</td>
@@ -159,7 +169,7 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
   // ✅ barcode always defined — never undefined
-  const [variant, setVariant] = useState({ label: "", price: "", mrp: "", cp: "", barcode: "" });
+  const [variant, setVariant] = useState({ label: "", price: "", mrp: "", cp: "", barcode: "", stock: "", expiry_date: "" });
   const [showModal, setShowModal] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -180,7 +190,7 @@ export default function AdminPage() {
   const [form, setForm] = useState({
     name: "", slug: "", category_id: "", subcategory_id: "",
     image: "/images/icon-vegacart.png", variants: [],
-    is_active: false, stock: "", expiry_date: "",
+    is_active: false,
   });
 
   const [editId, setEditId] = useState(null);
@@ -248,6 +258,23 @@ export default function AdminPage() {
     return { profit, margin };
   };
 
+  const getTotalStock = (p) => {
+    const stocks = (p.variants || []).filter((v) => v.stock != null);
+    if (stocks.length === 0) return null;
+    return stocks.reduce((sum, v) => sum + Number(v.stock), 0);
+  };
+
+  const getNearestExpiry = (p) => {
+    const dated = (p.variants || []).filter((v) => v.expiry_date);
+    if (dated.length === 0) return null;
+    return dated.reduce((earliest, v) =>
+      !earliest || v.expiry_date < earliest ? v.expiry_date : earliest, null
+    );
+  };
+
+  const getLowStockVariants = (p) =>
+    (p.variants || []).filter((v) => v.stock != null && v.stock <= 5);
+
   const handleAddOrUpdate = async () => {
     if (!form.name) return alert("Enter product name");
     setLoading(true);
@@ -257,8 +284,6 @@ export default function AdminPage() {
       name: form.name, slug: form.slug,
       category_id: form.category_id, subcategory_id: form.subcategory_id,
       image: form.image, variants: form.variants, is_active: form.is_active,
-      stock: form.stock ? Number(form.stock) : null,
-      expiry_date: form.expiry_date || null,
     };
 
     try {
@@ -292,13 +317,12 @@ export default function AdminPage() {
     setForm({
       name: "", slug: "", category_id: "", subcategory_id: "",
       image: "/images/icon-vegacart.png", variants: [],
-      is_active: false, stock: "", expiry_date: "",
+      is_active: false,
     });
     setEditId(null);
     setShowMore(false);
     setEditVariantIndex(null);
-    // ✅ barcode always included
-    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "", stock: "", expiry_date: "" });
   };
 
   const handleEdit = (product) => {
@@ -310,8 +334,6 @@ export default function AdminPage() {
       image: product.image,
       variants: product.variants || [],
       is_active: product.is_active ?? false,
-      stock: product.stock ?? "",
-      expiry_date: product.expiry_date || "",
     });
 
     const filtered = subcategories.filter(
@@ -355,7 +377,9 @@ export default function AdminPage() {
       price: Number(variant.price),
       mrp: Number(variant.mrp) || Number(variant.price),
       cp: Number(variant.cp) || 0,
-      barcode: variant.barcode || "", // ✅ always included
+      barcode: variant.barcode || "",
+      stock: variant.stock !== "" ? Number(variant.stock) : null, // ✅ new
+      expiry_date: variant.expiry_date || null, // ✅ new
     };
     if (editVariantIndex !== null) {
       const updated = [...form.variants];
@@ -365,25 +389,25 @@ export default function AdminPage() {
     } else {
       setForm((prev) => ({ ...prev, variants: [...prev.variants, newVariant] }));
     }
-    // ✅ always reset with barcode
-    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "", stock: "", expiry_date: "" });
   };
 
   const handleEditVariant = (index) => {
     const v = form.variants[index];
-    // ✅ barcode always included — this was the root cause of the console error
     setVariant({
       label: v.label,
       price: v.price,
       mrp: v.mrp || "",
       cp: v.cp || "",
       barcode: v.barcode || "",
+      stock: v.stock ?? "", // ✅ new
+      expiry_date: v.expiry_date || "", // ✅ new
     });
     setEditVariantIndex(index);
   };
 
-  const resetVariant = () => {
-    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "" });
+ const resetVariant = () => {
+    setVariant({ label: "", price: "", mrp: "", cp: "", barcode: "", stock: "", expiry_date: "" });
     setEditVariantIndex(null);
   };
 
@@ -395,6 +419,15 @@ export default function AdminPage() {
     () => products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase())),
     [products, search]
   );
+
+  const nameMatches = useMemo(() => {
+    if (!form.name.trim() || editId) return []; // don't warn while editing an existing product
+    const query = form.name.trim().toLowerCase();
+    return products
+      .filter((p) => p.name?.toLowerCase().includes(query))
+      .slice(0, 5); // cap suggestions
+  }, [form.name, products, editId]);
+
 
   return (
     <AdminLayout>
@@ -487,15 +520,47 @@ export default function AdminPage() {
               </label>
 
               {/* Name + Slug */}
-              <input
-                placeholder="Product Name"
-                value={form.name}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setForm({ ...form, name: value, slug: generateSlug(value) });
-                }}
-                className="p-2 w-full border mt-2 text-black rounded"
-              />
+              <div className="relative">
+                <input
+                  placeholder="Product Name"
+                  value={form.name}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setForm({ ...form, name: value, slug: generateSlug(value) });
+                  }}
+                  className="p-2 w-full border mt-2 text-black rounded"
+                />
+                {nameMatches.length > 0 && (
+                  <div className="mt-1 bg-yellow-50 border border-yellow-300 rounded-md p-2">
+                    <p className="text-xs font-semibold text-yellow-700 mb-1">
+                      ⚠️ Similar product{nameMatches.length > 1 ? "s" : ""} already exist
+                    </p>
+                    <div className="space-y-1">
+                      {nameMatches.map((m) => (
+                        <div
+                          key={m.id}
+                          onClick={() => handleEdit(m)}
+                          className="flex items-center gap-2 bg-white border rounded px-2 py-1 cursor-pointer hover:bg-yellow-100"
+                        >
+                          <Image
+                            src={m.image || "/images/icon-vegacart.png"}
+                            width={24} height={24}
+                            alt=""
+                            className="rounded object-cover flex-shrink-0"
+                          />
+                          <span className="text-xs text-gray-700 truncate flex-1">{m.name}</span>
+                          <span className="text-[10px] text-gray-400">
+                            {m.variants?.length || 0} variant{m.variants?.length === 1 ? "" : "s"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Tap a product to edit it instead of creating a duplicate — e.g. to add a new variant.
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <input
                 placeholder="Slug"
@@ -534,39 +599,6 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* MORE OPTIONS */}
-              <button
-                onClick={() => setShowMore(!showMore)}
-                className="mt-4 text-sm text-blue-500 underline"
-              >
-                {showMore ? "▲ Hide options" : "▼ More options"}
-              </button>
-
-              {showMore && (
-                <div className="mt-3 border rounded p-3 bg-gray-50 space-y-2">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Stock Quantity</label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 100"
-                      value={form.stock}
-                      onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                      className="p-2 w-full border mt-1 text-black rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Expiry Date <span className="text-gray-400">(optional)</span>
-                    </label>
-                    <input
-                      type="date"
-                      value={form.expiry_date}
-                      onChange={(e) => setForm({ ...form, expiry_date: e.target.value })}
-                      className="p-2 w-full border mt-1 text-black rounded"
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Variants */}
               <div className="mt-4">
@@ -595,6 +627,21 @@ export default function AdminPage() {
                     placeholder="Selling Price ₹"
                     value={variant.price}
                     onChange={(e) => setVariant({ ...variant, price: e.target.value })}
+                    className="p-2 border text-black rounded"
+                  />
+                  {/* ✅ new — per-variant stock + expiry */}
+                  <input
+                    type="number"
+                    placeholder="Stock Qty"
+                    value={variant.stock}
+                    onChange={(e) => setVariant({ ...variant, stock: e.target.value })}
+                    className="p-2 border text-black rounded"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Expiry Date"
+                    value={variant.expiry_date}
+                    onChange={(e) => setVariant({ ...variant, expiry_date: e.target.value })}
                     className="p-2 border text-black rounded"
                   />
                   {/* ✅ Barcode always in variant form — no product-level barcode */}
@@ -653,6 +700,14 @@ export default function AdminPage() {
                         {v.cp > 0 && <span className="ml-1 text-gray-500 text-xs">CP: ₹{v.cp}</span>}
                         {v.barcode && (
                           <span className="ml-2 text-xs text-gray-400 font-mono">{v.barcode}</span>
+                        )}
+                        {v.stock != null && (
+                          <span className={`ml-2 text-xs ${v.stock <= 5 ? "text-red-500" : "text-gray-500"}`}>
+                            Stock: {v.stock}{v.stock <= 5 ? " ⚠️" : ""}
+                          </span>
+                        )}
+                        {v.expiry_date && (
+                          <span className="ml-2 text-xs text-orange-500">Exp: {v.expiry_date}</span>
                         )}
                         {p && (
                           <span className="ml-2 text-xs text-purple-600 font-medium">

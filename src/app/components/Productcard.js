@@ -51,7 +51,7 @@ const ProductCard = ({
       </div>
 
       {/* NAME */}
-      <p className="text-sm text-black font-medium mt-2 line-clamp-2 min-h-[32px]">
+      <p className="text-sm text-black capitalize font-medium mt-2 line-clamp-2 min-h-[32px]">
         {item?.name}
       </p>
 

@@ -26,7 +26,7 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
     swiper.navigation.destroy();
     swiper.navigation.init();
     swiper.navigation.update();
-  }, []);
+  }, []); 
 
   return (
     <div className="mb-6">
@@ -97,6 +97,7 @@ export default function Menu() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const router = useRouter();
+const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ add this here
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,14 +127,18 @@ export default function Menu() {
 
   // const categoryList = [{ id: "all", name: "All" }, ...categories];
 
-  const groupedProducts = categories.map((cat) => ({
-    ...cat,
-    items: products.filter(
-      (p) =>
-        p.category_id === cat.id &&
-        p.name?.toLowerCase().includes(search.toLowerCase())
-    ),
-  }));
+   const HIDDEN_CATEGORIES = ["wholesale-pack", "tobacco-pan-masala"];
+
+  const groupedProducts = categories
+    .filter((cat) => !HIDDEN_CATEGORIES.includes(cat.slug?.toLowerCase().trim()))
+    .map((cat) => ({
+      ...cat,
+      items: products.filter(
+        (p) =>
+          p.category_id === cat.id &&
+          p.name?.toLowerCase().includes(search.toLowerCase())
+      ),
+    }));
 
   if (loading) {
     return (
@@ -161,8 +166,10 @@ export default function Menu() {
     <div className="mx-auto md:p-3 pb-3 max-w-6xl">
 
       {/* CATEGORY ICONS */}
-      <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(100px,1fr))] md:gap-6 gap-0">
-        {categories.map((cat) => (
+     <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(100px,1fr))] md:gap-6 gap-0">
+         {categories
+          .filter((cat) => !HIDDEN_CATEGORY_SLUGS.includes(cat.slug))
+          .map((cat) => (
           <div
             key={cat.id}
             onClick={() => router.push(`/${cat.slug}`)}

@@ -12,7 +12,7 @@ export default function page() {
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
       sessionStorage.setItem("admin_auth", "true");
-      router.push("/admin/products");
+      router.push("/admin/orders");
     } else {
       setError("❌ Wrong password");
       setTimeout(() => setError(""), 2000);

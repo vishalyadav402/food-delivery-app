@@ -137,7 +137,7 @@ export default function OrdersPage() {
       <div className="p-6">
 
         <h1 className="text-3xl font-bold mb-6">
-          Orders Dashboard
+          Order Dashboard
         </h1>
 
         {/* Statistics */}
