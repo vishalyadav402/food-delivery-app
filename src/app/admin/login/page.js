@@ -25,8 +25,9 @@ export default function page() {
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Admin Login</h1>
 
         <input
-          type="password"
-          placeholder="Enter password"
+          type="number"
+          autoFocus
+          placeholder="Enter Passkey"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleLogin()}
