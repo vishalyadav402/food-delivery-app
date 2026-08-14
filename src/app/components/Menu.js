@@ -166,29 +166,30 @@ const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ a
     <div className="mx-auto md:p-3 pb-3 max-w-6xl">
 
       {/* CATEGORY ICONS */}
-     <div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(100px,1fr))] md:gap-6 gap-0">
-         {categories
-          .filter((cat) => !HIDDEN_CATEGORY_SLUGS.includes(cat.slug))
-          .map((cat) => (
-          <div
-            key={cat.id}
-            onClick={() => router.push(`/${cat.slug}`)}
-            className="flex md:bg-purple-50 rounded-xl p-3 flex-col items-center cursor-pointer"
-          >
-            <div className={`w-18 h-18 rounded-xl overflow-hidden ${
-              selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
-            }`}>
-              <Image
-                src={cat.image || "/images/icon-vegacart.png"}
-                alt={cat.name}
-                width={80}
-                height={80}
-              />
-            </div>
-            <p className="text-xs font-semibold text-center text-black mt-1">{cat.name}</p>
-          </div>
-        ))}
+<div className="grid mb-10 grid-cols-[repeat(auto-fit,minmax(100px,1fr))] md:gap-6 gap-0">
+  {categories
+    .filter((cat) => !HIDDEN_CATEGORY_SLUGS.includes(cat.slug))
+    .filter((cat) => products.some((p) => p.category_id === cat.id)) // 👈 only show if has products
+    .map((cat) => (
+      <div
+        key={cat.id}
+        onClick={() => router.push(`/${cat.slug}`)}
+        className="flex md:bg-purple-50 rounded-xl p-3 flex-col items-center cursor-pointer"
+      >
+        <div className={`w-18 h-18 rounded-xl overflow-hidden ${
+          selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
+        }`}>
+          <Image
+            src={cat.image || "/images/icon-vegacart.png"}
+            alt={cat.name}
+            width={80}
+            height={80}
+          />
+        </div>
+        <p className="text-xs font-semibold text-center text-black mt-1">{cat.name}</p>
       </div>
+    ))}
+</div>
 
       {/* FEATURED CATEGORY SECTIONS */}
       {groupedProducts.map((cat) => {
