@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUpDown, Gauge, ListPlus } from "lucide-react";
+import Link from "next/link";
 
 const AdminSidebar = ({ open, setOpen }) => {
   const router = useRouter();
@@ -33,6 +34,8 @@ const AdminSidebar = ({ open, setOpen }) => {
         <button onClick={() => router.push("/admin/categories")} className="text-left flex gap-4">
           <ArrowUpDown /> Categories
         </button>
+
+        <Link href="/admin/barcode-generator">🏷️ Barcode Labels</Link>
       </div>
 
       {/* Close */}
