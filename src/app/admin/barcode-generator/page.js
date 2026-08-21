@@ -71,12 +71,12 @@ export default function BarcodeGenerator() {
       const JsBarcode = (await import("jsbarcode")).default;
       JsBarcode(el, value, {
         format: "CODE128",
-        width: 1.5,
-        height: 40,
+        width: 1.3,
+        height: 30,
         displayValue: true,
-        fontSize: 10,
-        margin: 2,
-        textMargin: 2,
+        fontSize: 8,
+        margin: 1,
+        textMargin: 1,
       });
     } catch (e) {
       console.warn("Barcode error:", e);
@@ -345,22 +345,25 @@ function PrintLabel({ product, variant, generateBarcode }) {
 
   return (
     <div style={{
-      width: "54mm", padding: 0, fontFamily: "monospace",
+      width: "45mm", padding: 0, fontFamily: "monospace",
       pageBreakAfter: "always", borderBottom: "1px dashed #ccc", textAlign: "center"
     }}>
-      {/* <p style={{ fontSize: "9pt", fontWeight: "bold", margin: "0 0 1mm 0" }}>KiranaNeeds Store</p> */}
-      <p style={{ fontSize: "9pt", fontWeight: "bold", margin: "0 0 1mm 0",
+      <p style={{ fontSize: "10pt", fontWeight: "bold", margin: "0", lineHeight:'17px' }}>KiranaNeeds Store</p>
+      <p style={{ fontSize: "9pt", fontWeight: "bold", margin: "0", lineHeight:'10px',
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
         {product.name}
       </p>
-      <p style={{ fontSize: "10pt", fontWeight: "bold", margin: "1mm 0 0 0", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-  {variant.label}
-  {variant.mrp && (
-    <span style={{ fontSize: "10pt", fontWeight: "bold" }}>| MRP: ₹{variant.mrp}</span>
-  )}
-</p>
-      <svg ref={svgRef} style={{ width: "100%", maxWidth: "52mm" }} />
-     <div className="pb-5"></div>
+      <p style={{ fontSize: "10pt", fontWeight: "bold", margin: "0", display: "flex", lineHeight:'17px', alignItems: "center", justifyContent: "center", gap: "4px" }}>
+        Qty:{variant.label} | MRP:
+        {variant.mrp && (
+            <span className="flex gap-2">
+            <strike style={{ fontSize: "10pt", fontWeight: "semibold" }}> ₹{variant.mrp}</strike>
+            <span style={{ fontSize: "10pt", fontWeight: "bold" }}>₹{variant.price}</span>
+            </span>
+        )}
+        </p>
+        <svg ref={svgRef} style={{ width: "100%", maxWidth: "45mm" }} />
+        <div className="pb-5"></div>
     </div>
   );
 }
