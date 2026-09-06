@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/app/utils/supabase";
 import { IoSearch } from "react-icons/io5";
+import { Search } from "lucide-react";
 
 const placeholderTexts = [
   'Search "diaper"',
@@ -147,9 +148,9 @@ const [categories, setCategories] = useState([]);
               setSuggestions([]); // 🔥 hide suggestions
               router.push(`/s?q=${encodeURIComponent(s)}`);
             }}
-            className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+            className="p-2 hover:bg-gray-100 cursor-pointer text-sm flex gap-2 items-center"
           >
-            🔍 {s}
+            <Search size={14}/> {s}
           </div>
         ))}
       </>

@@ -54,8 +54,6 @@ export default function RootLayout({ children }) {
         <meta name="twitter:image" content="/favicon.ico" />
         <meta name="twitter:site" content="@kirananeeds" />
         <meta name="twitter:creator" content="@kirananeeds" />
-
-
         <link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png"/>
         <link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png"/>
         <link rel="apple-touch-icon" sizes="72x72" href="/favicon/apple-icon-72x72.png"/>
@@ -74,7 +72,6 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Kirananeeds" />

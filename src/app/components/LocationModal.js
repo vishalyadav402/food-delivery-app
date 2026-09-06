@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { checkDeliveryAvailability } from "../utils/deliveryConfig";
-import { useLocation } from "../context/LocationContext"; // 👈
+import { useLocation } from "../context/LocationContext";
 
 const SERVICEABLE_PINCODES = ["230133", "230134", "230135"];
 
 export default function LocationModal() {
-const { location, updateLocation, showLocationModal, setShowLocationModal } = useLocation();
-  const [inputValue, setInputValue] = useState(location || ""); // 👈 local input state
+  const { location, updateLocation, showLocationModal, setShowLocationModal } = useLocation();
+  const [inputValue, setInputValue] = useState(location || "");
   const [recent, setRecent] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [loadingGPS, setLoadingGPS] = useState(false);
@@ -19,7 +19,6 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
     const history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
     setRecent(history);
   }, []);
-
 
   const saveRecent = (value) => {
     let history = JSON.parse(localStorage.getItem("recentLocations") || "[]");
@@ -100,7 +99,7 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
 
           if (!result.ok) { alert(result.message); setLoadingGPS(false); return; }
 
-          updateLocation(addr); // 👈 context
+          updateLocation(addr);
           localStorage.setItem("userCoords", JSON.stringify({ lat, lng }));
           saveRecent(addr);
           setShowLocationModal(false);
@@ -128,9 +127,28 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
     return () => clearTimeout(timer);
   }, [inputValue]);
 
+  // ✅ Suggestion click — select and close immediately
+  const handleSuggestionClick = (s) => {
+    const selected = s.display_name;
+    const lat = parseFloat(s.lat);
+    const lng = parseFloat(s.lon);
+    const result = checkDeliveryAvailability({ locationText: selected, lat, lng });
+
+    if (!result.ok) {
+      alert(result.message);
+      return;
+    }
+
+    updateLocation(selected);
+    localStorage.setItem("userCoords", JSON.stringify({ lat, lng }));
+    saveRecent(selected);
+    setSuggestions([]);
+    setShowLocationModal(false);
+  };
+
   const handleContinue = () => {
     if (!validation.ok) return;
-    updateLocation(inputValue); // 👈 context
+    updateLocation(inputValue);
     localStorage.setItem("userCoords", JSON.stringify(coords));
     saveRecent(inputValue);
     setShowLocationModal(false);
@@ -166,96 +184,123 @@ const { location, updateLocation, showLocationModal, setShowLocationModal } = us
 
         <div className="relative">
           <input
-            value={inputValue} // 👈 local state
-            onChange={(e) => setInputValue(e.target.value)}
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setSuggestions([]);
+            }}
             placeholder="Enter area or pincode"
             className="w-full border rounded-xl px-3 py-2 pr-8 text-gray-500 text-sm"
           />
           {inputValue && (
             <button
-              onClick={() => { setInputValue(""); setValidation({ checking: false, ok: false, message: "" }); }}
+              onClick={() => {
+                setInputValue("");
+                setSuggestions([]);
+                setValidation({ checking: false, ok: false, message: "" });
+              }}
               className="absolute right-2 top-2 text-gray-400 hover:text-black"
             >✖</button>
           )}
         </div>
 
-        {validation.checking && <p className="text-xs text-gray-400 mt-2">Checking...</p>}
-        {validation.message && !validation.checking && (
-          <div className="flex justify-between">
-          <p className="text-xs mt-2">Select Location Below</p>
-          <p className={`text-xs mt-2 ${validation.ok ? "text-green-600" : "text-red-500"}`}>
-            {validation.message}
-          </p>
+        {validation.checking && (
+  <div className="flex items-center gap-2 mt-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+    <span className="animate-spin text-sm">⏳</span>
+    <p className="text-xs text-gray-500">Checking delivery availability...</p>
+  </div>
+)}
+{validation.message && !validation.checking && (
+  <div className={`flex items-center gap-2 mt-2 rounded-lg px-3 py-2 border ${
+    validation.ok
+      ? "bg-green-50 border-green-200"
+      : "bg-red-50 border-red-200"
+  }`}>
+    <span className="text-base">{validation.ok ? "🚀" : "😔"}</span>
+    <div>
+      <p className={`text-xs font-semibold ${validation.ok ? "text-green-700" : "text-red-600"}`}>
+        {validation.ok ? "Great news!" : "Oops!"}
+      </p>
+      <p className={`text-xs ${validation.ok ? "text-green-600" : "text-red-500"}`}>
+        {validation.message}
+      </p>
+    </div>
+  </div>
+)}
+
+        {/* Suggestions */}
+        {/* Suggestions */}
+{suggestions.length > 0 && (
+  <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
+    👆 Tap a location below to confirm
+  </p>
+)}
+{suggestions.length > 0 && (
+  <div className="border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-sm">
+            {loadingSuggest ? (
+              <p className="text-xs text-gray-400 p-2 text-center">Searching...</p>
+            ) : (
+              suggestions.map((s, i) => (
+                <div
+                  key={i}
+                  onClick={() => handleSuggestionClick(s)}
+                  className="p-2 text-xs hover:bg-green-50 hover:text-green-700 text-gray-500 cursor-pointer border-b last:border-0 flex items-start gap-1"
+                >
+                  <span className="mt-0.5 flex-shrink-0">📍</span>
+                  <span>{s.display_name}</span>
+                </div>
+              ))
+            )}
           </div>
         )}
 
-        {suggestions.length > 0 && (
-          <div className="border border-gray-200 rounded-sm mt-2 max-h-32 overflow-y-auto">
-            {suggestions.map((s, i) => (
-              <div
-                key={i}
-                onClick={() => {
-                  const selected = s.display_name;
-                  const lat = parseFloat(s.lat);
-                  const lng = parseFloat(s.lon);
-                  const result = checkDeliveryAvailability({ locationText: selected, lat, lng });
-                  if (!result.ok) { alert(result.message); return; }
-
-                  updateLocation(selected); // 👈 context
-                  localStorage.setItem("userCoords", JSON.stringify({ lat, lng }));
-                  saveRecent(selected);
-                  setSuggestions([]);
-                  setShowLocationModal(false);
-                }}
-                className="p-2 text-xs hover:bg-gray-100 text-gray-500 cursor-pointer"
-              >
-                {s.display_name}
-              </div>
-            ))}
-          </div>
-        )}
-
+        {/* Recent */}
         <div className="mt-3">
           <div className="flex justify-between items-center mb-1">
             <p className="text-xs text-gray-500">Recent</p>
             {recent.length > 0 && (
-              <button onClick={() => { setRecent([]); localStorage.removeItem("recentLocations"); }}
-                className="text-[10px] text-red-500">Clear</button>
+              <button
+                onClick={() => { setRecent([]); localStorage.removeItem("recentLocations"); }}
+                className="text-[10px] text-red-500"
+              >Clear</button>
             )}
           </div>
           {recent.map((r, i) => (
             <div key={i} className="flex justify-between items-center text-xs py-1 group">
-              <span onClick={() => setInputValue(r)}
-                className="cursor-pointer hover:text-green-600 text-gray-500 flex-1">
+              <span
+                onClick={() => setInputValue(r)}
+                className="cursor-pointer hover:text-green-600 text-gray-500 flex-1"
+              >
                 📍 {r}
               </span>
-              <button onClick={() => deleteRecent(r)}
-                className="text-gray-400 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition">
-                ✖
-              </button>
+              <button
+                onClick={() => deleteRecent(r)}
+                className="text-gray-400 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition"
+              >✖</button>
             </div>
           ))}
         </div>
 
-        {!suggestions.length && (
+        {/* Continue button — only show when no suggestions visible */}
+        {/* {!suggestions.length && (
           <button
-  onClick={handleContinue}
-  disabled={!validation.ok || !inputValue}
-  className={`w-full mt-4 py-2.5 rounded-xl transition ${
-    validation.ok && inputValue
-      ? "bg-gray-800 text-white"
-      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-  }`}
->
-  {!inputValue
-    ? "Enter a location"
-    : validation.checking
-    ? "Checking..."
-    : validation.ok
-    ? "Continue"
-    : "Not serviceable"}
-</button>
-        )}
+            onClick={handleContinue}
+            disabled={!validation.ok || !inputValue}
+            className={`w-full mt-4 py-2.5 rounded-xl transition ${
+              validation.ok && inputValue
+                ? "bg-gray-800 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            {!inputValue
+              ? "Enter a location"
+              : validation.checking
+              ? "Checking..."
+              : validation.ok
+              ? "Continue"
+              : "Not serviceable"}
+          </button>
+        )} */}
       </div>
     </div>
   );

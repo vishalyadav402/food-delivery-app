@@ -55,7 +55,7 @@ const { setShowLocationModal } = useLocation();
 
       <a href="/" className="self-center md:mb-0 hidden lg:block lg:order-1">
         <div className="flex items-center">
-          <Image src="/icon.png" height={50} width={50} style={{ width: "auto" }} alt="kirananeeds logo" />
+          <Image src="/icon.png" height={40} width={40} style={{ width: "auto" }} alt="kirananeeds logo" />
           <span className="font-semibold font-sans text-gray-900 text-3xl">Kirananeeds</span>
         </div>
       </a>
@@ -66,7 +66,7 @@ const { setShowLocationModal } = useLocation();
         <div
           onClick={() => setShowLocationModal(true)}
           className="flex-1">
-          <div className="font-bold">Delivery in 4 - 5 hours</div>
+          <div className="font-bold">Same Day Delivery</div>
           <div className="flex gap-2"> 
           <span className="truncate text-[12px] font-light leading-none max-w-[200px] block">
   {location || "Select Location"}

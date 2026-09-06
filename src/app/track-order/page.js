@@ -68,8 +68,9 @@ export default function TrackOrder() {
               disabled={loading}
               className="bg-gray-900 hover:bg-gray-800 text-white px-5 rounded-lg text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"
             >
-              <Search size={15} />
-              {loading ? "Searching..." : "Search"}
+              <Search size={15} className={loading ? "animate-spin" : ""} />
+              {loading ? "Search." : "Search"}
+
             </button>
           </div>
         </div>
