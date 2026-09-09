@@ -415,10 +415,19 @@ export default function AdminPage() {
     setForm((prev) => ({ ...prev, variants: prev.variants.filter((_, i) => i !== index) }));
   };
 
+  const [filter, setFilter] = useState("all"); // "all" | "online" | "offline" | "lowstock"
+
   const filteredProducts = useMemo(
-    () => products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase())),
-    [products, search]
-  );
+  () => products
+    .filter((p) => p.name?.toLowerCase().includes(search.toLowerCase()))
+    .filter((p) => {
+      if (filter === "online") return p.is_active;
+      if (filter === "offline") return !p.is_active;
+      if (filter === "lowstock") return p.stock != null && p.stock <= 5;
+      return true;
+    }),
+  [products, search, filter]
+);
 
   const nameMatches = useMemo(() => {
     if (!form.name.trim() || editId) return []; // don't warn while editing an existing product
@@ -458,6 +467,27 @@ export default function AdminPage() {
               </button>
             )}
           </div>
+        </div>
+
+        <div className="flex gap-2 mt-2 mb-1 flex-wrap">
+          {[
+            { key: "all", label: "All" },
+            { key: "online", label: "🟢 Online" },
+            { key: "offline", label: "⚫ Offline" },
+            { key: "lowstock", label: "⚠️ Low Stock" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`text-xs px-3 py-1 rounded-full border transition ${
+                filter === key
+                  ? "bg-purple-600 text-white border-purple-600"
+                  : "bg-white text-gray-600 border-gray-300"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Product List */}
