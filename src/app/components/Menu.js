@@ -66,7 +66,10 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
                   <ProductCard
                     item={item}
                     variant={variant}
-                    cartItem={cartItem}
+                    cartItems={cart}
+                    cartItem={cart.find(
+                      (c) => c.slug === item.slug && c.variant === (variant?.label || item.variants?.[0]?.label)
+                    )}
                     addToCart={addToCart}
                     updateQty={updateQty}
                     onVariantChange={(v) =>

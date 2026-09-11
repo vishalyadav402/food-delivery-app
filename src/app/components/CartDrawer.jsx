@@ -25,7 +25,7 @@ export default function CartDrawer() {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 flex justify-end z-[99]"
+      className="fixed inset-0 bg-black/70 backdrop-blur-xs flex justify-end z-[99]"
       onClick={() => setShowCart(false)}
     >
       <div
