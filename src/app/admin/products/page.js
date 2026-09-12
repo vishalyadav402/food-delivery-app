@@ -5,7 +5,7 @@ import AdminLayout from "../components/AdminLayout";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 
-function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId }) {
+function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expandedId, setExpandedId, setProducts }) {
   const expanded = expandedId === p.id;
 
   // ✅ aggregate stock/expiry from variants
@@ -62,14 +62,21 @@ function ProductRow({ p, profits, handleEdit, handleDelete, fetchAllData, expand
           <button className="underline text-sm" onClick={() => handleEdit(p)}>Edit</button>
           <button className="underline text-sm text-red-500" onClick={() => handleDelete(p.id)}>Del</button>
           <button
-            onClick={async () => {
-              await supabase.from("products").update({ is_active: !p.is_active }).eq("id", p.id);
-              fetchAllData();
-            }}
-            className={`text-xs px-2 py-1 rounded ${p.is_active ? "bg-purple-500 text-white" : "bg-gray-400 text-white"}`}
-          >
-            {p.is_active ? "Online" : "Offline"}
-          </button>
+  onClick={async () => {
+    // ✅ update UI instantly without refetch
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === p.id
+          ? { ...product, is_active: !p.is_active }
+          : product
+      )
+    );
+    await supabase.from("products").update({ is_active: !p.is_active }).eq("id", p.id);
+  }}
+  className={`text-xs px-2 py-1 rounded ${p.is_active ? "bg-purple-500 text-white" : "bg-gray-400 text-white"}`}
+>
+  {p.is_active ? "Online" : "Offline"}
+</button>
         </div>
       </div>
 
@@ -524,6 +531,7 @@ export default function AdminPage() {
                   fetchAllData={fetchAllData}
                   expandedId={expandedId}
                   setExpandedId={setExpandedId}
+                  setProducts={setProducts}
                 />
               );
             })

@@ -78,7 +78,7 @@ function VariantPickerModal({ item, onClose, onAdd, cartItems, updateQty }) {
 
                   {/* ADD / qty control */}
                   {cartItem ? (
-                    <div className="flex items-center gap-2 border-2 border-green-500 bg-green-500 rounded-lg px-2 py-1 flex-shrink-0">
+                    <div className="flex items-center gap-2 h-10 border-2 border-green-600 bg-green-500 rounded-lg px-2 flex-shrink-0">
                       <button
                         onClick={() => updateQty(item.slug, v.label, cartItem.qty - 1)}
                         className="text-white"
@@ -91,8 +91,7 @@ function VariantPickerModal({ item, onClose, onAdd, cartItems, updateQty }) {
                       {/* ✅ + uses updateQty to increment, not onAdd */}
                       <button
                         onClick={() => updateQty(item.slug, v.label, cartItem.qty + 1)}
-                        className="text-white"
-                      >
+                        className="text-white">
                         <Plus size={14} />
                       </button>
                     </div>
@@ -106,7 +105,7 @@ function VariantPickerModal({ item, onClose, onAdd, cartItems, updateQty }) {
                         price: v.price,
                         mrp: v.mrp,
                       })}
-                      className="border-2 border-green-500 text-green-600 font-bold text-sm px-4 py-1.5 rounded-lg flex-shrink-0 hover:bg-green-50 transition-colors"
+                      className="border-2 border-green-500 text-green-600 font-bold text-sm px-4 h-10 rounded-lg flex-shrink-0 transition-colors"
                     >
                       ADD
                     </button>
@@ -231,37 +230,38 @@ const cartItem = cart?.find(
 
           {/* ✅ Multi-variant: show - qty + on card when in cart, else ADD */}
           {hasMultipleVariants ? (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col">
               {totalCartQty > 0 ? (
-                <>
-                  <div className="flex items-center border-2 border-green-500 rounded-lg overflow-hidden">
+                <div className="border-2 border-green-600 bg-green-500 flex flex-col items-center rounded-md">
+                  <div className="flex items-center overflow-hidden">
                     <button
                       onClick={() => setShowModal(true)}
-                      className="px-2 py-1 text-green-600 hover:bg-green-50"
+                      className="px-2 text-white"
                     >
                       <Minus size={13} />
                     </button>
                     <span
                       onClick={() => setShowModal(true)}
-                      className="px-2 text-sm font-bold text-gray-800 cursor-pointer"
+                      className="px-2 text-sm font-bold text-white cursor-pointer"
                     >
                       {totalCartQty}
                     </span>
                     <button
                       onClick={() => setShowModal(true)}
-                      className="px-2 py-1 text-green-600 hover:bg-green-50"
+                      className="px-2 text-white"
                     >
                       <Plus size={13} />
                     </button>
                   </div>
-                  <span className="text-[10px] text-green-500">
+                  <span className="text-[10px] text-white">
                     {item.variants.length} options
                   </span>
-                </>
+
+                </div>
               ) : (
                 <button
                   onClick={() => setShowModal(true)}
-                  className="flex flex-col items-center border border-green-500 text-green-600 px-3 py-1 rounded-lg text-sm font-bold hover:bg-green-50 transition-colors"
+                  className="flex h-10 flex-col items-center border-2 border-green-500 text-green-600 px-3 rounded-lg text-sm font-bold  transition-colors"
                 >
                   <span>ADD</span>
                   <span className="text-[10px] font-normal text-green-500">
@@ -271,30 +271,30 @@ const cartItem = cart?.find(
               )}
             </div>
           ) : cartItem ? (
-            <div className="flex items-center border-2 border-green-500 rounded-lg overflow-hidden">
-  <button
-    onClick={() => updateQty(item.slug, displayLabel, cartItem.qty - 1)}
-    className="px-2 py-1 text-green-600 hover:bg-green-50"
-  >
-    <Minus size={13} />
-  </button>
-  <span className="px-2 text-sm font-bold text-gray-800">
-    {cartItem.qty}
-  </span>
-  <button
-    onClick={() => updateQty(item.slug, displayLabel, cartItem.qty + 1)}
-    className="px-2 py-1 text-green-600 hover:bg-green-50"
-  >
-    <Plus size={13} />
-  </button>
-</div>
+            <div className="flex h-10 items-center bg-green-500 border-2 border-green-600 rounded-lg overflow-hidden">
+            <button
+              onClick={() => updateQty(item.slug, displayLabel, cartItem.qty - 1)}
+              className="px-2 text-white "
+            >
+              <Minus size={13} />
+            </button>
+            <span className="px-2 text-sm font-bold text-white">
+              {cartItem.qty}
+            </span>
+            <button
+              onClick={() => updateQty(item.slug, displayLabel, cartItem.qty + 1)}
+              className="px-2 text-white "
+            >
+              <Plus size={13} />
+            </button>
+          </div>
           ) : (
             <button
-  onClick={handleAddClick}
-  className="border-2 border-green-500 text-green-600 font-bold text-sm px-4 py-1.5 rounded-lg hover:bg-green-50 transition-colors"
->
-  ADD
-</button>
+            onClick={handleAddClick}
+            className="border-2 border-green-600 h-10 text-green-600 font-bold text-sm px-4 rounded-lg  transition-colors"
+          >
+            ADD
+          </button>
           )}
         </div>
       </div>
