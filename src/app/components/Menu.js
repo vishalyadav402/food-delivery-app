@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { supabase } from "../utils/supabase";
 import ProductCard from "./Productcard";
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -11,6 +10,10 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import { useCart } from "../context/CartContext";
 import { IoIosArrowForward } from "react-icons/io";
+
+import { useProducts } from "../context/ProductsContext";
+
+
 
 function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
   const { cart, addToCart, updateQty } = useCart();
@@ -95,28 +98,16 @@ function CategoryRow({ cat, selectedVariants, setSelectedVariants }) {
 }
 
 export default function Menu() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  // inside Menu component:
+  const { products, categories, loaded } = useProducts();
+  const loading = !loaded;
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedVariants, setSelectedVariants] = useState({});
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const router = useRouter();
 const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ add this here
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: prod } = await supabase
-        .from("products")
-        .select(`*, categories(id,name)`)
-        .eq("is_active", true);
-      const { data: cat } = await supabase.from("categories").select("*");
-      setProducts(prod || []);
-      setCategories(cat || []);
-      setTimeout(() => setLoading(false), 200);
-    };
-    fetchData();
-  }, []);
+ 
 
   useEffect(() => {
     const initial = {};

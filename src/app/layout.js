@@ -7,6 +7,7 @@ import { CartProvider } from "./context/CartContext";
 import CartDrawer from "./components/CartDrawer";
 import { LocationProvider } from "./context/LocationContext";
 import LocationModal from "./components/LocationModal";
+import { ProductsProvider } from "./context/ProductsContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
     </head>
       <body className={inter.className}>
   <Toaster position="bottom-center" />
+   <ProductsProvider>
   <LocationProvider>
     <CartProvider>
       {children}
@@ -90,6 +92,7 @@ export default function RootLayout({ children }) {
     </CartProvider>
     <LocationModal /> {/* 👈 only here */}
   </LocationProvider>
+  </ProductsProvider>
   <InstallPWA />
 </body>
     </html>

@@ -33,7 +33,7 @@ export default function FloatingCart() {
   
 
   return (
-    <div className="fixed bottom-0 left-0 px-3 py-0 justify-center w-full max-w-sm z-99 md:bottom-6 md:right-6 md:left-auto md:w-auto md:max-w-none">
+    <div className="fixed bottom-0 left-0 right-0 py-0 justify-center w-full max-w-auto z-99 md:bottom-6 md:right-0 md:left-auto md:w-auto md:max-w-none">
   
   {/* Mobile: full bar */}
   <div
