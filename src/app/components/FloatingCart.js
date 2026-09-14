@@ -57,7 +57,7 @@ export default function FloatingCart() {
   {/* Desktop: compact pill */}
   <div
     onClick={() => handleCart()}
-    className="hidden md:flex items-center gap-2 bg-green-700 text-white pl-3 pr-4 py-5 rounded-full shadow-xl cursor-pointer hover:bg-green-800 transition"
+    className="hidden md:flex md:flex-col items-center gap-0 bg-green-700 text-white pl-5 pr-5 py-5 rounded-full shadow-xl cursor-pointer hover:bg-green-800 transition"
   >
     <div className="relative">
       <BsCart3 size={20} />
