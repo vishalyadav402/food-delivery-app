@@ -231,8 +231,8 @@ export default function LocationModal() {
         {/* Suggestions */}
         {/* Suggestions */}
 {suggestions.length > 0 && (
-  <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
-    👆 Tap a location below to confirm
+  <p className="text-sm text-blue-500 mt-2 flex items-center gap-1">
+   👇 Tap a location below to confirm
   </p>
 )}
 {suggestions.length > 0 && (

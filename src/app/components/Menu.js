@@ -172,19 +172,19 @@ const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ a
             <div
               key={cat.id}
               onClick={() => router.push(`/${cat.slug}`)}
-              className="flex md:bg-purple-50 rounded-xl p-3 flex-col items-center cursor-pointer"
+              className="flex rounded-xl flex-col items-center cursor-pointer"
             >
-              <div className={`w-18 h-18 rounded-xl overflow-hidden ${
+              <div className={`w-26 md:bg-purple-50 h-26 rounded-xl overflow-hidden ${
                 selectedCategory === cat.id ? "ring-2 ring-purple-500" : ""
               }`}>
                 <Image
                   src={cat.image || "/images/icon-vegacart.png"}
                   alt={cat.name}
-                  width={80}
+                  width={100}
                   height={80}
                 />
               </div>
-              <p className="text-xs font-semibold text-center text-black mt-1">{cat.name}</p>
+              <p className="text-sm font-semibold text-center text-black mt-1">{cat.name}</p>
             </div>
           ))}
       </div>
