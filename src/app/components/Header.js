@@ -42,7 +42,7 @@ const { setShowLocationModal } = useLocation();
   const [search, setSearch] = useState("");
 
   return (
-    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-99 w-full items-center justify-between px-2 md:px-6">
+    <header className="flex flex-wrap bg-gradient-to-b from-purple-100 to-white fixed top-0 left-0 right-0 z-99 w-full items-center justify-between px-2 md:px-6 lg:px-[8rem]">
 
       {!isHome && (
         <button

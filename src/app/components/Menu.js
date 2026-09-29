@@ -138,7 +138,7 @@ const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ a
 
   if (loading) {
     return (
-      <div className="md:p-4 mx-auto max-w-6xl">
+      <div className="md:p-4 mx-auto lg:px-[8rem]">
         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 my-3">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-8 w-20 bg-gray-200 animate-pulse rounded-full" />
@@ -159,7 +159,7 @@ const HIDDEN_CATEGORY_SLUGS = ["wholesale-pack", "tobacco-pan-masala"]; // ✅ a
   }
 
   return (
-    <div className="mx-auto md:p-3 pb-3 max-w-6xl">
+    <div className="pb-3 lg:px-[8rem]">
     <div className="flex justify-between items-center">
         <h2 className="font-bold text-lg text-gray-800">Shop by Category</h2>
       </div>
