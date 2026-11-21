@@ -202,16 +202,16 @@ export default function AdminPage() {
 
   const [editId, setEditId] = useState(null);
 
-  const fetchAllData = async () => {
-    setFetching(true);
-    const { data: prod } = await supabase.from("products").select("*");
-    const { data: cat } = await supabase.from("categories").select("*");
-    const { data: sub } = await supabase.from("subcategories").select("*");
-    setProducts(prod || []);
-    setCategories(cat || []);
-    setSubcategories(sub || []);
-    setFetching(false);
-  };
+ const fetchAllData = async (silent = false) => {
+  if (!silent) setFetching(true);
+  const { data: prod } = await supabase.from("products").select("*");
+  const { data: cat } = await supabase.from("categories").select("*");
+  const { data: sub } = await supabase.from("subcategories").select("*");
+  setProducts(prod || []);
+  setCategories(cat || []);
+  setSubcategories(sub || []);
+  if (!silent) setFetching(false);
+};
 
   const generateSlug = (text) =>
     text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -294,30 +294,43 @@ export default function AdminPage() {
     };
 
     try {
-      let error;
-      if (editId) {
-        ({ error } = await supabase.from("products").update(productData).eq("id", editId));
-        if (!error) setMessage("✅ Product updated successfully");
-      } else {
-        ({ error } = await supabase.from("products").insert([productData]));
-        if (!error) setMessage("✅ Product added successfully");
-      }
+  let error, saved;
 
-      if (error) {
-        console.error("Supabase error:", JSON.stringify(error));
-        setMessage("❌ " + (error.message || "Something went wrong"));
-        return;
-      }
-
-      fetchAllData();
-      resetForm();
-      setTimeout(() => setMessage(""), 2000);
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Server error");
-    } finally {
-      setLoading(false);
+  if (editId) {
+    ({ data: saved, error } = await supabase
+      .from("products")
+      .update(productData)
+      .eq("id", editId)
+      .select()
+      .single());
+    if (!error) {
+      setProducts((prev) => prev.map((p) => (p.id === editId ? saved : p)));
     }
+  } else {
+    ({ data: saved, error } = await supabase
+      .from("products")
+      .insert([productData])
+      .select()
+      .single());
+    if (!error) {
+      setProducts((prev) => [saved, ...prev]);
+    }
+  }
+
+  if (error) {
+    console.error("Supabase error:", JSON.stringify(error));
+    setMessage("❌ " + (error.message || "Something went wrong"));
+    return;
+  }
+
+  resetForm();
+  setShowModal(false); // ✅ close popup after a successful save
+} catch (err) {
+  console.error(err);
+  setMessage("❌ Server error");
+} finally {
+  setLoading(false);
+}
   };
 
   const resetForm = () => {
@@ -351,12 +364,11 @@ export default function AdminPage() {
     setEditId(product.id);
     setShowModal(true);
   };
-
   const handleDelete = async (id) => {
-    await supabase.from("products").delete().eq("id", id);
-    setDeleteConfirmId(null);
-    fetchAllData();
-  };
+  setProducts((prev) => prev.filter((p) => p.id !== id)); // ✅ instant
+  setDeleteConfirmId(null);
+  await supabase.from("products").delete().eq("id", id);
+};
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -430,7 +442,9 @@ export default function AdminPage() {
     .filter((p) => {
       if (filter === "online") return p.is_active;
       if (filter === "offline") return !p.is_active;
-      if (filter === "lowstock") return p.stock != null && p.stock <= 5;
+      if (filter === "lowstock") {
+  return (p.variants || []).some((v) => v.stock != null && v.stock <= 5);
+}
       return true;
     }),
   [products, search, filter]

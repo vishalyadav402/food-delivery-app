@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Master from "@/app/components/Master";
 import { supabase } from "@/app/utils/supabase";
 import { useCart } from "@/app/context/CartContext";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
+import ProductCard from "@/app/components/Productcard";
+import { useProducts } from "@/app/context/ProductsContext";
 
 const Page = () => {
   const { productdetail, category, subcategory } = useParams();
@@ -18,11 +24,18 @@ const Page = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [notFound, setNotFound] = useState(false);
 
+  // ✅ swiper arrow state — inside the component
+  const similarSwiperRef = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       setNotFound(false);
-
+setAtStart(true);   // ✅ reset arrows
+setAtEnd(false);
+window.scrollTo({ top: 0, behavior: "smooth" });
       const { data, error } = await supabase
         .from("products")
         .select("*, categories(slug), subcategories(slug)")
@@ -65,6 +78,22 @@ const Page = () => {
   const cartItem = cart.find(
     (c) => c.slug === product?.slug && c.variant === selectedVariant?.label
   );
+
+  const { products: allProducts } = useProducts();
+
+const similarProducts = useMemo(() => {
+  if (!product) return [];
+  return allProducts
+    .filter((p) => p.category_id === product.category_id && p.id !== product.id)
+    .sort((a, b) => {
+      // same subcategory first
+      const aSame = a.subcategory_id === product.subcategory_id ? 1 : 0;
+      const bSame = b.subcategory_id === product.subcategory_id ? 1 : 0;
+      return bSame - aSame;
+    })
+    .slice(0, 12);
+}, [allProducts, product]);
+
 
   if (loading) {
     return (
@@ -253,6 +282,71 @@ const Page = () => {
             </div>
           </div>
         </div>
+
+
+
+    {similarProducts.length > 0 && (
+  <div className="md:col-span-2 mt-2 mb-6">
+    <h2 className="font-bold text-lg text-gray-800 mb-2">Similar products</h2>
+
+    <div className="relative">
+      {/* Left arrow */}
+      <button
+        onClick={() => similarSwiperRef.current?.slidePrev()}
+        disabled={atStart}
+        className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center transition ${
+          atStart ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+      >
+        <ChevronLeft size={18} className="text-gray-700" />
+      </button>
+
+      <Swiper
+        modules={[FreeMode]}
+        freeMode={true}
+        slidesPerView="auto"
+        spaceBetween={12}
+        onSwiper={(swiper) => {
+          similarSwiperRef.current = swiper;
+          setAtStart(swiper.isBeginning);
+          setAtEnd(swiper.isEnd);
+        }}
+        onSlideChange={(swiper) => {
+          setAtStart(swiper.isBeginning);
+          setAtEnd(swiper.isEnd);
+        }}
+        onReachEnd={() => setAtEnd(true)}
+        onFromEdge={(swiper) => {
+          setAtStart(swiper.isBeginning);
+          setAtEnd(swiper.isEnd);
+        }}
+      >
+        {similarProducts.map((item) => (
+          <SwiperSlide key={item.id} style={{ maxWidth: "150px" }}>
+            <div className="py-2">
+              <ProductCard
+                item={item}
+                addToCart={addToCart}
+                updateQty={updateQty}
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Right arrow */}
+      <button
+        onClick={() => similarSwiperRef.current?.slideNext()}
+        disabled={atEnd}
+        className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center transition ${
+          atEnd ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
+      >
+        <ChevronRight size={18} className="text-gray-700" />
+      </button>
+    </div>
+  </div>
+)}
 
       </div>
     </Master>
